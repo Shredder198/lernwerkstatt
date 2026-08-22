@@ -1,0 +1,1673 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#F1F4EC" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#182420" media="(prefers-color-scheme: dark)">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Lernwerkstatt">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<title>Lernwerkstatt · Deutsch, Französisch &amp; Mathe</title>
+</head>
+<body>
+<style>
+  :root{
+    --paper:#F1F4EC; --raised:#FFFFFF; --ink:#243029; --soft:#4C5C51;
+    --accent:#2F7A5E; --accent-ink:#F4FBF7;
+    --gold:#C9832E; --clay:#B5652F; --line:#D8DFD2;
+    --shadow:0 10px 24px -12px rgba(36,48,41,.28);
+    --scale:1; color-scheme:light;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{ --paper:#182420; --raised:#1F2E28; --ink:#E7EFE9; --soft:#AFC2B6;
+      --accent:#4FAE86; --accent-ink:#0E1A15; --gold:#E3A857; --clay:#D98A55;
+      --line:#2C3A33; --shadow:0 10px 28px -12px rgba(0,0,0,.55); color-scheme:dark; }
+  }
+  :root[data-theme="dark"]{ --paper:#182420; --raised:#1F2E28; --ink:#E7EFE9; --soft:#AFC2B6;
+    --accent:#4FAE86; --accent-ink:#0E1A15; --gold:#E3A857; --clay:#D98A55;
+    --line:#2C3A33; --shadow:0 10px 28px -12px rgba(0,0,0,.55); color-scheme:dark; }
+  :root[data-theme="light"]{ --paper:#F1F4EC; --raised:#FFFFFF; --ink:#243029; --soft:#4C5C51;
+    --accent:#2F7A5E; --accent-ink:#F4FBF7; --gold:#C9832E; --clay:#B5652F;
+    --line:#D8DFD2; --shadow:0 10px 24px -12px rgba(36,48,41,.28); color-scheme:light; }
+
+  *{ box-sizing:border-box; }
+  html{ font-size:calc(17px * var(--scale)); }
+  body{ margin:0; background:var(--paper); color:var(--ink); min-height:100vh;
+    font-family:Verdana,"Segoe UI",system-ui,sans-serif; line-height:1.7; letter-spacing:.01em;
+    -webkit-font-smoothing:antialiased; }
+  .util{ font-family:"Segoe UI",system-ui,sans-serif; letter-spacing:.02em; }
+  .shell{ max-width:40rem; margin:0 auto; padding:1rem 1.1rem 3rem; display:flex; flex-direction:column; gap:1rem; }
+
+  .topbar{ display:flex; align-items:center; justify-content:space-between; gap:.6rem; flex-wrap:wrap; }
+  .brand{ display:flex; align-items:center; gap:.5rem; font-weight:700; }
+  .controls{ display:flex; gap:.4rem; }
+  .iconbtn{ border:1px solid var(--line); background:var(--raised); color:var(--ink); border-radius:.7rem;
+    width:2.4rem; height:2.4rem; display:flex; align-items:center; justify-content:center; cursor:pointer; font-family:inherit; font-size:.9rem; }
+  .iconbtn:hover{ border-color:var(--accent); }
+  :focus-visible{ outline:3px solid var(--gold); outline-offset:2px; }
+
+  .card{ background:var(--raised); border:1px solid var(--line); border-radius:1.3rem;
+    box-shadow:var(--shadow); padding:1.3rem 1.2rem; display:flex; flex-direction:column; gap:1rem; }
+
+  h1{ font-size:1.55rem; margin:0; text-wrap:balance; }
+  h2{ font-size:1.25rem; margin:0; text-wrap:balance; }
+  h3{ font-size:1rem; margin:0; }
+  .lead{ color:var(--soft); margin:0; }
+  .hint{ font-size:.9rem; color:var(--soft); margin:0; }
+
+  .path{ display:flex; align-items:center; gap:.15rem; overflow-x:auto; padding:.2rem 0; }
+  .node{ flex:none; width:2rem; height:2rem; border-radius:50%; background:var(--raised);
+    border:2px solid var(--line); display:flex; align-items:center; justify-content:center; font-size:.85rem; }
+  .node.done{ background:var(--accent); border-color:var(--accent); }
+  .node.cur{ border-color:var(--gold); box-shadow:0 0 0 3px color-mix(in srgb,var(--gold) 30%,transparent); font-weight:700; }
+  .track{ flex:1; height:2px; background:var(--line); min-width:.4rem; }
+  .track.done{ background:var(--accent); }
+
+  .tag{ display:flex; align-items:center; gap:.5rem; text-transform:uppercase; letter-spacing:.09em;
+    font-size:.7rem; font-weight:700; font-family:"Segoe UI",system-ui,sans-serif; }
+  .prompt{ font-size:1.35rem; font-weight:700; line-height:1.5; text-wrap:balance; }
+  .passage{ font-size:1.2rem; line-height:1.85; background:var(--paper); border:1px solid var(--line);
+    border-radius:1rem; padding:.9rem 1rem; }
+
+  .opts{ display:flex; flex-direction:column; gap:.55rem; }
+  .opt{ font-family:inherit; font-size:1.08rem; text-align:left; padding:.8rem 1rem; border-radius:.9rem;
+    border:2px solid var(--line); background:var(--paper); color:var(--ink); cursor:pointer;
+    display:flex; justify-content:space-between; align-items:center; gap:.5rem; }
+  .opt:hover:not(:disabled){ border-color:var(--accent); }
+  .opt.ok{ background:color-mix(in srgb,var(--accent) 16%,var(--paper)); border-color:var(--accent); }
+  .opt.no{ background:color-mix(in srgb,var(--clay) 16%,var(--paper)); border-color:var(--clay); }
+
+  .row{ display:flex; gap:.55rem; flex-wrap:wrap; align-items:center; }
+  .sp{ flex:1; }
+  .btn{ font-family:inherit; font-size:1rem; font-weight:700; padding:.7rem 1.15rem; border-radius:.85rem; border:none; cursor:pointer; }
+  .p{ background:var(--accent); color:var(--accent-ink); }
+  .g{ background:transparent; color:var(--soft); border:2px solid var(--line); }
+  .btn:disabled{ opacity:.45; cursor:default; }
+
+  .fb{ display:flex; align-items:center; gap:.5rem; font-weight:700; border-radius:.8rem; padding:.55rem .9rem; }
+  .fb.ok{ background:color-mix(in srgb,var(--accent) 16%,transparent); color:var(--accent); }
+  .fb.no{ background:color-mix(in srgb,var(--clay) 16%,transparent); color:var(--clay); }
+
+  .mic{ display:flex; flex-direction:column; align-items:center; gap:.5rem; }
+  .micbtn{ width:4.6rem; height:4.6rem; border-radius:50%; border:none; background:var(--accent);
+    color:var(--accent-ink); cursor:pointer; display:flex; align-items:center; justify-content:center;
+    box-shadow:0 8px 20px -6px color-mix(in srgb,var(--accent) 60%,transparent); }
+  .micbtn svg{ width:2rem; height:2rem; }
+  .micbtn.on{ animation:pulse 1.2s ease-in-out infinite; }
+  @keyframes pulse{ 0%,100%{ box-shadow:0 0 0 0 color-mix(in srgb,var(--accent) 45%,transparent);} 50%{ box-shadow:0 0 0 14px transparent;} }
+  @media (prefers-reduced-motion: reduce){ .micbtn.on{ animation:none; opacity:.85; } }
+  .link{ background:none; border:none; color:var(--soft); text-decoration:underline; font-family:inherit; cursor:pointer; font-size:.92rem; }
+  .inrow{ display:flex; gap:.5rem; width:100%; }
+  .inrow input{ flex:1; font-family:inherit; font-size:1.15rem; padding:.6rem .8rem; border-radius:.7rem;
+    border:2px solid var(--line); background:var(--paper); color:var(--ink); min-width:0; }
+
+  .chips{ display:flex; flex-wrap:wrap; gap:.5rem; }
+  .chip{ font-family:inherit; font-size:1.05rem; padding:.55rem .85rem; border-radius:.8rem;
+    border:2px solid var(--line); background:var(--paper); color:var(--ink); cursor:pointer; }
+  .chip:disabled{ background:var(--accent); border-color:var(--accent); color:var(--accent-ink); cursor:default; }
+  .slot{ min-height:2.6rem; background:var(--paper); border:1px dashed var(--line); border-radius:.8rem;
+    padding:.4rem .6rem; display:flex; flex-wrap:wrap; gap:.4rem; align-items:center; font-weight:700; }
+
+  .cols{ display:grid; grid-template-columns:1fr 1fr; gap:.6rem; }
+  .colhead{ font-size:.8rem; color:var(--soft); text-transform:uppercase; letter-spacing:.06em; text-align:center; }
+  .mitem{ font-family:inherit; font-size:1rem; padding:.6rem .7rem; border-radius:.7rem; border:2px solid var(--line);
+    background:var(--paper); color:var(--ink); cursor:pointer; text-align:left; }
+  .mitem.sel{ border-color:var(--gold); box-shadow:0 0 0 3px color-mix(in srgb,var(--gold) 25%,transparent); }
+  .mitem:disabled{ opacity:.4; cursor:default; }
+
+  .sortbtns{ display:grid; grid-template-columns:1fr 1fr; gap:.6rem; }
+  .sortb{ font-family:inherit; font-weight:700; font-size:1.05rem; padding:1rem .8rem; border-radius:1rem;
+    border:2px solid var(--line); background:var(--paper); color:var(--ink); cursor:pointer; }
+  .sortb:hover{ border-color:var(--accent); }
+  .trace{ display:flex; flex-wrap:wrap; gap:.35rem; font-size:.85rem; }
+  .tr{ padding:.15rem .5rem; border-radius:1rem; background:var(--paper); border:1px solid var(--line); }
+  .tr.ok{ border-color:var(--accent); color:var(--accent); }
+  .tr.no{ border-color:var(--clay); color:var(--clay); }
+
+  /* Sammlung */
+  .grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(8.2rem,1fr)); gap:.7rem; }
+  .badge{ border-radius:1rem; padding:.8rem .6rem; text-align:center; border:2px solid var(--line);
+    background:var(--paper); display:flex; flex-direction:column; gap:.25rem; align-items:center; }
+  .badge.have{ border-color:var(--gold); background:linear-gradient(160deg,color-mix(in srgb,var(--gold) 18%,var(--raised)),var(--raised)); }
+  .badge .em{ font-size:2rem; filter:grayscale(1); opacity:.35; }
+  .badge.have .em{ filter:none; opacity:1; }
+  .badge .nm{ font-size:.78rem; font-weight:700; line-height:1.25; }
+  .badge .st{ font-size:.75rem; color:var(--soft); }
+
+  .statrow{ display:grid; grid-template-columns:repeat(3,1fr); gap:.6rem; }
+  .stat{ background:var(--paper); border:1px solid var(--line); border-radius:1rem; padding:.7rem .5rem; text-align:center; }
+  .stat b{ display:block; font-size:1.5rem; line-height:1.2; }
+  .stat span{ font-size:.75rem; color:var(--soft); }
+
+  .bar{ height:.7rem; background:var(--paper); border:1px solid var(--line); border-radius:1rem; overflow:hidden; }
+  .bar i{ display:block; height:100%; background:var(--accent); }
+
+  table{ width:100%; border-collapse:collapse; font-size:.88rem; }
+  th,td{ text-align:left; padding:.45rem .4rem; border-bottom:1px solid var(--line); vertical-align:top; }
+  th{ font-size:.75rem; text-transform:uppercase; letter-spacing:.05em; color:var(--soft); }
+  .tw{ overflow-x:auto; }
+  td.num{ font-variant-numeric:tabular-nums; white-space:nowrap; }
+
+  textarea{ width:100%; min-height:7rem; font-family:ui-monospace,Menlo,Consolas,monospace; font-size:.8rem;
+    border:1px solid var(--line); border-radius:.7rem; padding:.6rem; background:var(--paper); color:var(--ink); }
+
+  .kudos{ text-align:center; padding:.6rem; border-radius:1rem;
+    background:linear-gradient(160deg,color-mix(in srgb,var(--gold) 20%,transparent),transparent);
+    font-weight:700; }
+  .stars{ font-size:1.6rem; text-align:center; }
+  .subj{ display:inline-flex; align-items:center; gap:.3rem; font-size:.78rem; padding:.15rem .5rem;
+    border-radius:1rem; background:var(--paper); border:1px solid var(--line); }
+
+  @media print{
+    body{ background:#fff; color:#000; }
+    .noprint{ display:none !important; }
+    .card{ box-shadow:none; border:1px solid #ccc; }
+    .shell{ max-width:none; padding:0; }
+  }
+  @media (max-width:30rem){
+    h1{ font-size:1.3rem; } .prompt{ font-size:1.15rem; }
+    .cols{ grid-template-columns:1fr; }
+    .statrow{ grid-template-columns:repeat(3,1fr); }
+  }
+</style>
+
+<div class="shell">
+  <div class="topbar noprint">
+    <div class="brand">🎒 <span>Lernwerkstatt</span></div>
+    <div class="controls">
+      <button class="iconbtn util" id="bMinus" title="Schrift kleiner">A−</button>
+      <button class="iconbtn util" id="bPlus" title="Schrift größer">A+</button>
+      <button class="iconbtn" id="bSound" title="Vorlesen an/aus">🔊</button>
+      <button class="iconbtn" id="bTheme" title="Hell/Dunkel">◐</button>
+    </div>
+  </div>
+  <div class="path noprint" id="path"></div>
+  <main id="app"></main>
+  <footer class="hint noprint" style="text-align:center">Diktieren braucht Chrome, Edge oder Safari <b>und</b> die Mikrofon-Erlaubnis. Im eingebetteten Fenster ist das Mikrofon gesperrt – dort hilft nur „In neuem Tab öffnen" bzw. die eigenständige Fassung. Tippen geht überall.</footer>
+</div>
+
+<script>
+/* Inhalte der Lernwerkstatt.
+   Deutsch (anspruchsvoller), Französisch, Mathematik (Cycle 3.2 Luxemburg:
+   Einmaleins 0x0-9x9, Division als Umkehrung, Stellenwert/Zehner-Hunderter
+   aus einer Zahl herauslesen, Zahlenraum bis 1000, Größen, Sachaufgaben). */
+var WORLDS = [
+  /* ================= DEUTSCH ================= */
+  {
+    id:'doppel', subject:'de', icon:'🔤', color:'#2F7A5E',
+    title:'Doppel-Buchstaben', sub:'Wann verdoppelt sich der Buchstabe?',
+    a:{ type:'choice', items:[
+      {q:'Der Sturm hat das ganze Dach ___.', options:['abgedekt','abgedeckt','abgedeggt'], correct:'abgedeckt'},
+      {q:'Sie hat sich beim Sport am Knie ___.', options:['verletzt','verlezt','verlettzt'], correct:'verletzt'},
+      {q:'Das Paket kam mit der ___.', options:['Post','Posst','Poste'], correct:'Post'},
+      {q:'Er ___ den schweren Sack in den Keller.', options:['schleppte','schlepte','schleppte n'], correct:'schleppte'}
+    ]},
+    b:{ type:'sort', prompt:'Wird der Buchstabe in der Lücke verdoppelt?',
+      bucketA:'verdoppelt', bucketB:'einfach',
+      items:[
+        {text:'Ha __ er', a:true, show:'Hammer'},
+        {text:'Bru __ er', a:false, show:'Bruder'},
+        {text:'So __ e', a:true, show:'Sonne'},
+        {text:'Blu __ e', a:false, show:'Blume'},
+        {text:'Ro __ er', a:true, show:'Roller'},
+        {text:'Fe __ er', a:false, show:'Feder'}
+      ]}
+  },
+  {
+    id:'scharfs', subject:'de', icon:'💧', color:'#2F7A5E',
+    title:'s, ss oder ß', sub:'Kurz oder lang gesprochen?',
+    a:{ type:'choice', items:[
+      {q:'Nach dem Rennen war er außer ___.', options:['Atem','Athem','Attem'], correct:'Atem'},
+      {q:'Die Straße war wegen Bauarbeiten ___.', options:['gesperrt','gespert','gesperret'], correct:'gesperrt'},
+      {q:'Er hat den Ball ins Tor ___.', options:['geschossen','geschoßen','geschosen'], correct:'geschossen'},
+      {q:'Wir sitzen drau___ im Garten.', options:['ßen','ssen','sen'], correct:'ßen'}
+    ]},
+    b:{ type:'sort', prompt:'Gehört in die Lücke ß oder ss?',
+      bucketA:'ß', bucketB:'ss',
+      items:[
+        {text:'Fu__', a:true, show:'Fuß'},
+        {text:'Wa__er', a:false, show:'Wasser'},
+        {text:'Gru__', a:true, show:'Gruß'},
+        {text:'Ki__en', a:false, show:'Kissen'},
+        {text:'Stra__e', a:true, show:'Straße'},
+        {text:'Schlo__', a:false, show:'Schloss'}
+      ]}
+  },
+  {
+    id:'wortarten', subject:'de', icon:'🧩', color:'#2F7A5E',
+    title:'Wortarten', sub:'Nomen, Verb oder Adjektiv?',
+    a:{ type:'choice', items:[
+      {q:'Welches Wort ist ein Verb (Tunwort)?', options:['schnell','rennen','der Läufer'], correct:'rennen'},
+      {q:'Welches Wort ist ein Adjektiv (Wiewort)?', options:['gemütlich','die Couch','sitzen'], correct:'gemütlich'},
+      {q:'Welches Wort ist ein Nomen (Namenwort)?', options:['freundlich','lachen','die Freude'], correct:'die Freude'},
+      {q:'„Der müde Wanderer ruht sich aus." Was ist „müde"?', options:['Nomen','Verb','Adjektiv'], correct:'Adjektiv'}
+    ]},
+    b:{ type:'sort', prompt:'Nomen oder Verb?', bucketA:'Nomen', bucketB:'Verb',
+      items:[
+        {text:'die Freiheit', a:true},
+        {text:'schwimmen', a:false},
+        {text:'der Gedanke', a:true},
+        {text:'überlegen', a:false},
+        {text:'die Reise', a:true},
+        {text:'verschwinden', a:false}
+      ]}
+  },
+  {
+    id:'zeiten', subject:'de', icon:'⏳', color:'#2F7A5E',
+    title:'Zeitformen', sub:'Präsens, Präteritum, Perfekt',
+    a:{ type:'choice', items:[
+      {q:'„Ich schwimme." – Wie heißt das im Perfekt?', options:['Ich bin geschwommen.','Ich habe geschwommen.','Ich bin geschwimmt.'], correct:'Ich bin geschwommen.'},
+      {q:'„Er denkt nach." – Im Präteritum?', options:['Er dachte nach.','Er denkte nach.','Er hat nachgedacht.'], correct:'Er dachte nach.'},
+      {q:'„Wir bleiben zu Hause." – Im Perfekt?', options:['Wir sind zu Hause geblieben.','Wir haben zu Hause geblieben.','Wir bleibten zu Hause.'], correct:'Wir sind zu Hause geblieben.'},
+      {q:'Welcher Satz steht im Präteritum?', options:['Sie ruft an.','Sie rief an.','Sie hat angerufen.'], correct:'Sie rief an.'}
+    ]},
+    b:{ type:'input', prompt:'Setze das Verb ins Perfekt. Sprich oder tippe den ganzen Satz.',
+      items:[
+        {q:'Ich (laufen) zur Schule.', accepts:['ich bin zur schule gelaufen','bin zur schule gelaufen','ich bin gelaufen']},
+        {q:'Du (essen) einen Apfel.', accepts:['du hast einen apfel gegessen','hast einen apfel gegessen','du hast gegessen']},
+        {q:'Wir (fahren) nach Trier.', accepts:['wir sind nach trier gefahren','sind nach trier gefahren','wir sind gefahren']}
+      ]}
+  },
+  {
+    id:'satzbau', subject:'de', icon:'🔗', color:'#2F7A5E',
+    title:'Satzbau', sub:'Wörter in die richtige Reihenfolge',
+    a:{ type:'order', prompt:'Tippe die Wörter in der richtigen Reihenfolge an.',
+      items:[
+        {solution:['Am','Morgen','putzt','Lena','ihre','Zähne.']},
+        {solution:['Der','Hund','bellte','laut','im','Garten.']},
+        {solution:['Nach','dem','Essen','räumen','wir','auf.']}
+      ]},
+    b:{ type:'choice', items:[
+      {q:'Welcher Satz ist richtig gebaut?', options:['Gestern ich war im Kino.','Gestern war ich im Kino.','Ich gestern war im Kino.'], correct:'Gestern war ich im Kino.'},
+      {q:'Wo fehlt das Komma? „Als es regnete blieben wir drinnen."', options:['nach „regnete"','nach „Als"','gar nicht'], correct:'nach „regnete"'},
+      {q:'Welcher Satz ist eine Frage?', options:['Er kommt später.','Kommt er später?','Komm später!'], correct:'Kommt er später?'}
+    ]}
+  },
+  {
+    id:'lesende', subject:'de', icon:'📖', color:'#2F7A5E',
+    title:'Lesen & Verstehen', sub:'Text lesen, Fragen beantworten',
+    a:{ type:'story',
+      story:'Jonas findet auf dem Dachboden eine alte Holzkiste. Darin liegen vergilbte Briefe und eine kleine Blechdose. In der Dose entdeckt er Münzen aus einem Land, das es heute gar nicht mehr gibt. Seine Großmutter erzählt ihm später, dass die Briefe von ihrem Vater stammen, der als junger Mann weit weg gearbeitet hat.',
+      items:[
+        {q:'Wo findet Jonas die Kiste?', options:['Auf dem Dachboden','Im Keller','Im Garten'], correct:'Auf dem Dachboden'},
+        {q:'Was ist in der Blechdose?', options:['Münzen','Briefe','Fotos'], correct:'Münzen'},
+        {q:'Von wem stammen die Briefe?', options:['Vom Vater der Großmutter','Von Jonas selbst','Von einem Nachbarn'], correct:'Vom Vater der Großmutter'},
+        {q:'Was ist das Besondere an den Münzen?', options:['Das Land gibt es nicht mehr','Sie sind aus Gold','Sie sind ganz neu'], correct:'Das Land gibt es nicht mehr'}
+      ]},
+    b:{ type:'story',
+      story:'Im Winter füttert Familie Berg die Vögel im Garten. Sie hängen Meisenknödel an den Apfelbaum. Anfangs kommen nur Spatzen, doch nach einer Woche entdecken auch Rotkehlchen und ein Specht das Futter. Der Vater erklärt, dass man im Frühling wieder aufhören soll zu füttern, damit die Vögel ihre Jungen mit Insekten versorgen.',
+      items:[
+        {q:'Woran hängen die Meisenknödel?', options:['Am Apfelbaum','Am Zaun','Am Fenster'], correct:'Am Apfelbaum'},
+        {q:'Welcher Vogel kommt zuerst?', options:['Spatzen','Rotkehlchen','Specht'], correct:'Spatzen'},
+        {q:'Warum soll man im Frühling aufhören?', options:['Die Jungen brauchen Insekten','Es wird zu teuer','Die Vögel ziehen weg'], correct:'Die Jungen brauchen Insekten'}
+      ]}
+  },
+
+  /* ================= FRANÇAIS ================= */
+  {
+    id:'conjug', subject:'fr', icon:'🗣️', color:'#2E6E8E',
+    title:'Conjuguer', sub:'être, avoir, aller, verbes en -er',
+    a:{ type:'choice', items:[
+      {q:'Il ___ dix ans. (avoir)', options:['a','as','ont'], correct:'a'},
+      {q:'Je ___ dans ma chambre. (être)', options:['suis','es','est'], correct:'suis'},
+      {q:'Nous ___ à la piscine. (aller)', options:['allons','allez','vont'], correct:'allons'},
+      {q:'Vous ___ contents. (être)', options:['êtes','est','sommes'], correct:'êtes'}
+    ]},
+    b:{ type:'choice', items:[
+      {q:'Tu (aimer) ___ le chocolat.', options:['aime','aimes','aiment'], correct:'aimes'},
+      {q:'Vous (chanter) ___ une chanson.', options:['chantez','chante','chantes'], correct:'chantez'},
+      {q:'Elles (jouer) ___ dans le jardin.', options:['joue','jouent','jouez'], correct:'jouent'},
+      {q:'Nous (regarder) ___ un film.', options:['regardons','regardez','regardent'], correct:'regardons'}
+    ]}
+  },
+  {
+    id:'accords', subject:'fr', icon:'👥', color:'#2E6E8E',
+    title:'Accords & Pluriel', sub:'masculin, féminin, singulier, pluriel',
+    a:{ type:'choice', items:[
+      {q:'un chat noir → une souris ___', options:['noir','noire','noirs'], correct:'noire'},
+      {q:'un pull vert → une jupe ___', options:['vert','verte','verts'], correct:'verte'},
+      {q:"l'oiseau → les ___", options:['oiseaus','oiseaux','oiseau'], correct:'oiseaux'},
+      {q:'le cheval → les ___', options:['chevals','chevaux','chevaus'], correct:'chevaux'}
+    ]},
+    b:{ type:'match', prompt:'Verbinde: Welche Form gehört zusammen?',
+      pairs:[
+        {l:'un grand garçon', r:'une grande fille'},
+        {l:'un vieux livre', r:'une vieille maison'},
+        {l:'un beau jardin', r:'une belle fleur'},
+        {l:'un bon élève', r:'une bonne élève'}
+      ]}
+  },
+  {
+    id:'homophones', subject:'fr', icon:'🔑', color:'#2E6E8E',
+    title:'Mots malins', sub:'a/à, et/est, on/ont, son/sont',
+    a:{ type:'choice', items:[
+      {q:'Il ___ un chien. (avoir)', options:['a','à'], correct:'a'},
+      {q:"Elle va ___ l'école.", options:['a','à'], correct:'à'},
+      {q:'Le chat ___ noir.', options:['et','est'], correct:'est'},
+      {q:'Paul ___ Marie jouent.', options:['et','est'], correct:'et'}
+    ]},
+    b:{ type:'sort', prompt:'Welches Wort passt in die Lücke?', bucketA:'sont', bucketB:'son',
+      items:[
+        {text:'Ils ___ contents.', a:true},
+        {text:"C'est ___ ballon.", a:false},
+        {text:'Les fleurs ___ belles.', a:true},
+        {text:'Il aime ___ chien.', a:false},
+        {text:'Elles ___ à la maison.', a:true}
+      ]}
+  },
+  {
+    id:'lecturefr', subject:'fr', icon:'📚', color:'#2E6E8E',
+    title:'Lecture', sub:'Lis le texte et réponds',
+    a:{ type:'story',
+      story:"Léa a un chat noir. Le chat s'appelle Minou. Il aime jouer dans le jardin avec une balle rouge. Le soir, Minou dort sur le lit de Léa. Le matin, il réveille Léa pour avoir son petit déjeuner.",
+      items:[
+        {q:"Comment s'appelle le chat ?", options:['Minou','Léa','Milou'], correct:'Minou'},
+        {q:'De quelle couleur est la balle ?', options:['rouge','noire','bleue'], correct:'rouge'},
+        {q:'Où dort Minou le soir ?', options:['sur le lit','dans le jardin','sous la table'], correct:'sur le lit'},
+        {q:'Pourquoi Minou réveille Léa ?', options:['pour manger','pour jouer','pour sortir'], correct:'pour manger'}
+      ]},
+    b:{ type:'story',
+      story:"Aujourd'hui, la classe de Monsieur Weber visite la ferme. Les élèves voient des vaches, des poules et deux chevaux. Tom donne du foin aux vaches. À midi, tout le monde mange un sandwich sous un grand arbre. Il fait beau et chaud.",
+      items:[
+        {q:'Qui accompagne la classe ?', options:['Monsieur Weber','Tom','Le fermier'], correct:'Monsieur Weber'},
+        {q:'Combien de chevaux voient-ils ?', options:['deux','trois','un'], correct:'deux'},
+        {q:'Que donne Tom aux vaches ?', options:['du foin','du pain','de l\'eau'], correct:'du foin'},
+        {q:'Où mangent-ils à midi ?', options:['sous un arbre','à la maison','dans le bus'], correct:'sous un arbre'}
+      ]}
+  },
+
+  /* ================= MATHEMATIK (Cycle 3.2) ================= */
+  {
+    id:'einmaleins', subject:'ma', icon:'✖️', color:'#B5652F',
+    title:'Das kleine Einmaleins', sub:'Malreihen von 0x0 bis 9x9',
+    a:{ type:'input', prompt:'Rechne aus. Du darfst die Zahl auch laut sagen.', numeric:true,
+      items:[
+        {q:'7 × 8 = ?', answer:56},
+        {q:'6 × 9 = ?', answer:54},
+        {q:'4 × 7 = ?', answer:28},
+        {q:'8 × 8 = ?', answer:64},
+        {q:'9 × 7 = ?', answer:63}
+      ]},
+    b:{ type:'match', prompt:'Welche Rechnung gehört zu welchem Ergebnis?',
+      pairs:[
+        {l:'6 × 7', r:'42'},
+        {l:'8 × 9', r:'72'},
+        {l:'5 × 8', r:'40'},
+        {l:'9 × 9', r:'81'}
+      ]}
+  },
+  {
+    id:'division', subject:'ma', icon:'➗', color:'#B5652F',
+    title:'Teilen', sub:'Division als Umkehrung des Malnehmens',
+    a:{ type:'input', prompt:'Rechne aus.', numeric:true,
+      items:[
+        {q:'56 : 8 = ?', answer:7},
+        {q:'42 : 6 = ?', answer:7},
+        {q:'72 : 9 = ?', answer:8},
+        {q:'45 : 5 = ?', answer:9}
+      ]},
+    b:{ type:'choice', items:[
+      {q:'20 : 3 = 6 Rest ?', options:['1','2','3'], correct:'2'},
+      {q:'Welche Rechnung passt zu 8 × 6 = 48?', options:['48 : 6 = 8','48 : 8 = 7','48 + 6 = 54'], correct:'48 : 6 = 8'},
+      {q:'25 Kekse auf 4 Kinder. Wie viele bleiben übrig?', options:['1 Keks','2 Kekse','3 Kekse'], correct:'1 Keks'},
+      {q:'63 : 7 = ?', options:['8','9','7'], correct:'9'}
+    ]}
+  },
+  {
+    id:'stellenwert', subject:'ma', icon:'🔢', color:'#B5652F',
+    title:'Zehner & Hunderter', sub:'Stellenwerte aus einer Zahl herauslesen',
+    a:{ type:'choice', items:[
+      {q:'Wie viele Zehner hat die Zahl 476?', options:['4','7','6'], correct:'7'},
+      {q:'Wie viele Hunderter hat die Zahl 3 528?', options:['3','5','2'], correct:'5'},
+      {q:'Welche Ziffer steht bei 8 149 an der Tausender-Stelle?', options:['8','1','4'], correct:'8'},
+      {q:'Wie viele Einer hat die Zahl 902?', options:['9','0','2'], correct:'2'}
+    ]},
+    b:{ type:'input', prompt:'Wie viele ZEHNER stecken insgesamt in der Zahl?', numeric:true,
+      items:[
+        {q:'In 340 stecken insgesamt ___ Zehner.', answer:34},
+        {q:'In 700 stecken insgesamt ___ Zehner.', answer:70},
+        {q:'In 250 stecken insgesamt ___ Zehner.', answer:25},
+        {q:'In 1 000 stecken insgesamt ___ Zehner.', answer:100}
+      ]}
+  },
+  {
+    id:'zahlenraum', subject:'ma', icon:'📏', color:'#B5652F',
+    title:'Zahlen ordnen', sub:'Vergleichen, ordnen, runden bis 1000',
+    a:{ type:'order', prompt:'Tippe die Zahlen von der KLEINSTEN zur GRÖSSTEN an.',
+      items:[
+        {solution:['107','170','470','704','740']},
+        {solution:['89','98','189','198','891']},
+        {solution:['305','350','503','530','535']}
+      ]},
+    b:{ type:'choice', items:[
+      {q:'Runde 347 auf volle Zehner.', options:['340','350','300'], correct:'350'},
+      {q:'Runde 682 auf volle Hunderter.', options:['600','680','700'], correct:'700'},
+      {q:'Welche Zahl liegt zwischen 450 und 460?', options:['449','455','461'], correct:'455'},
+      {q:'Welches Zeichen passt? 638 ___ 683', options:['<','>','='], correct:'<'}
+    ]}
+  },
+  {
+    id:'groessen', subject:'ma', icon:'⚖️', color:'#B5652F',
+    title:'Größen & Einheiten', sub:'m, cm, kg, g, Liter, Euro, Uhrzeit',
+    a:{ type:'choice', items:[
+      {q:'Wie viele Zentimeter sind 3 Meter?', options:['30 cm','300 cm','3000 cm'], correct:'300 cm'},
+      {q:'Wie viel Gramm sind 2 kg?', options:['200 g','2000 g','20 g'], correct:'2000 g'},
+      {q:'Wie viele Cent sind 4,50 €?', options:['450 Cent','45 Cent','4500 Cent'], correct:'450 Cent'},
+      {q:'Wie viele Minuten hat eine Dreiviertelstunde?', options:['30','45','60'], correct:'45'}
+    ]},
+    b:{ type:'input', prompt:'Rechne die Einheit um. Nur die Zahl eingeben oder sagen.', numeric:true,
+      items:[
+        {q:'250 cm sind wie viele Meter? (als Kommazahl ohne Einheit, z.B. 2.5)', answer:2.5},
+        {q:'1 500 g sind wie viele Kilogramm?', answer:1.5},
+        {q:'Wie viele Minuten sind 2 Stunden?', answer:120},
+        {q:'Wie viele Milliliter sind 3 Liter?', answer:3000}
+      ]}
+  },
+  {
+    id:'sachaufgaben', subject:'ma', icon:'🧠', color:'#B5652F',
+    title:'Sachaufgaben', sub:'Lesen, überlegen, rechnen',
+    a:{ type:'input', prompt:'Lies genau und rechne. Nur die Zahl als Antwort.', numeric:true,
+      items:[
+        {q:'In einem Bus sitzen 24 Kinder. An der Haltestelle steigen 8 aus und 5 ein. Wie viele Kinder sind jetzt im Bus?', answer:21},
+        {q:'Ein Heft kostet 3 €. Wie viel kosten 7 Hefte?', answer:21},
+        {q:'Eine Klasse sammelt 145 Flaschen, eine andere 168. Wie viele sind es zusammen?', answer:313},
+        {q:'6 Freunde teilen 54 Bonbons gerecht. Wie viele bekommt jeder?', answer:9}
+      ]},
+    b:{ type:'choice', items:[
+      {q:'Ein Film dauert 90 Minuten und beginnt um 15:30 Uhr. Wann ist er zu Ende?', options:['16:30 Uhr','17:00 Uhr','17:30 Uhr'], correct:'17:00 Uhr'},
+      {q:'Papa kauft 3 Pizzen zu je 8 €. Er zahlt mit 30 €. Wie viel bekommt er zurück?', options:['6 €','8 €','4 €'], correct:'6 €'},
+      {q:'Ein Regal hat 4 Böden mit je 25 Büchern. Wie viele Bücher sind es?', options:['29','100','90'], correct:'100'},
+      {q:'Lisa hat 5 € gespart. Sie bekommt jede Woche 2 € dazu. Nach wie vielen Wochen hat sie 15 €?', options:['3 Wochen','5 Wochen','10 Wochen'], correct:'5 Wochen'}
+    ]}
+  }
+];
+
+var BADGES = {
+  doppel:{emoji:'🔤', name:'Buchstaben-Baumeister'},
+  scharfs:{emoji:'💧', name:'Meister des scharfen S'},
+  wortarten:{emoji:'🧩', name:'Wortarten-Detektiv'},
+  zeiten:{emoji:'⏳', name:'Zeitreisender'},
+  satzbau:{emoji:'🔗', name:'Satz-Architekt'},
+  lesende:{emoji:'📖', name:'Leseratte'},
+  conjug:{emoji:'🗣️', name:'Roi de la conjugaison'},
+  accords:{emoji:'👥', name:'Champion des accords'},
+  homophones:{emoji:'🔑', name:'Chasseur de pièges'},
+  lecturefr:{emoji:'📚', name:'Lecteur étoilé'},
+  einmaleins:{emoji:'✖️', name:'Einmaleins-Profi'},
+  division:{emoji:'➗', name:'Teil-Talent'},
+  stellenwert:{emoji:'🔢', name:'Stellenwert-Kenner'},
+  zahlenraum:{emoji:'📏', name:'Zahlen-Ordner'},
+  groessen:{emoji:'⚖️', name:'Größen-Experte'},
+  sachaufgaben:{emoji:'🧠', name:'Knobel-König'}
+};
+
+var SUBJECTS = {
+  de:{name:'Deutsch', color:'#2F7A5E', icon:'🇩🇪'},
+  fr:{name:'Französisch', color:'#2E6E8E', icon:'🇫🇷'},
+  ma:{name:'Mathematik', color:'#B5652F', icon:'🔢'}
+};
+
+(function(){
+  "use strict";
+
+  /* ================= Speicher ================= */
+  var K_PROG='LW_prog_v1', K_LOG='LW_log_v1', K_META='LW_meta_v1';
+  function load(k,d){ try{ var r=localStorage.getItem(k); return r?JSON.parse(r):d; }catch(e){ return d; } }
+  function save(k,v){ try{ localStorage.setItem(k,JSON.stringify(v)); }catch(e){} }
+  var prog = load(K_PROG,{});
+  var log  = load(K_LOG,[]);
+  var meta = load(K_META,{xp:0,streak:0,lastDay:null,name:''});
+
+  /* ---- Geräteübergreifender Lernstand -------------------------------
+     Die veröffentlichte Seite darf sich eigene Datendateien schreiben.
+     Der Lernstand liegt damit neben der Seite statt nur im Browser, und
+     jedes Gerät liest beim Start dieselbe Datei. Ohne diese Fähigkeit
+     (eigene Datei, fremdes Hosting, Nur-Lese-Ansicht) bleibt alles wie
+     vorher lokal - die App funktioniert unverändert weiter. */
+  var DATA_PATH='data/lernstand.json';
+  var CLOUD={ ns:null, on:false, state:'lokal', busy:false };
+
+  function cloudInit(done){
+    if(!(window.claude && typeof window.claude.use==='function')){ done(); return; }
+    var fin=false, t=setTimeout(function(){ if(!fin){ fin=true; done(); } },6000);
+    function end(){ if(fin) return; fin=true; clearTimeout(t); done(); }
+    try{
+      window.claude.use('artifact').then(function(ns){
+        if(!ns||typeof ns.publish!=='function'){ end(); return; }
+        CLOUD.ns=ns; CLOUD.on=true; CLOUD.state='geladen';
+        fetch(DATA_PATH,{cache:'no-store'}).then(function(r){ return r.ok?r.json():null; })
+          .then(function(remote){ if(remote) mergeIn(remote); end(); })
+          ['catch'](function(){ end(); });
+      })['catch'](function(){ end(); });
+    }catch(e){ end(); }
+  }
+
+  /* Zusammenführen statt überschreiben: wer auf zwei Geräten übt,
+     verliert sonst den Stand des jeweils anderen. */
+  function mergeIn(rem){
+    if(!rem||typeof rem!=='object') return;
+    var rp=rem.prog||{};
+    Object.keys(rp).forEach(function(id){
+      var b=rp[id]; if(!b||typeof b!=='object') return;
+      var a=prog[id];
+      if(!a){ prog[id]=b; return; }
+      prog[id]={ level:Math.max(a.level|0,b.level|0), stars:Math.max(a.stars|0,b.stars|0),
+        done:Math.max(a.done|0,b.done|0), correct:Math.max(a.correct|0,b.correct|0),
+        last:((a.last||'')>(b.last||''))?a.last:b.last };
+    });
+    var rm=rem.meta||{};
+    meta.xp=Math.max(meta.xp|0, rm.xp|0);
+    meta.streak=Math.max(meta.streak|0, rm.streak|0);
+    if((rm.lastDay||'')>(meta.lastDay||'')) meta.lastDay=rm.lastDay;
+    if(!meta.name && rm.name) meta.name=rm.name;
+    if(Array.isArray(rem.log)){
+      var seen={}, all=log.concat(rem.log), out=[];
+      all.forEach(function(L){
+        if(!L||!L.d) return;
+        var k=L.d+'|'+L.w+'|'+L.r+'|'+L.c+'|'+L.t;
+        if(seen[k]) return; seen[k]=1; out.push(L);
+      });
+      out.sort(function(x,y){ return (x.d<y.d)?-1:((x.d>y.d)?1:0); });
+      log=out.slice(-200);
+    }
+    save(K_PROG,prog); save(K_META,meta); save(K_LOG,log);
+  }
+
+  /* ---- Lernstand von Hand übertragen ----------------------------
+     Ohne die Artefakt-Laufzeit (eigenständig gehostet) gibt es keinen
+     gemeinsamen Speicher. Damit ein Kind trotzdem am iPad weitermachen
+     kann, wo es am Laptop aufgehört hat, lässt sich der Stand als Datei
+     oder als Textcode mitnehmen. Leere Themen fliegen raus - sonst wird
+     der Code unnötig lang. */
+  function exportState(){
+    var slim={};
+    Object.keys(prog).forEach(function(id){
+      var p=prog[id];
+      if(p && ((p.level|0)>0 || (p.done|0)>0)) slim[id]=p;
+    });
+    return JSON.stringify({ v:1, savedAt:new Date().toISOString(),
+      prog:slim, meta:meta, log:log.slice(-40) });
+  }
+  function importState(txt){
+    var data;
+    try{ data=JSON.parse((''+txt).trim()); }catch(e){ return 'Das war kein gültiger Lernstand.'; }
+    if(!data || typeof data!=='object' || !data.prog) return 'Das war kein gültiger Lernstand.';
+    mergeIn(data);
+    SESSION=buildSession();
+    PLAN=SESSION.map(function(p){
+      var def = p.round==='a' ? p.w.a : p.w.b;
+      return { world:p.w, round:p.round, review:p.review, def:def, type:def.type };
+    });
+    return null;
+  }
+
+  function cloudPayload(){
+    return JSON.stringify({ v:1, savedAt:new Date().toISOString(),
+      prog:prog, meta:meta, log:log.slice(-200) });
+  }
+
+  function cloudSave(cb,retried){
+    if(!CLOUD.on||!CLOUD.ns){ cb&&cb('lokal'); return; }
+    if(CLOUD.busy){ cb&&cb(CLOUD.state); return; }
+    CLOUD.busy=true;
+    var files={}; files[DATA_PATH]=cloudPayload();
+    CLOUD.ns.publish(files).then(function(){
+      CLOUD.busy=false; CLOUD.state='gesichert'; cb&&cb('gesichert');
+    })['catch'](function(e){
+      CLOUD.busy=false;
+      var code=e&&e.code;
+      if(code==='conflict' && !retried){
+        /* Ein anderes Gerät war schneller: dessen Stand holen, mischen, einmal erneut. */
+        fetch(DATA_PATH,{cache:'no-store'}).then(function(r){ return r.ok?r.json():null; })
+          .then(function(remote){ if(remote) mergeIn(remote); cloudSave(cb,true); })
+          ['catch'](function(){ CLOUD.state='fehler'; cb&&cb('fehler'); });
+        return;
+      }
+      CLOUD.state=(code==='capability_disabled'||code==='not_writer'||code==='not_granted')?'nurlesen':'fehler';
+      cb&&cb(CLOUD.state);
+    });
+  }
+
+  function cloudLabel(){
+    if(!CLOUD.on) return 'Fortschritt wird nur auf diesem Gerät gespeichert.';
+    if(CLOUD.state==='gesichert') return '☁ Fortschritt gesichert – auf allen deinen Geräten verfügbar.';
+    if(CLOUD.state==='nurlesen') return 'Diese Ansicht darf nicht schreiben – der Stand bleibt auf diesem Gerät.';
+    if(CLOUD.state==='fehler') return 'Sichern hat gerade nicht geklappt. Dein Stand ist auf diesem Gerät sicher.';
+    return '☁ Geräteübergreifender Lernstand ist an.';
+  }
+
+  function P(id){ if(!prog[id]) prog[id]={level:0,stars:0,done:0,correct:0,last:null}; return prog[id]; }
+  function levelOf(id){ return P(id).level; }
+  function earned(){ return WORLDS.filter(function(w){return levelOf(w.id)>=1;}).length; }
+  function mastered(){ return WORLDS.filter(function(w){return levelOf(w.id)>=2;}).length; }
+  function todayStr(){ return new Date().toISOString().slice(0,10); }
+
+  function touchStreak(){
+    var t=todayStr();
+    if(meta.lastDay===t) return;
+    var y=new Date(Date.now()-864e5).toISOString().slice(0,10);
+    meta.streak = (meta.lastDay===y) ? (meta.streak||0)+1 : 1;
+    meta.lastDay=t; save(K_META,meta);
+  }
+
+  /* ================= Session ================= */
+  function shuffle(a){ a=a.slice(); for(var i=a.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)),t=a[i];a[i]=a[j];a[j]=t;} return a; }
+
+  function buildSession(){
+    var TARGET=6, picks=[];
+    var bySub={de:[],fr:[],ma:[]};
+    WORLDS.forEach(function(w){ bySub[w.subject].push(w); });
+    // Reihenfolge: Deutsch, Mathe, Französisch abwechselnd
+    var order=['de','ma','fr'], pools={};
+    order.forEach(function(s){
+      pools[s]=shuffle(bySub[s]).sort(function(x,y){ return levelOf(x.id)-levelOf(y.id); });
+    });
+    var idx={de:0,ma:0,fr:0}, guard=0;
+    while(picks.length<TARGET && guard++<60){
+      for(var i=0;i<order.length && picks.length<TARGET;i++){
+        var s=order[i], pool=pools[s];
+        if(idx[s]<pool.length){
+          var w=pool[idx[s]++];
+          var lv=levelOf(w.id);
+          picks.push({w:w, round: lv===0?'a':(lv===1?'b':(Math.random()<.5?'a':'b')), review: lv>=2});
+        }
+      }
+    }
+    return picks;
+  }
+
+  var SESSION = buildSession();
+  var PLAN = SESSION.map(function(p){
+    var def = p.round==='a' ? p.w.a : p.w.b;
+    return { world:p.w, round:p.round, review:p.review, def:def, type:def.type };
+  });
+
+  /* ================= Zustand ================= */
+  var S = {
+    screen:'home', stop:0, item:0, phase:'intro',
+    result:null, roundCorrect:0, roundTotal:0,
+    sessionCorrect:0, sessionTotal:0, doneStops:[],
+    scale:1, muted:false, typing:false, micMsg:null,
+    order:{picked:[]}, match:{sel:null,done:[],wrong:0}, sort:{i:0,trace:[]}
+  };
+
+  /* ================= Sprache ================= */
+  var SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  /* MIC.off = Diktieren ausblenden, weil es hier nachweislich nicht geht. */
+  var MIC={ supported:!!SR, granted:false, off:!SR };
+  var rec=null, listening=false;
+
+  var MSG_BLOCK='Das Mikrofon ist gesperrt. Erlaube den Zugriff (Schloss-Symbol in der Adresszeile) und tippe dann auf „Mikrofon nochmal versuchen".';
+  var MSG_NOMIC='Ich finde kein Mikrofon. Tippe deine Antwort einfach ein.';
+  var MSG_QUIET='Ich habe nichts gehört. Tippe auf 🎤 und sprich bitte etwas lauter.';
+  var MICERR={
+    unsupported:'Dieser Browser kann nicht zuhören. Am besten klappt es in Chrome, Edge oder Safari – tippen geht überall.',
+    blocked:MSG_BLOCK, 'not-allowed':MSG_BLOCK,
+    'service-not-allowed':'Die Spracherkennung ist in diesem Fenster nicht erlaubt. Öffne die Seite in einem eigenen Browser-Tab – oder tippe.',
+    nomic:MSG_NOMIC, 'audio-capture':MSG_NOMIC,
+    nospeech:MSG_QUIET, 'no-speech':MSG_QUIET,
+    network:'Die Spracherkennung ist gerade nicht erreichbar. Versuch es später nochmal oder tippe.',
+    retry:'Das Mikrofon ist jetzt erlaubt. Tippe noch einmal auf 🎤.',
+    needsallow:'Der Browser hat das Mikrofon noch nicht freigegeben. Tippe nochmal auf 🎤 und wähle „Zulassen".',
+    embedded:'In diesem eingebetteten Fenster ist das Mikrofon gesperrt – darum fragt der Browser gar nicht erst. Öffne die Seite in einem eigenen Tab, dann kannst du sprechen.',
+    aborted:'',
+    err:'Das hat leider nicht geklappt. Versuch es nochmal oder tippe deine Antwort.'
+  };
+  /* Fehler, nach denen Sprechen dauerhaft keinen Sinn mehr hat */
+  var MIC_FATAL={unsupported:1,blocked:1,'not-allowed':1,'service-not-allowed':1,nomic:1,'audio-capture':1,embedded:1};
+
+  function speak(t,lang){
+    if(S.muted||!('speechSynthesis' in window))return;
+    try{ speechSynthesis.cancel(); var u=new SpeechSynthesisUtterance(t); u.lang=lang||'de-DE'; u.rate=.88; speechSynthesis.speak(u);}catch(e){}
+  }
+
+  function embedded(){ try{ return window.self!==window.top; }catch(e){ return true; } }
+
+  /* Nachträgliche Ursachensuche. Läuft ERST nach einem Fehlschlag: vorher darf
+     nichts Asynchrones dazwischen, sonst ist auf iOS Safari die Nutzergeste
+     verbraucht und die Erkennung startet gar nicht. */
+  function diagnoseMic(code,cb){
+    if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){ cb(embedded()?'embedded':code); return; }
+    var p;
+    try{ p=navigator.mediaDevices.getUserMedia({audio:true}); }catch(e){ cb(embedded()?'embedded':code); return; }
+    p.then(function(stream){
+      try{ stream.getTracks().forEach(function(tr){ tr.stop(); }); }catch(e){}
+      MIC.granted=true; cb('retry');
+    })['catch'](function(e){
+      var nm=e&&e.name;
+      if(nm==='NotFoundError'||nm==='DevicesNotFoundError'||nm==='OverconstrainedError'){ cb('nomic'); return; }
+      cb(embedded()?'embedded':'blocked');
+    });
+  }
+
+  /* Chrome beendet die Erkennung bei gesperrtem Mikro teils ohne Fehler -
+     dann sähe der Nutzer "sprich lauter", obwohl gar nichts durchkommt. */
+  function probePermission(cb){
+    var pm=navigator.permissions;
+    if(!pm||!pm.query){ cb('nospeech'); return; }
+    var qq;
+    try{ qq=pm.query({name:'microphone'}); }catch(e){ cb('nospeech'); return; }
+    qq.then(function(st){
+      if(st.state==='denied'){ cb(embedded()?'embedded':'blocked'); return; }
+      if(st.state==='granted'){ MIC.granted=true; cb('nospeech'); return; }
+      cb('needsallow');
+    })['catch'](function(){ cb('nospeech'); });
+  }
+
+  function stopListening(){ if(rec){ try{ rec.stop(); }catch(e){} } }
+
+  function listen(lang,cb){
+    if(!SR){ cb(null,'unsupported'); return; }
+    if(listening){ stopListening(); return; }
+    startRec(lang,cb);   /* synchron in der Geste - Pflicht auf iOS Safari */
+  }
+
+  /* Pro Aufnahme eine frische Instanz - eine wiederverwendete bleibt in Chrome
+     regelmäßig im InvalidState hängen und startet dann nie wieder. */
+  function startRec(lang,cb){
+    var r;
+    try{ r=new SR(); }catch(e){ cb(null,'err'); return; }
+    r.continuous=false; r.interimResults=false; r.maxAlternatives=4; r.lang=lang;
+    var done=false, alts=null, timer=0;
+    function finish(res,err){
+      if(done) return; done=true;
+      haltVisual(); cb(res,err);
+    }
+    function haltVisual(){ clearTimeout(timer); listening=false; rec=null; paintMic(); }
+    r.onresult=function(e){
+      var list=[], res=e.results[0], i;
+      for(i=0;i<res.length;i++){ if(res[i]&&res[i].transcript) list.push(res[i].transcript); }
+      if(list.length) alts=list;
+    };
+    r.onerror=function(e){
+      var code=(e&&e.error)||'err';
+      if(code==='not-allowed'||code==='service-not-allowed'||code==='audio-capture'){
+        haltVisual();
+        diagnoseMic(code,function(kind){ finish(null,kind); });
+        return;
+      }
+      finish(null,code);
+    };
+    r.onend=function(){
+      if(alts){ MIC.granted=true; finish(alts,null); return; }
+      if(MIC.granted){ finish(null,'nospeech'); return; }
+      haltVisual();
+      probePermission(function(kind){ finish(null,kind); });
+    };
+    rec=r; listening=true; paintMic();
+    timer=setTimeout(function(){ try{ r.stop(); }catch(e){} },9000);
+    try{ r.start(); }
+    catch(e){ finish(null,/InvalidState/i.test(''+e)?'aborted':'err'); }
+  }
+
+  function paintMic(){
+    var b=document.querySelector('.micbtn'), l=document.querySelector('.miclab');
+    if(b){ b.classList.toggle('on',listening); b.setAttribute('aria-pressed',listening?'true':'false'); }
+    if(l) l.textContent = listening?'🎧 Ich höre zu … (nochmal tippen = fertig)':(l.getAttribute('data-idle')||'');
+  }
+  function showMicMsg(txt){
+    S.micMsg=txt||null;
+    var el=document.querySelector('.micmsg');
+    if(el){ el.textContent=txt||''; el.style.display=txt?'':'none'; }
+    else if(txt) render();
+  }
+  function langOf(w){ return w.subject==='fr'?'fr-FR':'de-DE'; }
+
+  /* ================= Helfer ================= */
+  function esc(s){ return (s==null?'':''+s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];}); }
+  function norm(s){ return (s||'').toLowerCase().normalize('NFKC').replace(/[„“"'’.,!?;:()]/g,'').replace(/\s+/g,' ').trim(); }
+
+  var NUMWORDS={'null':0,'eins':1,'ein':1,'eine':1,'zwei':2,'drei':3,'vier':4,'fünf':5,'fuenf':5,'sechs':6,'sieben':7,'acht':8,'neun':9,'zehn':10,
+    'elf':11,'zwölf':12,'zwoelf':12,'dreizehn':13,'vierzehn':14,'fünfzehn':15,'sechzehn':16,'siebzehn':17,'achtzehn':18,'neunzehn':19,
+    'zwanzig':20,'dreißig':30,'dreissig':30,'vierzig':40,'fünfzig':50,'fuenfzig':50,'sechzig':60,'siebzig':70,'achtzig':80,'neunzig':90,'hundert':100,'tausend':1000};
+  function parseNum(txt){
+    if(txt==null) return null;
+    var t=(''+txt).replace(',','.');
+    var m=t.match(/-?\d+(\.\d+)?/);
+    if(m) return parseFloat(m[0]);
+    var w=norm(t).replace(/\s/g,'');
+    if(NUMWORDS[w]!=null) return NUMWORDS[w];
+    var mm=w.match(/^(\w+?)und(\w+?)$/);      // z.B. sechsunddreissig
+    if(mm && NUMWORDS[mm[1]]!=null && NUMWORDS[mm[2]]!=null) return NUMWORDS[mm[2]]+NUMWORDS[mm[1]];
+    return null;
+  }
+  function overlap(a,b){
+    var wa=norm(a).split(' ').filter(Boolean), wb=norm(b).split(' ').filter(Boolean);
+    if(!wa.length) return 0; var h=0; wa.forEach(function(x){ if(wb.indexOf(x)!==-1)h++; }); return h/wa.length;
+  }
+
+  var KUDOS=['Stark!','Das sitzt!','Sauber gelöst!','Genau so!','Du hast den Dreh raus!','Volltreffer!','Weiter so!','Klasse gedacht!'];
+  function kudos(){ return KUDOS[Math.floor(Math.random()*KUDOS.length)]; }
+
+  var ICON_MIC='<svg viewBox="0 0 24 24" fill="none"><rect x="9" y="3" width="6" height="11" rx="3" stroke="currentColor" stroke-width="1.7"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>';
+  var ICON_SPK='<svg viewBox="0 0 24 24" fill="none" style="width:1.2rem;height:1.2rem"><path d="M4 9v6h4l5 4V5L8 9H4Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M17 8.5a5 5 0 0 1 0 7" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>';
+
+  /* ================= Kopf / Pfad ================= */
+  function paintPath(){
+    var el=document.getElementById('path');
+    if(S.screen!=='play'&&S.screen!=='finish'){ el.innerHTML=''; return; }
+    var h='';
+    PLAN.forEach(function(st,i){
+      var c='node'+(S.screen==='finish'||i<S.stop?' done':'')+(S.screen==='play'&&i===S.stop?' cur':'');
+      h+='<div class="'+c+'" title="'+esc(st.world.title)+'">'+st.world.icon+'</div><div class="track'+((S.screen==='finish'||i<S.stop)?' done':'')+'"></div>';
+    });
+    h+='<div class="node'+(S.screen==='finish'?' done cur':'')+'">🏁</div>';
+    el.innerHTML=h;
+  }
+
+  /* ================= Startseite ================= */
+  function vHome(){
+    var e=earned(), m=mastered(), tot=WORLDS.length;
+    var lvl=Math.floor((meta.xp||0)/200)+1;
+    var into=(meta.xp||0)%200;
+    var note = SESSION.map(function(p){return p.w.icon;}).join(' ');
+    return '<div class="card">'+
+      '<h1>Hallo'+(meta.name?', '+esc(meta.name):'')+'! Bereit für 20 Minuten?</h1>'+
+      '<p class="lead">Heute gemischt: Deutsch, Mathe und Französisch. Antworten darfst du überall auch sprechen.</p>'+
+      '<div class="statrow">'+
+        '<div class="stat"><b>'+lvl+'</b><span>Stufe</span></div>'+
+        '<div class="stat"><b>'+e+'/'+tot+'</b><span>Themen begonnen</span></div>'+
+        '<div class="stat"><b>'+(meta.streak||0)+'</b><span>Tage in Folge</span></div>'+
+      '</div>'+
+      '<div><div class="bar"><i style="width:'+Math.round(into/2)+'%"></i></div>'+
+      '<p class="hint">Noch '+(200-into)+' Punkte bis Stufe '+(lvl+1)+' · '+m+' Themen ganz gemeistert ⭐</p></div>'+
+      '<div class="row"><input id="nm" placeholder="Wie heißt du?" value="'+esc(meta.name)+'" style="flex:1;font-family:inherit;font-size:1.05rem;padding:.6rem .8rem;border-radius:.7rem;border:2px solid var(--line);background:var(--paper);color:var(--ink);min-width:0"><button class="iconbtn" id="nmMic" title="Namen sprechen">🎤</button></div>'+
+      '<p class="hint" id="nmHint"></p>'+
+      '<p class="hint">Heute dran: '+note+'</p>'+
+      '<p class="hint" id="cloudLine">'+esc(cloudLabel())+'</p>'+
+      (MIC.supported?'':'<p class="hint">Hinweis: Dieser Browser kann nicht diktieren – öffne die Seite in Chrome, Edge oder Safari. Tippen geht überall.</p>')+
+      '<div class="row"><button class="btn p" id="go">Los geht\'s →</button>'+
+      '<button class="btn g" id="toColl">🏅 Sammlung</button>'+
+      '<button class="btn g" id="toRep">📋 Lernbericht</button></div>'+
+    '</div>';
+  }
+
+  /* ================= Sammlung ================= */
+  function vColl(){
+    var h='<div class="card"><div class="row"><h1 style="flex:1">🏅 Deine Sammlung</h1><button class="btn g" id="back">← Zurück</button></div>'+
+      '<p class="lead">Für jedes gemeisterte Thema bekommst du ein Abzeichen. Zwei Runden schaffen = Abzeichen in Gold.</p><div class="grid">';
+    WORLDS.forEach(function(w){
+      var p=P(w.id), b=BADGES[w.id]||{emoji:'⭐',name:w.title};
+      var have=p.level>=1;
+      var st = p.level>=2?'⭐⭐ gemeistert':(p.level>=1?'⭐ begonnen':'noch offen');
+      h+='<div class="badge'+(have?' have':'')+'"><span class="em">'+b.emoji+'</span>'+
+        '<span class="nm">'+esc(b.name)+'</span><span class="st">'+st+'</span></div>';
+    });
+    h+='</div></div>';
+    return h;
+  }
+
+  /* ================= Lernbericht ================= */
+  function fmtDate(iso){ if(!iso) return '–'; var d=new Date(iso); return ('0'+d.getDate()).slice(-2)+'.'+('0'+(d.getMonth()+1)).slice(-2)+'.'+d.getFullYear(); }
+
+  function reportRows(){
+    return WORLDS.map(function(w){
+      var p=P(w.id);
+      var quote = p.done? Math.round(p.correct/p.done*100) : 0;
+      return { fach:SUBJECTS[w.subject].name, thema:w.title, stufe:p.level, sterne:p.stars,
+        aufg:p.done, richtig:p.correct, quote:quote, last:p.last };
+    });
+  }
+
+  function vReport(){
+    var rows=reportRows();
+    var totA=rows.reduce(function(s,r){return s+r.aufg;},0);
+    var totC=rows.reduce(function(s,r){return s+r.richtig;},0);
+    var q= totA? Math.round(totC/totA*100):0;
+    var h='<div class="card">'+
+      '<div class="row noprint"><h1 style="flex:1">📋 Lernbericht</h1><button class="btn g" id="back">← Zurück</button></div>'+
+      '<div style="display:none" class="printonly"></div>'+
+      '<h2 class="onlyprint" style="display:none">Lernbericht</h2>'+
+      '<p class="lead">'+(meta.name?esc(meta.name)+' · ':'')+'Stand '+fmtDate(new Date().toISOString())+'</p>'+
+      '<div class="statrow">'+
+        '<div class="stat"><b>'+totA+'</b><span>Aufgaben bearbeitet</span></div>'+
+        '<div class="stat"><b>'+totC+'</b><span>davon richtig</span></div>'+
+        '<div class="stat"><b>'+q+'%</b><span>Trefferquote</span></div>'+
+      '</div>'+
+      '<div class="tw"><table><thead><tr><th>Fach</th><th>Thema</th><th>Stand</th><th class="num">Aufgaben</th><th class="num">Richtig</th><th class="num">Quote</th><th>Zuletzt</th></tr></thead><tbody>';
+    rows.forEach(function(r){
+      var stand = r.stufe>=2?'⭐⭐ gemeistert':(r.stufe>=1?'⭐ begonnen':'offen');
+      h+='<tr><td>'+esc(r.fach)+'</td><td>'+esc(r.thema)+'</td><td>'+stand+'</td>'+
+         '<td class="num">'+r.aufg+'</td><td class="num">'+r.richtig+'</td>'+
+         '<td class="num">'+(r.aufg?r.quote+'%':'–')+'</td><td>'+fmtDate(r.last)+'</td></tr>';
+    });
+    h+='</tbody></table></div>';
+    if(log.length){
+      h+='<h3>Letzte Übungsrunden</h3><div class="tw"><table><thead><tr><th>Datum</th><th>Thema</th><th>Runde</th><th class="num">Ergebnis</th></tr></thead><tbody>';
+      log.slice(-15).reverse().forEach(function(L){
+        var w=WORLDS.filter(function(x){return x.id===L.w;})[0];
+        h+='<tr><td>'+fmtDate(L.d)+'</td><td>'+esc(w?w.title:L.w)+'</td><td>'+(L.r==='a'?'1':'2')+'</td><td class="num">'+L.c+'/'+L.t+'</td></tr>';
+      });
+      h+='</tbody></table></div>';
+    }
+    h+='<div class="row noprint"><button class="btn p" id="pdf">⬇ Als PDF speichern</button>'+
+       '<button class="btn g" id="csv">⬇ Als Tabelle (CSV)</button>'+
+       (embedded()?'':'<button class="btn g" id="pr">🖨 Drucken</button>')+
+       (CLOUD.on?'<button class="btn g" id="cloud">☁ Jetzt sichern</button>':'')+'</div>'+
+       '<p class="hint noprint" id="dlLine"></p>'+
+       '<p class="hint noprint" id="cloudLine">'+esc(cloudLabel())+'</p>'+
+       '<div class="noprint"><h3>Lernstand auf ein anderes Gerät übertragen</h3>'+
+       '<p class="hint">Hier sicherst du den Stand und liest ihn auf dem anderen Gerät wieder ein. Beide Stände werden zusammengeführt – es geht nichts verloren.</p>'+
+       '<div class="row"><button class="btn g" id="stExp">⬇ Als Datei sichern</button>'+
+       '<button class="btn g" id="stImp">⬆ Aus Datei laden</button>'+
+       '<button class="btn g" id="stCode">🔤 Code zum Kopieren</button></div>'+
+       '<input type="file" id="stFile" accept=".json,.txt,application/json,text/plain" style="display:none">'+
+       '<p class="hint" id="stLine"></p><div id="stBox"></div></div>'+
+       '<div class="noprint" id="csvbox"></div>'+
+       '</div>';
+    return h;
+  }
+
+
+  /* ================= Dateien ausgeben =================
+     Im eingebetteten Fenster sind Druckdialog und direkter Download
+     gesperrt. Dateien gehen deshalb über die Download-Fähigkeit der
+     Seite; eigenständig gehostet greift der normale Anker-Download. */
+  var DL={ns:undefined};
+  function dlGet(cb){
+    if(DL.ns!==undefined){ cb(DL.ns); return; }
+    if(!(window.claude && typeof window.claude.use==='function')){ DL.ns=null; cb(null); return; }
+    try{
+      window.claude.use('downloads').then(function(ns){ DL.ns=ns||null; cb(DL.ns); })
+        ['catch'](function(){ DL.ns=null; cb(null); });
+    }catch(e){ DL.ns=null; cb(null); }
+  }
+  function anchorSave(name,data){
+    try{
+      var bl=(data instanceof Blob)?data:new Blob([data]);
+      var url=URL.createObjectURL(bl);
+      var a=document.createElement('a'); a.href=url; a.download=name;
+      document.body.appendChild(a); a.click();
+      setTimeout(function(){ URL.revokeObjectURL(url); a.remove(); },600);
+      return true;
+    }catch(e){ return false; }
+  }
+  /* alt = Ausweichformat, falls der Betrachter die erweiterten Dateitypen
+     (pdf, csv) nicht freigeschaltet hat. */
+  function offerFile(name,data,alt,say){
+    say=say||function(){};
+    dlGet(function(ns){
+      if(!ns){ say(anchorSave(name,data)?'Gespeichert.':'Speichern ist hier nicht möglich.'); return; }
+      ns.save({filename:name,data:data}).then(function(){ say('Gespeichert.'); })
+      ['catch'](function(e){
+        var c=e&&e.code;
+        if(c==='declined'){ say(''); return; }
+        if(c==='rate_limited'){ say('Ein Speichern-Dialog ist noch offen – kurz warten.'); return; }
+        if(c==='extension_not_enabled' && alt){
+          ns.save({filename:alt.name,data:alt.data}).then(function(){ say('Als '+alt.label+' gespeichert.'); })
+          ['catch'](function(e2){
+            say((e2&&e2.code)==='declined'?'':'Speichern ist hier nicht möglich – nimm die Tabelle unten.');
+          });
+          return;
+        }
+        say('Speichern ist hier nicht möglich – nimm die Tabelle unten.');
+      });
+    });
+  }
+
+  /* ---- Minimaler PDF-Erzeuger (Helvetica, Text + Linien) ----
+     Reicht für den Lernbericht und spart eine externe Bibliothek. */
+  var WINMAP={0x20AC:0x80,0x201A:0x82,0x0192:0x83,0x201E:0x84,0x2026:0x85,0x2020:0x86,0x2021:0x87,
+    0x02C6:0x88,0x2030:0x89,0x0160:0x8A,0x2039:0x8B,0x0152:0x8C,0x017D:0x8E,0x2018:0x91,0x2019:0x92,
+    0x201C:0x93,0x201D:0x94,0x2022:0x95,0x2013:0x96,0x2014:0x97,0x02DC:0x98,0x2122:0x99,0x0161:0x9A,
+    0x203A:0x9B,0x0153:0x9C,0x017E:0x9E,0x0178:0x9F};
+  function winBytes(str){
+    var out=[],i,c;
+    for(i=0;i<str.length;i++){
+      c=str.charCodeAt(i);
+      if(WINMAP[c]!=null) c=WINMAP[c];
+      else if(c>0xFF) c=0x3F;
+      if(c===0x28||c===0x29||c===0x5C) out.push(0x5C);
+      out.push(c);
+    }
+    return out;
+  }
+  function txtW(s,size,bold){ return (''+s).length*size*(bold?0.56:0.5); }
+  function clipTxt(s,maxW,size,bold){
+    s=''+s;
+    if(txtW(s,size,bold)<=maxW) return s;
+    var t=s;
+    while(t.length>1 && txtW(t+'\u2026',size,bold)>maxW) t=t.slice(0,-1);
+    return t+'\u2026';
+  }
+  function Stream(){ this.b=[]; }
+  Stream.prototype.a=function(str){ for(var i=0;i<str.length;i++) this.b.push(str.charCodeAt(i)&0xFF); return this; };
+  Stream.prototype.str=function(t){ this.b.push(0x28); var w=winBytes(''+t),i; for(i=0;i<w.length;i++) this.b.push(w[i]); this.b.push(0x29); return this; };
+  Stream.prototype.text=function(x,y,t,size,bold,grey){
+    this.a((grey==null?0:grey).toFixed(2)+' g BT /'+(bold?'F2':'F1')+' '+size+' Tf 1 0 0 1 '+x.toFixed(2)+' '+y.toFixed(2)+' Tm ');
+    return this.str(t).a(' Tj ET\n');
+  };
+  Stream.prototype.line=function(x1,y1,x2,y2,w,grey){
+    return this.a((grey==null?0.75:grey).toFixed(2)+' G '+w.toFixed(2)+' w '+x1.toFixed(2)+' '+y1.toFixed(2)+' m '+x2.toFixed(2)+' '+y2.toFixed(2)+' l S\n');
+  };
+
+  function assemblePDF(pages,W,H){
+    var out=[], off=[], i;
+    function put(str){ for(var k=0;k<str.length;k++) out.push(str.charCodeAt(k)&0xFF); }
+    function obj(num){ off[num]=out.length; put(num+' 0 obj\n'); }
+    put('%PDF-1.4\n%\u00E2\u00E3\u00CF\u00D3\n');
+    var first=5, kids=[];
+    for(i=0;i<pages.length;i++) kids.push((first+i*2)+' 0 R');
+    obj(1); put('<</Type/Catalog/Pages 2 0 R>>\nendobj\n');
+    obj(2); put('<</Type/Pages/Kids['+kids.join(' ')+']/Count '+pages.length+'>>\nendobj\n');
+    obj(3); put('<</Type/Font/Subtype/Type1/BaseFont/Helvetica/Encoding/WinAnsiEncoding>>\nendobj\n');
+    obj(4); put('<</Type/Font/Subtype/Type1/BaseFont/Helvetica-Bold/Encoding/WinAnsiEncoding>>\nendobj\n');
+    for(i=0;i<pages.length;i++){
+      var pn=first+i*2, cn=pn+1;
+      obj(pn);
+      put('<</Type/Page/Parent 2 0 R/MediaBox[0 0 '+W.toFixed(2)+' '+H.toFixed(2)+']'+
+          '/Resources<</Font<</F1 3 0 R/F2 4 0 R>>>>/Contents '+cn+' 0 R>>\nendobj\n');
+      obj(cn);
+      var body=pages[i].b;
+      put('<</Length '+body.length+'>>\nstream\n');
+      for(var k=0;k<body.length;k++) out.push(body[k]);
+      put('\nendstream\nendobj\n');
+    }
+    var total=first+pages.length*2, xref=out.length;
+    put('xref\n0 '+total+'\n0000000000 65535 f \n');
+    for(i=1;i<total;i++){
+      var o=off[i]||0, sO=''+o;
+      while(sO.length<10) sO='0'+sO;
+      put(sO+' 00000 n \n');
+    }
+    put('trailer\n<</Size '+total+'/Root 1 0 R>>\nstartxref\n'+xref+'\n%%EOF\n');
+    return new Blob([new Uint8Array(out)],{type:'application/pdf'});
+  }
+
+  function reportPDF(){
+    var W=595.28, H=841.89, M=42, y=0, pages=[], cs=null;
+    var rows=reportRows();
+    var totA=rows.reduce(function(a,r){return a+r.aufg;},0);
+    var totC=rows.reduce(function(a,r){return a+r.richtig;},0);
+    var quote= totA? Math.round(totC/totA*100):0;
+    var cols=[70,168,88,46,46,46,70];               /* Summe 534 */
+    var heads=['Fach','Thema','Stand','Aufgaben','Richtig','Quote','Zuletzt'];
+    function newPage(){
+      cs=new Stream(); pages.push(cs); y=H-M;
+      cs.text(M,y,'Lernbericht',18,true,0.1); y-=16;
+      cs.text(M,y,(meta.name?meta.name+'  \u00b7  ':'')+'Stand '+fmtDate(new Date().toISOString()),9,false,0.4);
+      y-=18; cs.line(M,y,W-M,y,1,0.6); y-=18;
+    }
+    function tableHead(){
+      var x=M,i;
+      for(i=0;i<heads.length;i++){ cs.text(x,y,heads[i],8,true,0.35); x+=cols[i]; }
+      y-=6; cs.line(M,y,W-M,y,0.6,0.75); y-=12;
+    }
+    function room(need){ if(y-need<M){ newPage(); tableHead(); } }
+    newPage();
+    cs.text(M,y,'Aufgaben bearbeitet: '+totA+'    davon richtig: '+totC+'    Trefferquote: '+quote+'%',10,true,0.15);
+    y-=22;
+    tableHead();
+    rows.forEach(function(r){
+      room(14);
+      var stand = r.stufe>=2?'gemeistert':(r.stufe>=1?'begonnen':'offen');
+      var cells=[r.fach,r.thema,stand,''+r.aufg,''+r.richtig,(r.aufg?r.quote+'%':'\u2013'),fmtDate(r.last)];
+      var x=M,i;
+      for(i=0;i<cells.length;i++){ cs.text(x,y,clipTxt(cells[i],cols[i]-6,9,false),9,false,0.15); x+=cols[i]; }
+      y-=6; cs.line(M,y,W-M,y,0.4,0.88); y-=10;
+    });
+    if(log.length){
+      room(50); y-=12;
+      cs.text(M,y,'Letzte \u00dcbungsrunden',12,true,0.1); y-=16;
+      var lh=['Datum','Thema','Runde','Ergebnis'], lc=[80,240,60,80], x2=M,j;
+      for(j=0;j<lh.length;j++){ cs.text(x2,y,lh[j],8,true,0.35); x2+=lc[j]; }
+      y-=6; cs.line(M,y,W-M,y,0.6,0.75); y-=12;
+      log.slice(-15).reverse().forEach(function(L){
+        room(14);
+        var w=WORLDS.filter(function(x){return x.id===L.w;})[0];
+        var cells=[fmtDate(L.d), w?w.title:L.w, (L.r==='a'?'1':'2'), L.c+' / '+L.t];
+        var x=M,i;
+        for(i=0;i<cells.length;i++){ cs.text(x,y,clipTxt(cells[i],lc[i]-6,9,false),9,false,0.15); x+=lc[i]; }
+        y-=6; cs.line(M,y,W-M,y,0.4,0.88); y-=10;
+      });
+    }
+    return assemblePDF(pages,W,H);
+  }
+
+  function reportMarkdown(){
+    var rows=reportRows(), L=[];
+    L.push('# Lernbericht');
+    L.push('');
+    L.push((meta.name?meta.name+' \u00b7 ':'')+'Stand '+fmtDate(new Date().toISOString()));
+    L.push('');
+    L.push('| Fach | Thema | Stand | Aufgaben | Richtig | Quote | Zuletzt |');
+    L.push('|---|---|---|---:|---:|---:|---|');
+    rows.forEach(function(r){
+      var stand=r.stufe>=2?'gemeistert':(r.stufe>=1?'begonnen':'offen');
+      L.push('| '+r.fach+' | '+r.thema+' | '+stand+' | '+r.aufg+' | '+r.richtig+' | '+(r.aufg?r.quote+'%':'\u2013')+' | '+fmtDate(r.last)+' |');
+    });
+    return L.join('\n')+'\n';
+  }
+
+  function buildCSV(){
+    var sep=';';
+    var head=['Fach','Thema','Stand','Aufgaben','Richtig','Quote %','Zuletzt geuebt'];
+    var lines=[head.join(sep)];
+    reportRows().forEach(function(r){
+      var stand=r.stufe>=2?'gemeistert':(r.stufe>=1?'begonnen':'offen');
+      lines.push([r.fach,r.thema,stand,r.aufg,r.richtig,(r.aufg?r.quote:''),fmtDate(r.last)].join(sep));
+    });
+    lines.push('');
+    lines.push(['Datum','Thema','Runde','Richtig','Gesamt'].join(sep));
+    log.forEach(function(L){
+      var w=WORLDS.filter(function(x){return x.id===L.w;})[0];
+      lines.push([fmtDate(L.d),(w?w.title:L.w),(L.r==='a'?1:2),L.c,L.t].join(sep));
+    });
+    return lines.join('\n');
+  }
+
+  /* ================= Spielansicht ================= */
+  function stop(){ return PLAN[S.stop]; }
+  function items(){ var d=stop().def; return d.items||[]; }
+  function item(){ return items()[S.item]; }
+
+  function head(){
+    var st=stop(), sub=SUBJECTS[st.world.subject];
+    return '<div class="tag" style="color:'+st.world.color+'"><span>'+sub.icon+'</span>'+esc(sub.name)+' · '+esc(st.world.title)+
+      (st.review?' · Wiederholung':'')+'</div>'+
+      '<p class="hint">Station '+(S.stop+1)+' von '+PLAN.length+
+      (items().length?(' · Aufgabe '+(S.item+1)+' von '+items().length):'')+'</p>';
+  }
+
+  function nav(done){
+    var last = S.stop===PLAN.length-1 && isLastItem();
+    return '<div class="row"><span class="sp"></span>'+
+      (done?'':'<button class="btn g" data-a="skip">Überspringen</button>')+
+      '<button class="btn p" data-a="next">'+(last?'Fertig 🎉':'Weiter →')+'</button></div>';
+  }
+  function isLastItem(){
+    var d=stop().def;
+    if(d.type==='match'||d.type==='sort') return true;
+    return S.item>=items().length-1;
+  }
+
+  function micZone(idle,target,lang){
+    var h='<div class="mic">';
+    if(MIC.supported && !MIC.off && !S.typing){
+      h+='<button class="micbtn" data-a="mic" data-lang="'+lang+'" aria-pressed="false" aria-label="Antwort sprechen">'+ICON_MIC+'</button>'+
+         '<span class="miclab util" data-idle="🎤 '+idle+'">🎤 '+idle+'</span>'+
+         '<button class="link" data-a="type">✍️ oder tippen</button>';
+    }else{
+      h+='<div class="inrow"><input id="tin" placeholder="Antwort eingeben …" autocomplete="off"><button class="btn p" data-a="sub">OK</button></div>'+
+         (MIC.supported?'<button class="link" data-a="mic2">🎤 '+(MIC.off?'Mikrofon nochmal versuchen':'lieber sprechen')+'</button>':'');
+    }
+    h+='<p class="hint micmsg" style="text-align:center'+(S.micMsg?'':';display:none')+'">'+esc(S.micMsg||'')+'</p>';
+    return h+'</div>';
+  }
+
+  function vChoice(){
+    var it=item(), r=S.result;
+    var h=head()+'<div class="row"><div class="prompt" style="flex:1">'+esc(it.q)+'</div>'+
+      '<button class="iconbtn" data-a="say" data-t="'+esc(it.q)+'">'+ICON_SPK+'</button></div><div class="opts">';
+    it.options.forEach(function(o){
+      var c='opt',m='';
+      if(r){ if(o===it.correct){c+=' ok';m='✓';} else if(o===r.picked){c+=' no';m='✕';} }
+      h+='<button class="'+c+'" data-a="pick" data-v="'+esc(o)+'"'+(r?' disabled':'')+'><span>'+esc(o)+'</span><span>'+m+'</span></button>';
+    });
+    h+='</div>';
+    if(r) h+= r.picked===it.correct? '<div class="fb ok">⭐ '+kudos()+'</div>'
+                                   : '<div class="fb no">Fast! Richtig ist: '+esc(it.correct)+'</div>';
+    return h+nav(!!r);
+  }
+
+  function vStory(){
+    var st=stop(), d=st.def;
+    if(S.phase==='intro'){
+      return head()+'<h2>Lies den Text in Ruhe</h2>'+
+        '<div class="passage">'+esc(d.story)+'</div>'+
+        '<div class="row"><button class="iconbtn" data-a="say" data-t="'+esc(d.story)+'">'+ICON_SPK+'</button>'+
+        '<span class="hint" style="flex:1">Vorlesen lassen</span>'+
+        '<button class="btn p" data-a="start">Ich habe gelesen →</button></div>';
+    }
+    var it=item(), r=S.result;
+    var h=head()+'<div class="passage" style="font-size:1rem">'+esc(d.story)+'</div>'+
+      '<div class="prompt">'+esc(it.q)+'</div><div class="opts">';
+    it.options.forEach(function(o){
+      var c='opt',m='';
+      if(r){ if(o===it.correct){c+=' ok';m='✓';} else if(o===r.picked){c+=' no';m='✕';} }
+      h+='<button class="'+c+'" data-a="pick" data-v="'+esc(o)+'"'+(r?' disabled':'')+'><span>'+esc(o)+'</span><span>'+m+'</span></button>';
+    });
+    h+='</div>';
+    if(r) h+= r.picked===it.correct?'<div class="fb ok">⭐ '+kudos()+'</div>'
+                                   :'<div class="fb no">Fast! Richtig ist: '+esc(it.correct)+'</div>';
+    return h+nav(!!r);
+  }
+
+  function vInput(){
+    var st=stop(), d=st.def, it=item(), r=S.result;
+    var h=head()+'<p class="hint">'+esc(d.prompt||'')+'</p>'+
+      '<div class="row"><div class="prompt" style="flex:1">'+esc(it.q)+'</div>'+
+      '<button class="iconbtn" data-a="say" data-t="'+esc(it.q)+'">'+ICON_SPK+'</button></div>'+
+      (r? '' : micZone(d.numeric?'Zahl sagen':'Antwort sagen', it.q, langOf(st.world)));
+    if(r){
+      h+='<div class="passage" style="font-size:1rem"><b>Deine Antwort:</b> '+esc(r.said||'–')+'</div>';
+      h+= r.ok?'<div class="fb ok">⭐ '+kudos()+'</div>'
+              :'<div class="fb no">Fast! Richtig ist: '+esc(r.solution)+'</div>';
+    }
+    return h+nav(!!r);
+  }
+
+  function vOrder(){
+    var st=stop(), d=st.def, it=item(), st2=S.order;
+    var sol=it.solution, done=st2.picked.length>=sol.length;
+    // Reihenfolge einmal mischen und merken - sonst stünde die Lösung schon da
+    if(!st2.shuffled || st2.forItem!==S.item){
+      var mix=shuffle(sol);
+      if(sol.length>1 && mix.join('|')===sol.join('|')) mix=shuffle(sol);
+      st2.shuffled=mix; st2.forItem=S.item;
+    }
+    var h=head()+'<p class="hint">'+esc(d.prompt)+'</p>';
+    h+='<div class="slot">'+(st2.picked.length? st2.picked.map(esc).join(' ') : '<span class="hint">Noch nichts gewählt</span>')+'</div>';
+    h+='<div class="chips">';
+    var counts={};
+    st2.picked.forEach(function(p){ counts[p]=(counts[p]||0)+1; });
+    var seen={};
+    st2.shuffled.forEach(function(w){
+      seen[w]=(seen[w]||0)+1;
+      var isUsed = seen[w] <= (counts[w]||0);
+      h+='<button class="chip" data-a="ord" data-v="'+esc(w)+'"'+(isUsed?' disabled':'')+'>'+esc(w)+'</button>';
+    });
+    h+='</div>';
+    if(st2.msg) h+='<div class="fb no">'+esc(st2.msg)+'</div>';
+    if(done) h+='<div class="fb ok">⭐ '+kudos()+'</div>';
+    var lastOrd = (S.stop===PLAN.length-1) && (S.item>=items().length-1);
+    h+='<div class="row"><span class="sp"></span>'+
+       (done?'':'<button class="btn g" data-a="ordreset">Nochmal</button>')+
+       (done?'':'<button class="btn g" data-a="skip">Überspringen</button>')+
+       '<button class="btn p" data-a="next">'+(lastOrd?'Fertig 🎉':'Weiter →')+'</button></div>';
+    return h;
+  }
+
+  function vMatch(){
+    var st=stop(), d=st.def, m=S.match;
+    var pairs=d.pairs;
+    var rights = m.rightOrder || (m.rightOrder = shuffle(pairs.map(function(p){return p.r;})));
+    var h=head()+'<p class="hint">'+esc(d.prompt)+'</p><div class="cols">';
+    h+='<div><div class="colhead">Zuerst hier</div><div class="opts">';
+    pairs.forEach(function(p,i){
+      var dn=m.done.indexOf(i)!==-1;
+      h+='<button class="mitem'+(m.sel===i?' sel':'')+'" data-a="ml" data-i="'+i+'"'+(dn?' disabled':'')+'>'+esc(p.l)+(dn?' ✓':'')+'</button>';
+    });
+    h+='</div></div><div><div class="colhead">dann hier</div><div class="opts">';
+    rights.forEach(function(r,j){
+      var pi=-1; pairs.forEach(function(p,i){ if(p.r===r) pi=i; });
+      var dn=m.done.indexOf(pi)!==-1;
+      h+='<button class="mitem" data-a="mr" data-r="'+esc(r)+'"'+(dn?' disabled':'')+'>'+esc(r)+(dn?' ✓':'')+'</button>';
+    });
+    h+='</div></div></div>';
+    if(m.msg) h+='<div class="fb no">'+esc(m.msg)+'</div>';
+    var done=m.done.length>=pairs.length;
+    if(done) h+='<div class="fb ok">⭐ Alle Paare gefunden! '+kudos()+'</div>';
+    h+='<div class="row"><span class="sp"></span><button class="btn p" data-a="next">'+(S.stop===PLAN.length-1?'Fertig 🎉':'Weiter →')+'</button></div>';
+    return h;
+  }
+
+  function vSort(){
+    var st=stop(), d=st.def, s=S.sort;
+    var list=d.items, done=s.i>=list.length;
+    var h=head()+'<p class="hint">'+esc(d.prompt)+'</p>';
+    h+='<div class="trace">'+s.trace.map(function(t){ return '<span class="tr '+(t.ok?'ok':'no')+'">'+esc(t.label)+'</span>'; }).join('')+'</div>';
+    if(!done){
+      var it=list[s.i];
+      h+='<div class="prompt" style="text-align:center;font-size:1.6rem">'+esc(it.text)+'</div>'+
+         '<div class="sortbtns"><button class="sortb" data-a="srt" data-v="a">'+esc(d.bucketA)+'</button>'+
+         '<button class="sortb" data-a="srt" data-v="b">'+esc(d.bucketB)+'</button></div>';
+      if(s.msg) h+='<div class="fb no">'+esc(s.msg)+'</div>';
+    }else{
+      var ok=s.trace.filter(function(t){return t.ok;}).length;
+      h+='<div class="fb ok">'+ok+' von '+list.length+' richtig sortiert. '+(ok===list.length?kudos():'Gut gemacht!')+'</div>';
+    }
+    h+='<div class="row"><span class="sp"></span><button class="btn p" data-a="next"'+(done?'':' disabled')+'>'+(S.stop===PLAN.length-1?'Fertig 🎉':'Weiter →')+'</button></div>';
+    return h;
+  }
+
+  function vPlay(){
+    var t=stop().def.type;
+    if(t==='choice') return '<div class="card">'+vChoice()+'</div>';
+    if(t==='story')  return '<div class="card">'+vStory()+'</div>';
+    if(t==='input')  return '<div class="card">'+vInput()+'</div>';
+    if(t==='order')  return '<div class="card">'+vOrder()+'</div>';
+    if(t==='match')  return '<div class="card">'+vMatch()+'</div>';
+    if(t==='sort')   return '<div class="card">'+vSort()+'</div>';
+    return '<div class="card">Unbekannte Aufgabe</div>';
+  }
+
+  /* ================= Abschluss ================= */
+  function vFinish(){
+    var q = S.sessionTotal? Math.round(S.sessionCorrect/S.sessionTotal*100):0;
+    var stars = q>=90?3:(q>=70?2:1);
+    var newB = S.doneStops.filter(function(x){return x.newBadge;});
+    var h='<div class="card" style="text-align:center">'+
+      '<h1>Geschafft'+(meta.name?', '+esc(meta.name):'')+'!</h1>'+
+      '<div class="stars">'+'⭐'.repeat(stars)+'☆'.repeat(3-stars)+'</div>'+
+      '<div class="statrow">'+
+        '<div class="stat"><b>'+S.sessionCorrect+'/'+S.sessionTotal+'</b><span>richtig heute</span></div>'+
+        '<div class="stat"><b>'+q+'%</b><span>Trefferquote</span></div>'+
+        '<div class="stat"><b>+'+S.gainXP+'</b><span>Punkte</span></div>'+
+      '</div>';
+    if(newB.length){
+      h+='<div class="kudos">🏅 Neue Abzeichen: '+newB.map(function(x){ var b=BADGES[x.id]; return b.emoji+' '+esc(b.name); }).join(' · ')+'</div>';
+    }
+    h+='<p class="lead">'+(q>=90?'Fast alles richtig – herausragend!':(q>=70?'Richtig gut gearbeitet!':'Schön drangeblieben – Übung macht stark!'))+'</p>'+
+      '<div class="row" style="justify-content:center"><button class="btn p" id="again">Neue Runde</button>'+
+      '<button class="btn g" id="toColl">🏅 Sammlung</button>'+
+      '<button class="btn g" id="toRep">📋 Lernbericht</button></div></div>';
+    return h;
+  }
+
+  /* ================= Render ================= */
+  function render(){
+    var a=document.getElementById('app');
+    if(S.screen==='home') a.innerHTML=vHome();
+    else if(S.screen==='play') a.innerHTML=vPlay();
+    else if(S.screen==='coll') a.innerHTML=vColl();
+    else if(S.screen==='rep') a.innerHTML=vReport();
+    else a.innerHTML=vFinish();
+    paintPath();
+    document.documentElement.style.setProperty('--scale',S.scale);
+    var b=document.getElementById('bSound'); if(b) b.textContent=S.muted?'🔇':'🔊';
+  }
+
+  /* ================= Bewertung / Fortschritt ================= */
+  function recordAnswer(ok){
+    S.roundTotal++; S.sessionTotal++;
+    if(ok){ S.roundCorrect++; S.sessionCorrect++; }
+  }
+
+  function finishStop(){
+    var st=stop(), w=st.world, p=P(w.id);
+    p.done += S.roundTotal; p.correct += S.roundCorrect; p.last=new Date().toISOString();
+    var q = S.roundTotal? S.roundCorrect/S.roundTotal : 0;
+    var passed = q>=0.6;
+    var newBadge=false;
+    if(passed && !st.review){
+      if(st.round==='a' && p.level<1){ p.level=1; newBadge=true; }
+      else if(st.round==='b' && p.level<2){ p.level=2; newBadge=true; }
+    }
+    p.stars=Math.max(p.stars||0, q>=0.9?3:(q>=0.7?2:1));
+    prog[w.id]=p; save(K_PROG,prog);
+    log.push({d:new Date().toISOString(), w:w.id, r:st.round, c:S.roundCorrect, t:S.roundTotal});
+    if(log.length>200) log=log.slice(-200);
+    save(K_LOG,log);
+    S.doneStops.push({id:w.id, newBadge:newBadge});
+    S.gainXP=(S.gainXP||0)+S.roundCorrect*10+(passed?25:0);
+    S.roundCorrect=0; S.roundTotal=0;
+  }
+
+  function nextStop(){
+    finishStop();
+    if(S.stop<PLAN.length-1){
+      S.stop++; S.item=0; S.phase='intro'; S.result=null; S.typing=false; S.micMsg=null; stopListening();
+      S.order={picked:[]}; S.match={sel:null,done:[],wrong:0}; S.sort={i:0,trace:[]};
+      render();
+    }else{
+      meta.xp=(meta.xp||0)+(S.gainXP||0); save(K_META,meta);
+      S.screen='finish'; render();
+      cloudSave(function(){ paintCloudLine(); });
+    }
+  }
+
+  function advance(){
+    var d=stop().def;
+    if(d.type==='story' && S.phase==='intro'){ S.phase='q'; S.item=0; S.result=null; render(); return; }
+    if(d.type==='order' && S.item<items().length-1){
+      S.item++; S.order={picked:[]}; render(); return;
+    }
+    if((d.type==='choice'||d.type==='story'||d.type==='input') && S.item<items().length-1){
+      S.item++; S.result=null; S.typing=false; S.micMsg=null; stopListening(); render(); return;
+    }
+    nextStop();
+  }
+
+  /* ================= Eingaben prüfen ================= */
+  /* said = getippter Text ODER Liste der Erkennungs-Varianten aus dem Mikrofon.
+     Die Spracherkennung liegt oft erst bei Variante 2 oder 3 richtig. */
+  function checkInput(said){
+    var st=stop(), d=st.def, it=item();
+    var alts = Object.prototype.toString.call(said)==='[object Array]' ? said : [said];
+    var shown = (alts.length&&alts[0]!=null) ? ''+alts[0] : '';
+    var ok=false, solution, i;
+    if(d.numeric){
+      solution=''+it.answer;
+      for(i=0;i<alts.length;i++){
+        var v=parseNum(alts[i]);
+        if(v!==null && Math.abs(v-it.answer)<1e-9){ ok=true; shown=''+alts[i]; break; }
+      }
+    }else{
+      var acc=it.accepts||[]; solution=acc[0]||'';
+      for(i=0;i<alts.length && !ok;i++){
+        var sd=''+(alts[i]||'');
+        ok = acc.some(function(a){ return norm(sd)===norm(a) || overlap(a,sd)>=0.7; });
+        if(ok) shown=sd;
+      }
+    }
+    S.micMsg=null;
+    S.result={said:shown, ok:ok, solution:solution};
+    recordAnswer(ok);
+    render();
+  }
+
+  /* ================= Ereignisse ================= */
+  var lastClick=0;
+  document.addEventListener('click',function(ev){
+    var t=ev.target.closest('[data-a],#go,#again,#toColl,#toRep,#back,#pr,#pdf,#csv,#cloud,#stExp,#stImp,#stCode,#stRead,#nmMic,#bPlus,#bMinus,#bSound,#bTheme');
+    if(!t) return;
+    var now=Date.now(); if(now-lastClick<220) return; lastClick=now;
+
+    if(t.id==='bPlus'){ S.scale=Math.min(1.4,+(S.scale+0.1).toFixed(2)); render(); return; }
+    if(t.id==='bMinus'){ S.scale=Math.max(.85,+(S.scale-0.1).toFixed(2)); render(); return; }
+    if(t.id==='bSound'){ S.muted=!S.muted; if(S.muted&&window.speechSynthesis) speechSynthesis.cancel(); render(); return; }
+    if(t.id==='bTheme'){
+      var c=document.documentElement.getAttribute('data-theme');
+      var n=c==='dark'?'light':(c==='light'?null:'dark');
+      if(n) document.documentElement.setAttribute('data-theme',n); else document.documentElement.removeAttribute('data-theme');
+      return;
+    }
+    if(t.id==='nmMic'){
+      if(listening){ stopListening(); return; }
+      var nh=document.getElementById('nmHint');
+      if(nh) nh.textContent='🎧 Ich höre zu …';
+      listen('de-DE',function(x,err){
+        if(err){ if(MIC_FATAL[err]) MIC.off=true; if(nh) nh.textContent=MICERR[err]||MICERR.err; return; }
+        var i=document.getElementById('nm');
+        if(i&&x&&x.length) i.value=(''+x[0]).replace(/[.,!?]+$/,'');
+        if(nh) nh.textContent='';
+      });
+      return;
+    }
+    if(t.id==='go'){
+      var i=document.getElementById('nm'); meta.name=i?i.value.trim():''; save(K_META,meta);
+      touchStreak();
+      S.screen='play'; S.stop=0; S.item=0; S.phase='intro'; S.result=null;
+      S.sessionCorrect=0; S.sessionTotal=0; S.roundCorrect=0; S.roundTotal=0; S.gainXP=0; S.doneStops=[];
+      render(); return;
+    }
+    if(t.id==='again'){ location.reload(); return; }
+    if(t.id==='toColl'){ S.back=S.screen; S.screen='coll'; render(); return; }
+    if(t.id==='toRep'){ S.back=S.screen; S.screen='rep'; render(); return; }
+    if(t.id==='back'){ S.screen=S.back==='finish'?'finish':'home'; render(); return; }
+    if(t.id==='cloud'){
+      t.disabled=true; paintCloudLine('☁ Wird gesichert …');
+      cloudSave(function(){ t.disabled=false; paintCloudLine(); });
+      return;
+    }
+    if(t.id==='stExp'){
+      offerFile('Lernstand.json', exportState(), null, function(m){ paintStLine(m); });
+      return;
+    }
+    if(t.id==='stImp'){
+      var f=document.getElementById('stFile');
+      if(f) f.click(); else paintStLine('Datei-Auswahl geht hier nicht – nimm den Code.');
+      return;
+    }
+    if(t.id==='stCode'){
+      var box=document.getElementById('stBox');
+      if(box) box.innerHTML='<p class="hint">Diesen Text kopieren, auf dem anderen Gerät hier einfügen und auf „Einlesen" tippen.</p>'+
+        '<textarea id="stTa">'+esc(exportState())+'</textarea>'+
+        '<div class="row"><button class="btn p" id="stRead">Einlesen</button></div>';
+      paintStLine('');
+      return;
+    }
+    if(t.id==='stRead'){
+      var ta=document.getElementById('stTa');
+      var err=importState(ta?ta.value:'');
+      if(err){ paintStLine(err); return; }
+      render(); paintStLine('Lernstand übernommen und zusammengeführt.');
+      return;
+    }
+    if(t.id==='pr'){ window.print(); return; }
+    if(t.id==='pdf'){
+      t.disabled=true; paintDlLine('PDF wird erstellt \u2026');
+      var blob;
+      try{ blob=reportPDF(); }
+      catch(e){ t.disabled=false; paintDlLine('Das PDF konnte nicht erzeugt werden.'); return; }
+      offerFile('Lernbericht.pdf', blob,
+        {name:'Lernbericht.md', data:reportMarkdown(), label:'Markdown-Datei'},
+        function(m){ t.disabled=false; paintDlLine(m); });
+      return;
+    }
+    if(t.id==='csv'){
+      var csv='\ufeff'+buildCSV();
+      var box=document.getElementById('csvbox');
+      offerFile('Lernbericht.csv', csv,
+        {name:'Lernbericht.txt', data:csv, label:'Textdatei'},
+        function(m){ paintDlLine(m); });
+      if(box) box.innerHTML='<p class="hint">Zum Weiterverarbeiten kannst du den Text hier auch markieren und in Excel einfügen.</p><textarea readonly>'+esc(csv)+'</textarea>';
+      return;
+    }
+
+    var a=t.getAttribute('data-a');
+    if(!a) return;
+    var st=stop();
+
+    if(a==='say'){ speak(t.getAttribute('data-t')||'', langOf(st.world)); return; }
+    if(a==='start'){ S.phase='q'; S.item=0; S.result=null; render(); return; }
+
+    if(a==='pick'){
+      if(S.result) return;
+      var v=t.getAttribute('data-v');
+      S.result={picked:v};
+      recordAnswer(v===item().correct);
+      render(); return;
+    }
+    if(a==='mic'){
+      if(listening){ stopListening(); return; }
+      showMicMsg(null);
+      listen(t.getAttribute('data-lang')||'de-DE',function(x,err){
+        if(err){
+          if(MIC_FATAL[err]){ MIC.off=true; S.typing=true; S.micMsg=MICERR[err]||MICERR.err; render(); }
+          else showMicMsg(MICERR[err]!==undefined?MICERR[err]:MICERR.err);
+          return;
+        }
+        checkInput(x);
+      });
+      return; /* bewusst kein render(): sonst wird die Aufnahme-Anzeige sofort weggezeichnet */
+    }
+    if(a==='type'){ stopListening(); S.typing=true; S.micMsg=null; render(); return; }
+    if(a==='mic2'){ S.typing=false; MIC.off=false; S.micMsg=null; render(); return; }
+    if(a==='sub'){
+      var inp=document.getElementById('tin');
+      checkInput(inp?inp.value:'');
+      return;
+    }
+
+    if(a==='ord'){
+      var w=t.getAttribute('data-v');
+      var sol=item().solution, k=S.order.picked.length;
+      if(sol[k]===w){ S.order.picked.push(w); S.order.msg=null;
+        if(S.order.picked.length===sol.length){ recordAnswer(true); }
+      } else { S.order.msg='Das passt hier noch nicht – probier ein anderes.'; }
+      render(); return;
+    }
+    if(a==='ordreset'){ S.order={picked:[]}; render(); return; }
+
+    if(a==='ml'){ S.match.sel=parseInt(t.getAttribute('data-i'),10); S.match.msg=null; render(); return; }
+    if(a==='mr'){
+      var m=S.match;
+      if(m.sel==null){ m.msg='Wähle zuerst links etwas aus.'; render(); return; }
+      var pairs=stop().def.pairs, r=t.getAttribute('data-r');
+      if(pairs[m.sel].r===r){ m.done.push(m.sel); m.sel=null; m.msg=null; recordAnswer(true);
+        if(m.done.length>=pairs.length){ /* fertig */ }
+      } else { m.msg='Das passt nicht zusammen – schau nochmal.'; m.sel=null; recordAnswer(false); }
+      render(); return;
+    }
+
+    if(a==='srt'){
+      var d=stop().def, s=S.sort, it=d.items[s.i];
+      if(!it) return;
+      var chose = t.getAttribute('data-v')==='a';
+      var ok = chose===it.a;
+      s.trace.push({label:(it.show||it.text), ok:ok});
+      s.msg = ok?null:('Richtig wäre: '+(it.a?d.bucketA:d.bucketB)+(it.show?' ('+it.show+')':''));
+      recordAnswer(ok);
+      s.i++;
+      render(); return;
+    }
+
+    if(a==='next'){ advance(); return; }
+    if(a==='skip'){
+      var d2=stop().def;
+      if(d2.type==='choice'||d2.type==='story'||d2.type==='input'){ recordAnswer(false); }
+      else if(d2.type==='order' && S.order.picked.length<item().solution.length){ recordAnswer(false); }
+      advance(); return;
+    }
+  });
+
+  document.addEventListener('change',function(ev){
+    var t=ev.target;
+    if(!t || t.id!=='stFile' || !t.files || !t.files[0]) return;
+    var fr=new FileReader();
+    fr.onload=function(){
+      var err=importState(fr.result);
+      if(err){ paintStLine(err); return; }
+      render(); paintStLine('Lernstand übernommen und zusammengeführt.');
+    };
+    fr.onerror=function(){ paintStLine('Die Datei konnte nicht gelesen werden.'); };
+    fr.readAsText(t.files[0]);
+    t.value='';
+  });
+
+  document.addEventListener('keydown',function(e){
+    if(e.key==='Enter'){
+      var i=document.getElementById('tin');
+      if(i && document.activeElement===i){ checkInput(i.value); }
+    }
+  });
+
+  function paintStLine(txt){
+    var el=document.getElementById('stLine');
+    if(el) el.textContent=txt||'';
+  }
+
+  function paintDlLine(txt){
+    var el=document.getElementById('dlLine');
+    if(el){ el.textContent=txt||''; }
+  }
+
+  function paintCloudLine(txt){
+    var el=document.getElementById('cloudLine');
+    if(el) el.textContent = txt || cloudLabel();
+  }
+
+  render();
+  /* Erst zeichnen, dann den geräteübergreifenden Stand nachladen: die App
+     ist sofort da und aktualisiert sich, sobald die Daten eintreffen. */
+  cloudInit(function(){
+    if(S.screen==='home'){
+      SESSION=buildSession();
+      PLAN=SESSION.map(function(p){
+        var def = p.round==='a' ? p.w.a : p.w.b;
+        return { world:p.w, round:p.round, review:p.review, def:def, type:def.type };
+      });
+      render();
+    }else{
+      paintCloudLine();
+    }
+  });
+})();
+
+</script>
+</body>
+</html>
