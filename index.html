@@ -313,6 +313,11 @@
     .avopts{ width:100%; }
   }
 
+  /* ---------- Einstellungen ---------- */
+  .sect{ display:flex; flex-direction:column; gap:.7rem; padding-top:1rem;
+    border-top:1px solid var(--line); }
+  .sect:first-of-type{ padding-top:0; border-top:none; }
+
   @media (prefers-reduced-motion: reduce){
     *{ animation:none !important; transition:none !important; }
     .node.cur{ transform:none; }
@@ -342,6 +347,7 @@
       <button class="iconbtn util" id="bPlus" title="Schrift größer">A+</button>
       <button class="iconbtn" id="bSound" title="Vorlesen an/aus">🔊</button>
       <button class="iconbtn" id="bTheme" title="Hell/Dunkel">◐</button>
+      <button class="iconbtn" id="bSet" title="Einstellungen">⚙️</button>
     </div>
   </div>
   <div class="path noprint" id="path"></div>
@@ -1368,6 +1374,40 @@ var SUBJECTS = {
     return h;
   }
 
+  /* ================= Einstellungen =================
+     Verwalten gehört nicht in den Lernbericht - der ist zum Lesen. */
+  function vSettings(){
+    var h='<div class="card"><div class="row"><h1 style="flex:1">⚙️ Einstellungen</h1>'+
+      '<button class="btn g" id="back">← Zurück</button></div>'+
+      '<div class="sect">'+
+       '<h3>Kind verwalten</h3>'+
+       '<p class="hint">Der Lernstand gehört zu <b>'+esc(store.active)+'</b>. Jedes Kind hat seinen eigenen.</p>'+
+       '<div class="inrow"><input id="renm" value="'+esc(store.active)+'" aria-label="Name ändern" autocomplete="off">'+
+       '<button class="btn g" id="doRen">Umbenennen</button></div>'+
+       '<div class="avpick">'+avatarHTML(store.active,'big')+
+       '<div class="avopts"><p class="hint">Bild aussuchen oder ein eigenes Foto nehmen.</p><div class="emorow">'+
+       AVATARS.map(function(em){
+         return '<button class="emo-b'+(avatarOf(store.active)===em?' on':'')+'" data-a="av" data-v="'+esc(em)+'">'+em+'</button>';
+       }).join('')+'</div>'+
+       '<div class="row"><button class="btn g" id="avPick">📷 Foto wählen</button>'+
+       ((''+avatarOf(store.active)).indexOf('data:')===0?'<button class="btn g" id="avDrop">Foto entfernen</button>':'')+'</div>'+
+       '<input type="file" id="avFile" accept="image/*" style="display:none"></div></div>'+
+       '<div class="row"><button class="btn g" id="doDel">'+(S.delArm?'Wirklich löschen?':'Kind löschen')+'</button>'+
+       (S.delArm?'<button class="btn g" id="doDelNo">Abbrechen</button>':'')+'</div>'+
+       '<p class="hint" id="pfLine"></p>'+
+      '</div><div class="sect">'+
+       '<h3>Lernstand auf ein anderes Gerät übertragen</h3>'+
+       '<p class="hint">Gesichert werden alle Kinder auf einmal. Auf dem anderen Gerät einlesen – beide Stände werden zusammengeführt, es geht nichts verloren.</p>'+
+       '<div class="row"><button class="btn g" id="stExp">⬇ Als Datei sichern</button>'+
+       '<button class="btn g" id="stImp">⬆ Aus Datei laden</button>'+
+       '<button class="btn g" id="stCode">🔤 Code zum Kopieren</button></div>'+
+       '<input type="file" id="stFile" accept=".json,.txt,application/json,text/plain" style="display:none">'+
+       '<p class="hint" id="stLine"></p><div id="stBox"></div></div>'+      (CLOUD.on?'<div class="row"><button class="btn g" id="cloud">☁ Jetzt sichern</button></div>':'')+
+      '<p class="hint" id="cloudLine">'+esc(cloudLabel())+'</p>'+
+      '</div>';
+    return h+'</div>';
+  }
+
   /* ================= Themen aussuchen ================= */
   function vPick(){
     var sel=Object.keys(S.pick).filter(function(k){ return S.pick[k]; });
@@ -1499,32 +1539,9 @@ var SUBJECTS = {
     }
     h+='<div class="row noprint"><button class="btn p" id="pdf">⬇ Als PDF speichern</button>'+
        '<button class="btn g" id="csv">⬇ Als Tabelle (CSV)</button>'+
-       (embedded()?'':'<button class="btn g" id="pr">🖨 Drucken</button>')+
-       (CLOUD.on?'<button class="btn g" id="cloud">☁ Jetzt sichern</button>':'')+'</div>'+
+       (embedded()?'':'<button class="btn g" id="pr">🖨 Drucken</button>')+'</div>'+
        '<p class="hint noprint" id="dlLine"></p>'+
-       '<p class="hint noprint" id="cloudLine">'+esc(cloudLabel())+'</p>'+
-       '<div class="noprint"><h3>Kind verwalten</h3>'+
-       '<p class="hint">Der Lernstand gehört zu <b>'+esc(store.active)+'</b>. Jedes Kind hat seinen eigenen.</p>'+
-       '<div class="inrow"><input id="renm" value="'+esc(store.active)+'" aria-label="Name ändern" autocomplete="off">'+
-       '<button class="btn g" id="doRen">Umbenennen</button></div>'+
-       '<div class="avpick">'+avatarHTML(store.active,'big')+
-       '<div class="avopts"><p class="hint">Bild aussuchen oder ein eigenes Foto nehmen.</p><div class="emorow">'+
-       AVATARS.map(function(em){
-         return '<button class="emo-b'+(avatarOf(store.active)===em?' on':'')+'" data-a="av" data-v="'+esc(em)+'">'+em+'</button>';
-       }).join('')+'</div>'+
-       '<div class="row"><button class="btn g" id="avPick">📷 Foto wählen</button>'+
-       ((''+avatarOf(store.active)).indexOf('data:')===0?'<button class="btn g" id="avDrop">Foto entfernen</button>':'')+'</div>'+
-       '<input type="file" id="avFile" accept="image/*" style="display:none"></div></div>'+
-       '<div class="row"><button class="btn g" id="doDel">'+(S.delArm?'Wirklich löschen?':'Lernstand löschen')+'</button>'+
-       (S.delArm?'<button class="btn g" id="doDelNo">Abbrechen</button>':'')+'</div>'+
-       '<p class="hint" id="pfLine"></p></div>'+
-       '<div class="noprint"><h3>Lernstand auf ein anderes Gerät übertragen</h3>'+
-       '<p class="hint">Gesichert werden alle Kinder auf einmal. Auf dem anderen Gerät einlesen – beide Stände werden zusammengeführt, es geht nichts verloren.</p>'+
-       '<div class="row"><button class="btn g" id="stExp">⬇ Als Datei sichern</button>'+
-       '<button class="btn g" id="stImp">⬆ Aus Datei laden</button>'+
-       '<button class="btn g" id="stCode">🔤 Code zum Kopieren</button></div>'+
-       '<input type="file" id="stFile" accept=".json,.txt,application/json,text/plain" style="display:none">'+
-       '<p class="hint" id="stLine"></p><div id="stBox"></div></div>'+
+
        '<div class="noprint" id="csvbox"></div>'+
        '</div>';
     return h;
@@ -1937,6 +1954,7 @@ var SUBJECTS = {
     else if(S.screen==='blitzend') a.innerHTML=vBlitzEnd();
     else if(S.screen==='coll') a.innerHTML=vColl();
     else if(S.screen==='rep') a.innerHTML=vReport();
+    else if(S.screen==='set') a.innerHTML=vSettings();
     else a.innerHTML=vFinish();
     paintPath();
     document.documentElement.style.setProperty('--scale',S.scale);
@@ -2025,7 +2043,7 @@ var SUBJECTS = {
   /* ================= Ereignisse ================= */
   var lastClick=0;
   document.addEventListener('click',function(ev){
-    var t=ev.target.closest('[data-a],#go,#again,#toColl,#toRep,#back,#pr,#pdf,#csv,#cloud,#stExp,#stImp,#stCode,#stRead,#doRen,#doDel,#doDelNo,#avPick,#avDrop,#toPick,#toBlitz,#nmMic,#bPlus,#bMinus,#bSound,#bTheme');
+    var t=ev.target.closest('[data-a],#go,#again,#toColl,#toRep,#back,#pr,#pdf,#csv,#cloud,#stExp,#stImp,#stCode,#stRead,#doRen,#doDel,#doDelNo,#avPick,#avDrop,#toPick,#toBlitz,#bSet,#nmMic,#bPlus,#bMinus,#bSound,#bTheme');
     if(!t) return;
     var now=Date.now(); if(now-lastClick<220) return; lastClick=now;
 
@@ -2057,6 +2075,10 @@ var SUBJECTS = {
       render(); return;
     }
     if(t.id==='again'){ location.reload(); return; }
+    if(t.id==='bSet'){
+      if(S.screen==='set'){ S.screen=S.back==='finish'?'finish':'home'; render(); return; }
+      S.back=(S.screen==='finish')?'finish':'home'; S.screen='set'; S.delArm=false; render(); return;
+    }
     if(t.id==='toPick'){ S.back=S.screen; S.screen='pick'; render(); return; }
     if(t.id==='toBlitz'){ blitzStart(); return; }
     if(t.id==='toColl'){ S.back=S.screen; S.screen='coll'; render(); return; }
@@ -2085,10 +2107,10 @@ var SUBJECTS = {
       return;
     }
     if(t.id==='doDel'){
-      if(!S.delArm){ S.delArm=true; render(); paintPfLine('Der Lernstand von '+store.active+' wird gelöscht. Das lässt sich nicht rückgängig machen.'); return; }
+      if(!S.delArm){ S.delArm=true; render(); paintPfLine(store.active+' wird mit allem Fortschritt gelöscht. Das lässt sich nicht rückgängig machen – sichere vorher den Lernstand, wenn du unsicher bist.'); return; }
       var weg=store.active;
       deleteProfile(weg); S.delArm=false;
-      rebuildPlan(); render(); paintPfLine('Lernstand von '+weg+' gelöscht.');
+      rebuildPlan(); render(); paintPfLine(weg+' wurde gelöscht.');
       return;
     }
     if(t.id==='doDelNo'){ S.delArm=false; render(); return; }
