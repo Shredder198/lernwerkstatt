@@ -246,6 +246,73 @@
   .subj{ display:inline-flex; align-items:center; gap:.3rem; font-size:.76rem; padding:.2rem .6rem;
     border-radius:999px; background:var(--sunk); border:1px solid var(--line); }
 
+  /* ---------- Profilbild ---------- */
+  .av{ flex:none; width:1.5rem; height:1.5rem; border-radius:50%; display:inline-flex;
+    align-items:center; justify-content:center; background-size:cover; background-position:center;
+    background-color:var(--sunk); font-size:.95rem; line-height:1; overflow:hidden; }
+  .av.big{ width:3.4rem; height:3.4rem; font-size:2rem; border:2px solid var(--line); }
+  .prof .av{ margin-right:.1rem; }
+  .hello{ display:flex; align-items:center; gap:.8rem; }
+  .hello h1{ flex:1; }
+  .avpick{ display:flex; gap:.9rem; align-items:flex-start; padding:.9rem;
+    border:1px solid var(--line); border-radius:var(--r-m); background:var(--sunk); }
+  .avopts{ flex:1; display:flex; flex-direction:column; gap:.6rem; min-width:0; }
+  .emorow{ display:flex; flex-wrap:wrap; gap:.35rem; }
+  .emo-b{ width:2.6rem; height:2.6rem; font-size:1.3rem; line-height:1; cursor:pointer;
+    border-radius:var(--r-s); border:1.5px solid var(--line); background:var(--raised);
+    display:flex; align-items:center; justify-content:center; transition:border-color .15s; }
+  .emo-b:hover{ border-color:var(--accent); }
+  .emo-b.on{ border-color:var(--accent); box-shadow:0 0 0 2px color-mix(in srgb,var(--accent) 30%,transparent); }
+
+  /* ---------- Startseite: Aktionen ---------- */
+  .acts{ display:grid; grid-template-columns:1fr 1fr; gap:.6rem; }
+  .act{ display:flex; flex-direction:column; align-items:flex-start; gap:.15rem;
+    padding:.85rem .9rem; min-height:5rem; cursor:pointer; text-align:left;
+    border:1.5px solid var(--line); border-radius:var(--r-m); background:var(--sunk);
+    color:var(--ink); font-family:Lexend,"Segoe UI",system-ui,sans-serif;
+    transition:border-color .15s, background .15s; }
+  .act:hover{ border-color:var(--accent); background:var(--raised); }
+  .act .ai{ font-size:1.35rem; line-height:1.2; }
+  .act .an{ font-weight:600; font-size:.95rem; }
+  .act .ad{ font-size:.75rem; color:var(--soft); line-height:1.35; }
+
+  /* ---------- Themenwahl ---------- */
+  .grp{ display:flex; flex-direction:column; gap:.5rem; }
+  .grp h3.t-de{ color:var(--accent); }
+  .grp h3.t-fr{ color:var(--blue); }
+  .grp h3.t-ma{ color:var(--clay); }
+  .topics{ display:flex; flex-direction:column; gap:.4rem; }
+  .topic{ display:flex; align-items:center; gap:.7rem; width:100%; text-align:left;
+    padding:.7rem .85rem; min-height:3.2rem; cursor:pointer; font-family:inherit;
+    border:2px solid var(--line); border-radius:var(--r-m); background:var(--sunk); color:var(--ink);
+    transition:border-color .15s, background .15s; }
+  .topic:hover{ border-color:var(--accent); background:var(--raised); }
+  .topic.on{ border-color:var(--accent); background:color-mix(in srgb,var(--accent) 12%,var(--raised)); }
+  .topic .tic{ flex:none; font-size:1.25rem; line-height:1; }
+  .tbody{ flex:1; display:flex; flex-direction:column; min-width:0; }
+  .tnm{ font-weight:600; font-size:.98rem; line-height:1.35;
+    font-family:Lexend,"Segoe UI",system-ui,sans-serif; }
+  .tmeta{ font-size:.78rem; color:var(--soft); line-height:1.4; }
+  .topic .tck{ flex:none; width:1.5rem; text-align:center; color:var(--accent); font-weight:700; }
+
+  /* ---------- Blitzrunde ---------- */
+  .blitzcard{ gap:.85rem; }
+  .bzhead{ display:flex; align-items:center; gap:.6rem; flex-wrap:wrap;
+    font-family:Lexend,"Segoe UI",system-ui,sans-serif; }
+  .bztag{ font-weight:600; color:var(--gold); }
+  .bzscore{ flex:1; font-size:.88rem; color:var(--soft); }
+  .bztime{ font-weight:700; font-variant-numeric:tabular-nums; font-size:1.05rem; }
+  .bzbar{ height:.5rem; background:var(--sunk); border:1px solid var(--line);
+    border-radius:999px; overflow:hidden; }
+  .bzbar i{ display:block; height:100%; background:var(--gold); border-radius:999px; }
+
+  @media (max-width:30rem){
+    .acts{ grid-template-columns:1fr 1fr; }
+    .act{ min-height:4.6rem; padding:.7rem .75rem; }
+    .avpick{ flex-direction:column; align-items:center; }
+    .avopts{ width:100%; }
+  }
+
   @media (prefers-reduced-motion: reduce){
     *{ animation:none !important; transition:none !important; }
     .node.cur{ transform:none; }
@@ -613,7 +680,11 @@ var SUBJECTS = {
   var K_ROOT='LW_v2';
   var K_PROG='LW_prog_v1', K_LOG='LW_log_v1', K_META='LW_meta_v1';   /* Altbestand */
   function load(k,d){ try{ var r=localStorage.getItem(k); return r?JSON.parse(r):d; }catch(e){ return d; } }
-  function persist(){ try{ localStorage.setItem(K_ROOT,JSON.stringify(store)); }catch(e){} }
+  var storeFull=false;
+  function persist(){
+    try{ localStorage.setItem(K_ROOT,JSON.stringify(store)); storeFull=false; return true; }
+    catch(e){ storeFull=true; return false; }
+  }
   /* Die alten save(K_PROG,…)-Aufrufe im Code schreiben jetzt das ganze
      Profil-Bündel - so bleibt der Rest der App unverändert. */
   function save(k,v){
@@ -634,7 +705,7 @@ var SUBJECTS = {
         division:    {level:1, stars:2, done:4, correct:3, last:SAM_D},
         sachaufgaben:{level:1, stars:1, done:3, correct:2, last:SAM_D}
       },
-      meta:{ xp:240, streak:1, lastDay:'2026-08-22', name:'Sam' },
+      meta:{ xp:240, streak:1, lastDay:'2026-08-22', name:'Sam', avatar:'🦊' },
       log:[
         {d:SAM_D, w:'conjug',       r:'a', c:3, t:4},
         {d:SAM_D, w:'sachaufgaben', r:'a', c:2, t:3},
@@ -645,7 +716,24 @@ var SUBJECTS = {
       ]
     };
   }
-  function blankProfile(name){ return {prog:{}, meta:{xp:0,streak:0,lastDay:null,name:name}, log:[]}; }
+  var AVATARS=['🦊','🐼','🦉','🐢','🦁','🐙','🦄','🐝','🦖','🐧','🦋','🐬','🦔','🐨','🦕','🐳'];
+  function blankProfile(name){
+    return { prog:{}, log:[],
+      meta:{ xp:0, streak:0, lastDay:null, name:name,
+             avatar:AVATARS[Math.floor(Math.random()*AVATARS.length)] } };
+  }
+  function avatarOf(nm){
+    var p=store.profiles[nm];
+    var a=p&&p.meta&&p.meta.avatar;
+    return a||'🙂';
+  }
+  /* Ein Foto wird zum Bild-Element, sonst steht da einfach das Emoji. */
+  function avatarHTML(nm,cls){
+    var a=avatarOf(nm);
+    if((''+a).indexOf('data:')===0)
+      return '<span class="av '+(cls||'')+'" style="background-image:url('+esc(a)+')" role="img" aria-label="Bild von '+esc(nm)+'"></span>';
+    return '<span class="av '+(cls||'')+' emo" role="img" aria-label="Bild von '+esc(nm)+'">'+esc(a)+'</span>';
+  }
 
   function initStore(){
     var st=load(K_ROOT,null);
@@ -686,6 +774,7 @@ var SUBJECTS = {
     dst.meta.streak=Math.max(dst.meta.streak|0, rm.streak|0);
     if((rm.lastDay||'')>(dst.meta.lastDay||'')) dst.meta.lastDay=rm.lastDay;
     if(!dst.meta.name && rm.name) dst.meta.name=rm.name;
+    if(!dst.meta.avatar && rm.avatar) dst.meta.avatar=rm.avatar;
     if(Array.isArray(rem.log)){
       var seen={}, out=[];
       dst.log.concat(rem.log).forEach(function(L){
@@ -711,6 +800,7 @@ var SUBJECTS = {
     if(p.meta.xp==null) p.meta.xp=0;
     if(p.meta.streak==null) p.meta.streak=0;
     if(p.meta.lastDay===undefined) p.meta.lastDay=null;
+    if(!p.meta.avatar) p.meta.avatar=AVATARS[Math.floor(Math.random()*AVATARS.length)];
     p.meta.name=name;
     prog=p.prog; log=p.log; meta=p.meta;
     persist();
@@ -784,19 +874,24 @@ var SUBJECTS = {
      kann, wo es am Laptop aufgehört hat, lässt sich der Stand als Datei
      oder als Textcode mitnehmen. Leere Themen fliegen raus - sonst wird
      der Code unnötig lang. */
-  function slimProfile(p){
+  function slimProfile(p,mitBild){
     var slim={};
     Object.keys(p.prog||{}).forEach(function(id){
       var e=p.prog[id];
       if(e && ((e.level|0)>0 || (e.done|0)>0)) slim[id]=e;
     });
-    return { prog:slim, meta:p.meta, log:(p.log||[]).slice(-40) };
+    var m={}, src=p.meta||{};
+    Object.keys(src).forEach(function(k){ m[k]=src[k]; });
+    /* Fotos blähen den Kopier-Code auf das Hundertfache auf - in der
+       Datei bleiben sie, im Text-Code nicht. */
+    if(!mitBild && (''+(m.avatar||'')).indexOf('data:')===0) delete m.avatar;
+    return { prog:slim, meta:m, log:(p.log||[]).slice(-40) };
   }
   /* nur = Name eines Profils, sonst alle Kinder auf einmal */
-  function exportState(nur){
+  function exportState(nur,mitBild){
     var out={};
     (nur?[nur]:profileNames()).forEach(function(nm){
-      if(store.profiles[nm]) out[nm]=slimProfile(store.profiles[nm]);
+      if(store.profiles[nm]) out[nm]=slimProfile(store.profiles[nm],mitBild);
     });
     return JSON.stringify({ v:2, savedAt:new Date().toISOString(),
       active:(nur||store.active), profiles:out });
@@ -818,6 +913,27 @@ var SUBJECTS = {
     return null;
   }
 
+  function startRun(picks){
+    SESSION=picks;
+    PLAN=SESSION.map(function(p){
+      var def = p.round==='a' ? p.w.a : p.w.b;
+      return { world:p.w, round:p.round, review:p.review, def:def, type:def.type };
+    });
+    touchStreak();
+    S.screen='play'; S.stop=0; S.item=0; S.phase='intro'; S.result=null; S.typing=false; S.micMsg=null;
+    S.sessionCorrect=0; S.sessionTotal=0; S.roundCorrect=0; S.roundTotal=0; S.gainXP=0; S.doneStops=[];
+    S.order={picked:[]}; S.match={sel:null,done:[],wrong:0}; S.sort={i:0,trace:[]};
+    render();
+  }
+  function startTopics(ids){
+    if(!ids.length) return;
+    startRun(ids.map(function(id){
+      var w=WORLDS.filter(function(x){return x.id===id;})[0];
+      var lv=levelOf(id);
+      return { w:w, round:roundFor(id), review:lv>=2 };
+    }));
+  }
+
   function rebuildPlan(){
     SESSION=buildSession();
     PLAN=SESSION.map(function(p){
@@ -826,7 +942,7 @@ var SUBJECTS = {
     });
   }
 
-  function cloudPayload(){ return exportState(); }
+  function cloudPayload(){ return exportState(null,true); }
 
   function cloudSave(cb,retried){
     if(!CLOUD.on||!CLOUD.ns){ cb&&cb('lokal'); return; }
@@ -872,6 +988,47 @@ var SUBJECTS = {
     meta.lastDay=t; save(K_META,meta);
   }
 
+  /* Fotos werden quadratisch zugeschnitten und auf 160 px verkleinert,
+     bevor sie in den Speicher gehen - ein Original aus der Handykamera
+     würde den Platz für alle Profile sprengen. */
+  function processAvatar(file,cb){
+    if(!file){ cb(null,'Keine Datei gewählt.'); return; }
+    if(!/^image\//.test(file.type||'')){ cb(null,'Das ist kein Bild.'); return; }
+    var fr=new FileReader();
+    fr.onerror=function(){ cb(null,'Die Datei konnte nicht gelesen werden.'); };
+    fr.onload=function(){
+      var img=new Image();
+      img.onerror=function(){ cb(null,'Dieses Bildformat kann der Browser nicht öffnen.'); };
+      img.onload=function(){
+        try{
+          var SZ=160, c=document.createElement('canvas'); c.width=c.height=SZ;
+          var ctx=c.getContext('2d');
+          var side=Math.min(img.width,img.height);
+          ctx.drawImage(img,(img.width-side)/2,(img.height-side)/2,side,side,0,0,SZ,SZ);
+          var out='';
+          try{ out=c.toDataURL('image/webp',0.82); }catch(e){}
+          if(out.indexOf('data:image/webp')!==0) out=c.toDataURL('image/jpeg',0.82);
+          if(out.length>90000) out=c.toDataURL('image/jpeg',0.6);
+          if(out.length>90000){ cb(null,'Das Bild ist zu groß. Nimm ein anderes.'); return; }
+          cb(out,null);
+        }catch(e){ cb(null,'Das Bild konnte nicht verkleinert werden.'); }
+      };
+      img.src=fr.result;
+    };
+    fr.readAsDataURL(file);
+  }
+
+  function setAvatar(nm,val){
+    var p=store.profiles[nm]; if(!p) return null;
+    var old=p.meta.avatar;
+    p.meta.avatar=val;
+    if(!persist()){
+      p.meta.avatar=old; persist();
+      return 'Der Speicher ist voll. Lösche ein Foto oder nimm ein Emoji.';
+    }
+    return null;
+  }
+
   /* ================= Session ================= */
   function shuffle(a){ a=a.slice(); for(var i=a.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)),t=a[i];a[i]=a[j];a[j]=t;} return a; }
 
@@ -904,12 +1061,93 @@ var SUBJECTS = {
     return { world:p.w, round:p.round, review:p.review, def:def, type:def.type };
   });
 
+  /* ---- Gezielt üben ------------------------------------------------
+     Der Tagesmix wählt selbst aus. Wer ein bestimmtes Thema verbessern
+     will, stellt sich die Runde hier zusammen. */
+  function roundFor(id){
+    var lv=levelOf(id);
+    return lv===0?'a':(lv===1?'b':(Math.random()<0.5?'a':'b'));
+  }
+  function quoteOf(id){
+    var p=P(id);
+    return p.done? p.correct/p.done : -1;   /* -1 = noch nie geübt */
+  }
+  /* Schwach = schon geübt, aber Quote unter 70 %. Danach die noch
+     unberührten Themen, damit die Auswahl nie leer bleibt. */
+  function weakest(k){
+    var geuebt=WORLDS.filter(function(w){ return quoteOf(w.id)>=0; })
+      .sort(function(a,b){ return quoteOf(a.id)-quoteOf(b.id); });
+    var neu=WORLDS.filter(function(w){ return quoteOf(w.id)<0; });
+    return geuebt.concat(neu).slice(0,k).map(function(w){ return w.id; });
+  }
+
+  /* ---- Blitzrunde --------------------------------------------------
+     60 Sekunden, nur Auswahlfragen aus allen Themen. Zählt nicht auf
+     die Themenstufen ein - sonst würde Tempo den Lernstand verfälschen. */
+  var BLITZ_S=60;
+  function blitzPool(){
+    var out=[];
+    WORLDS.forEach(function(w){
+      ['a','b'].forEach(function(r){
+        var d=w[r];
+        if(d && d.type==='choice' && d.items) d.items.forEach(function(it){ out.push({w:w,it:it}); });
+      });
+    });
+    return shuffle(out);
+  }
+  function blitzStart(){
+    var pool=blitzPool();
+    if(!pool.length) return;
+    S.blitz={ pool:pool, i:0, correct:0, wrong:0, picked:null,
+              endsAt:Date.now()+BLITZ_S*1000, over:false, timer:null, hop:null };
+    S.screen='blitz'; render();
+    S.blitz.timer=setInterval(blitzTick,200);
+  }
+  function blitzTick(){
+    var b=S.blitz; if(!b||b.over) return;
+    var left=Math.max(0,b.endsAt-Date.now());
+    var bar=document.getElementById('bzBar'), t=document.getElementById('bzTime');
+    if(bar) bar.style.width=(left/(BLITZ_S*1000)*100)+'%';
+    if(t) t.textContent=Math.ceil(left/1000)+' s';
+    if(left<=0) blitzEnd();
+  }
+  function blitzEnd(){
+    var b=S.blitz; if(!b||b.over) return;
+    b.over=true;
+    if(b.timer) clearInterval(b.timer);
+    if(b.hop) clearTimeout(b.hop);
+    meta.blitzBest=Math.max(meta.blitzBest|0, b.correct);
+    meta.blitzRuns=(meta.blitzRuns|0)+1;
+    meta.xp=(meta.xp||0)+b.correct*5;
+    save(K_META,meta);
+    S.screen='blitzend'; render();
+  }
+  function blitzAnswer(v){
+    var b=S.blitz; if(!b||b.over||b.picked!=null) return;
+    var cur=b.pool[b.i];
+    b.picked=v;
+    if(v===cur.it.correct) b.correct++; else b.wrong++;
+    render();
+    b.hop=setTimeout(function(){
+      if(!S.blitz||S.blitz.over) return;
+      b.i++; b.picked=null;
+      if(b.i>=b.pool.length) b.pool=b.pool.concat(blitzPool());
+      render();
+    }, v===cur.it.correct?520:900);
+  }
+  function blitzQuit(){
+    var b=S.blitz;
+    if(b){ if(b.timer) clearInterval(b.timer); if(b.hop) clearTimeout(b.hop); }
+    S.blitz=null; S.screen='home'; render();
+  }
+
   /* ================= Zustand ================= */
   var S = {
     screen:'home', stop:0, item:0, phase:'intro',
     result:null, roundCorrect:0, roundTotal:0,
     sessionCorrect:0, sessionTotal:0, doneStops:[],
     scale:1, muted:false, typing:false, micMsg:null, newProf:false, delArm:false,
+    pick:{}, blitz:null,
     order:{picked:[]}, match:{sel:null,done:[],wrong:0}, sort:{i:0,trace:[]}
   };
 
@@ -1068,6 +1306,7 @@ var SUBJECTS = {
   function paintPath(){
     var el=document.getElementById('path');
     if(S.screen!=='play'&&S.screen!=='finish'){ el.innerHTML=''; return; }
+    if(!PLAN.length){ el.innerHTML=''; return; }
     var h='';
     PLAN.forEach(function(st,i){
       var c='node'+(S.screen==='finish'||i<S.stop?' done':'')+(S.screen==='play'&&i===S.stop?' cur':'');
@@ -1085,7 +1324,8 @@ var SUBJECTS = {
     var note = SESSION.map(function(p){return p.w.icon;}).join(' ');
     return '<div class="card">'+
       profileRow()+
-      '<h1>Hallo, '+esc(store.active)+'! Bereit für 20 Minuten?</h1>'+
+      '<div class="hello">'+avatarHTML(store.active,'big')+
+      '<h1>Hallo, '+esc(store.active)+'! Bereit für 20 Minuten?</h1></div>'+
       '<p class="lead">Heute gemischt: Deutsch, Mathe und Französisch. Antworten darfst du überall auch sprechen.</p>'+
       '<div class="statrow">'+
         '<div class="stat"><b>'+lvl+'</b><span>Stufe</span></div>'+
@@ -1097,9 +1337,16 @@ var SUBJECTS = {
       '<p class="hint">Heute dran: '+note+'</p>'+
       '<p class="hint" id="cloudLine">'+esc(cloudLabel())+'</p>'+
       (MIC.supported?'':'<p class="hint">Hinweis: Dieser Browser kann nicht diktieren – öffne die Seite in Chrome, Edge oder Safari. Tippen geht überall.</p>')+
-      '<div class="row"><button class="btn p" id="go">Los geht\'s →</button>'+
-      '<button class="btn g" id="toColl">🏅 Sammlung</button>'+
-      '<button class="btn g" id="toRep">📋 Lernbericht</button></div>'+
+      '<div class="row"><button class="btn p" id="go">Los geht\'s →</button></div>'+
+      '<div class="acts">'+
+      '<button class="act" id="toPick"><span class="ai">🎯</span><span class="an">Thema üben</span>'+
+      '<span class="ad">Selbst aussuchen</span></button>'+
+      '<button class="act" id="toBlitz"><span class="ai">⚡</span><span class="an">Blitzrunde</span>'+
+      '<span class="ad">'+BLITZ_S+' Sekunden'+((meta.blitzBest|0)?' · Bestwert '+(meta.blitzBest|0):'')+'</span></button>'+
+      '<button class="act" id="toColl"><span class="ai">🏅</span><span class="an">Sammlung</span>'+
+      '<span class="ad">'+e+' von '+tot+'</span></button>'+
+      '<button class="act" id="toRep"><span class="ai">📋</span><span class="an">Lernbericht</span>'+
+      '<span class="ad">Für die Eltern</span></button></div>'+
     '</div>';
   }
 
@@ -1108,7 +1355,7 @@ var SUBJECTS = {
     var h='<div class="profrow">';
     profileNames().forEach(function(nm){
       h+='<button class="prof'+(nm===store.active?' on':'')+'" data-a="prof" data-v="'+esc(nm)+'"'+
-         (nm===store.active?' aria-current="true"':'')+'>'+esc(nm)+'</button>';
+         (nm===store.active?' aria-current="true"':'')+'>'+avatarHTML(nm)+esc(nm)+'</button>';
     });
     h+='<button class="prof add" data-a="profnew" title="Weiteres Kind anlegen">+</button></div>';
     if(S.newProf){
@@ -1119,6 +1366,77 @@ var SUBJECTS = {
          '<p class="hint" id="nmHint"></p></div>';
     }
     return h;
+  }
+
+  /* ================= Themen aussuchen ================= */
+  function vPick(){
+    var sel=Object.keys(S.pick).filter(function(k){ return S.pick[k]; });
+    var h='<div class="card"><div class="row"><h1 style="flex:1">🎯 Thema üben</h1>'+
+      '<button class="btn g" id="back">← Zurück</button></div>'+
+      '<p class="lead">Such dir aus, was du üben willst – zum Beispiel etwas, das beim letzten Mal wacklig war.</p>'+
+      '<div class="row"><button class="btn g" data-a="pickweak">Meine schwächsten 3</button>'+
+      (sel.length?'<button class="btn g" data-a="pickclear">Auswahl leeren</button>':'')+'</div>';
+    ['de','fr','ma'].forEach(function(sub){
+      h+='<div class="grp"><h3 class="t-'+sub+'">'+SUBJECTS[sub].icon+' '+esc(SUBJECTS[sub].name)+'</h3><div class="topics">';
+      WORLDS.filter(function(w){ return w.subject===sub; }).forEach(function(w){
+        var p=P(w.id), q=quoteOf(w.id);
+        var stand = p.level>=2?'gemeistert':(p.level>=1?'begonnen':(p.done?'geübt':'noch offen'));
+        var qs = q>=0? Math.round(q*100)+'% richtig' : 'noch nicht geübt';
+        h+='<button class="topic'+(S.pick[w.id]?' on':'')+'" data-a="pt" data-v="'+esc(w.id)+'"'+
+           ' aria-pressed="'+(S.pick[w.id]?'true':'false')+'">'+
+           '<span class="tic">'+w.icon+'</span>'+
+           '<span class="tbody"><span class="tnm">'+esc(w.title)+'</span>'+
+           '<span class="tmeta">'+stand+' · '+qs+'</span></span>'+
+           '<span class="tck">'+(S.pick[w.id]?'✓':'')+'</span></button>';
+      });
+      h+='</div></div>';
+    });
+    h+='<div class="row"><span class="sp"></span>'+
+       '<button class="btn p" data-a="pickgo"'+(sel.length?'':' disabled')+'>'+
+       (sel.length?('Üben ('+sel.length+' '+(sel.length===1?'Thema':'Themen')+') →'):'Wähle ein Thema')+'</button></div>';
+    return h+'</div>';
+  }
+
+  /* ================= Blitzrunde ================= */
+  function vBlitz(){
+    var b=S.blitz;
+    if(!b) return '<div class="card"><p>Keine Runde aktiv.</p></div>';
+    var cur=b.pool[b.i], it=cur.it, sub=SUBJECTS[cur.w.subject];
+    var h='<div class="card blitzcard">'+
+      '<div class="bzhead"><span class="bztag">⚡ Blitzrunde</span>'+
+      '<span class="bzscore">'+b.correct+' richtig</span>'+
+      '<span class="bztime" id="bzTime">'+BLITZ_S+' s</span></div>'+
+      '<div class="bzbar"><i id="bzBar" style="width:100%"></i></div>'+
+      '<div class="tag t-'+cur.w.subject+'"><span>'+sub.icon+'</span>'+esc(sub.name)+' · '+esc(cur.w.title)+'</div>'+
+      '<div class="prompt">'+esc(it.q)+'</div><div class="opts">';
+    it.options.forEach(function(o){
+      var c='opt', m='';
+      if(b.picked!=null){
+        if(o===it.correct){ c+=' ok'; m='✓'; }
+        else if(o===b.picked){ c+=' no'; m='✕'; }
+      }
+      h+='<button class="'+c+'" data-a="bz" data-v="'+esc(o)+'"'+(b.picked!=null?' disabled':'')+'>'+
+         '<span>'+esc(o)+'</span><span>'+m+'</span></button>';
+    });
+    h+='</div><div class="row"><span class="sp"></span>'+
+       '<button class="btn g" data-a="bzquit">Abbrechen</button></div>';
+    return h+'</div>';
+  }
+
+  function vBlitzEnd(){
+    var b=S.blitz||{correct:0,wrong:0};
+    var best=meta.blitzBest|0, neu=b.correct>0 && b.correct>=best;
+    return '<div class="card" style="text-align:center">'+
+      '<h1>⚡ '+b.correct+' richtig in '+BLITZ_S+' Sekunden</h1>'+
+      (neu?'<div class="kudos">🏆 Neuer Bestwert!</div>':'<p class="lead">Dein Bestwert: '+best+'</p>')+
+      '<div class="statrow">'+
+        '<div class="stat"><b>'+b.correct+'</b><span>richtig</span></div>'+
+        '<div class="stat"><b>'+(b.wrong|0)+'</b><span>daneben</span></div>'+
+        '<div class="stat"><b>+'+(b.correct*5)+'</b><span>Punkte</span></div>'+
+      '</div>'+
+      '<div class="row" style="justify-content:center">'+
+      '<button class="btn p" data-a="bzagain">Nochmal ⚡</button>'+
+      '<button class="btn g" data-a="bzhome">Zur Startseite</button></div></div>';
   }
 
   /* ================= Sammlung ================= */
@@ -1189,6 +1507,14 @@ var SUBJECTS = {
        '<p class="hint">Der Lernstand gehört zu <b>'+esc(store.active)+'</b>. Jedes Kind hat seinen eigenen.</p>'+
        '<div class="inrow"><input id="renm" value="'+esc(store.active)+'" aria-label="Name ändern" autocomplete="off">'+
        '<button class="btn g" id="doRen">Umbenennen</button></div>'+
+       '<div class="avpick">'+avatarHTML(store.active,'big')+
+       '<div class="avopts"><p class="hint">Bild aussuchen oder ein eigenes Foto nehmen.</p><div class="emorow">'+
+       AVATARS.map(function(em){
+         return '<button class="emo-b'+(avatarOf(store.active)===em?' on':'')+'" data-a="av" data-v="'+esc(em)+'">'+em+'</button>';
+       }).join('')+'</div>'+
+       '<div class="row"><button class="btn g" id="avPick">📷 Foto wählen</button>'+
+       ((''+avatarOf(store.active)).indexOf('data:')===0?'<button class="btn g" id="avDrop">Foto entfernen</button>':'')+'</div>'+
+       '<input type="file" id="avFile" accept="image/*" style="display:none"></div></div>'+
        '<div class="row"><button class="btn g" id="doDel">'+(S.delArm?'Wirklich löschen?':'Lernstand löschen')+'</button>'+
        (S.delArm?'<button class="btn g" id="doDelNo">Abbrechen</button>':'')+'</div>'+
        '<p class="hint" id="pfLine"></p></div>'+
@@ -1606,6 +1932,9 @@ var SUBJECTS = {
     var a=document.getElementById('app');
     if(S.screen==='home') a.innerHTML=vHome();
     else if(S.screen==='play') a.innerHTML=vPlay();
+    else if(S.screen==='pick') a.innerHTML=vPick();
+    else if(S.screen==='blitz') a.innerHTML=vBlitz();
+    else if(S.screen==='blitzend') a.innerHTML=vBlitzEnd();
     else if(S.screen==='coll') a.innerHTML=vColl();
     else if(S.screen==='rep') a.innerHTML=vReport();
     else a.innerHTML=vFinish();
@@ -1696,7 +2025,7 @@ var SUBJECTS = {
   /* ================= Ereignisse ================= */
   var lastClick=0;
   document.addEventListener('click',function(ev){
-    var t=ev.target.closest('[data-a],#go,#again,#toColl,#toRep,#back,#pr,#pdf,#csv,#cloud,#stExp,#stImp,#stCode,#stRead,#doRen,#doDel,#doDelNo,#nmMic,#bPlus,#bMinus,#bSound,#bTheme');
+    var t=ev.target.closest('[data-a],#go,#again,#toColl,#toRep,#back,#pr,#pdf,#csv,#cloud,#stExp,#stImp,#stCode,#stRead,#doRen,#doDel,#doDelNo,#avPick,#avDrop,#toPick,#toBlitz,#nmMic,#bPlus,#bMinus,#bSound,#bTheme');
     if(!t) return;
     var now=Date.now(); if(now-lastClick<220) return; lastClick=now;
 
@@ -1728,12 +2057,24 @@ var SUBJECTS = {
       render(); return;
     }
     if(t.id==='again'){ location.reload(); return; }
+    if(t.id==='toPick'){ S.back=S.screen; S.screen='pick'; render(); return; }
+    if(t.id==='toBlitz'){ blitzStart(); return; }
     if(t.id==='toColl'){ S.back=S.screen; S.screen='coll'; render(); return; }
     if(t.id==='toRep'){ S.back=S.screen; S.screen='rep'; S.delArm=false; render(); return; }
-    if(t.id==='back'){ S.screen=S.back==='finish'?'finish':'home'; render(); return; }
+    if(t.id==='back'){ S.pick={}; S.screen=S.back==='finish'?'finish':'home'; render(); return; }
     if(t.id==='cloud'){
       t.disabled=true; paintCloudLine('☁ Wird gesichert …');
       cloudSave(function(){ t.disabled=false; paintCloudLine(); });
+      return;
+    }
+    if(t.id==='avPick'){
+      var af=document.getElementById('avFile');
+      if(af) af.click(); else paintPfLine('Dateiauswahl geht hier nicht.');
+      return;
+    }
+    if(t.id==='avDrop'){
+      setAvatar(store.active,AVATARS[Math.floor(Math.random()*AVATARS.length)]);
+      render(); paintPfLine('Foto entfernt.');
       return;
     }
     if(t.id==='doRen'){
@@ -1752,7 +2093,7 @@ var SUBJECTS = {
     }
     if(t.id==='doDelNo'){ S.delArm=false; render(); return; }
     if(t.id==='stExp'){
-      offerFile('Lernstand.json', exportState(), null, function(m){ paintStLine(m); });
+      offerFile('Lernstand.json', exportState(null,true), null, function(m){ paintStLine(m); });
       return;
     }
     if(t.id==='stImp'){
@@ -1800,6 +2141,30 @@ var SUBJECTS = {
     if(!a) return;
     var st=stop();
 
+    if(a==='pt'){
+      var pid=t.getAttribute('data-v');
+      if(S.pick[pid]) delete S.pick[pid]; else S.pick[pid]=true;
+      render(); return;
+    }
+    if(a==='pickweak'){
+      S.pick={}; weakest(3).forEach(function(id){ S.pick[id]=true; });
+      render(); return;
+    }
+    if(a==='pickclear'){ S.pick={}; render(); return; }
+    if(a==='pickgo'){
+      var ids=Object.keys(S.pick).filter(function(k){ return S.pick[k]; });
+      if(!ids.length) return;
+      S.pick={}; startTopics(ids); return;
+    }
+    if(a==='bz'){ blitzAnswer(t.getAttribute('data-v')); return; }
+    if(a==='bzquit'){ blitzQuit(); return; }
+    if(a==='bzagain'){ blitzStart(); return; }
+    if(a==='bzhome'){ S.blitz=null; S.screen='home'; render(); return; }
+    if(a==='av'){
+      var err=setAvatar(store.active,t.getAttribute('data-v'));
+      render(); paintPfLine(err||'');
+      return;
+    }
     if(a==='prof'){
       var nm=t.getAttribute('data-v');
       if(nm!==store.active){ useProfile(nm); rebuildPlan(); }
@@ -1891,6 +2256,15 @@ var SUBJECTS = {
 
   document.addEventListener('change',function(ev){
     var t=ev.target;
+    if(t && t.id==='avFile' && t.files && t.files[0]){
+      paintPfLine('Bild wird verkleinert …');
+      processAvatar(t.files[0],function(dataUrl,err){
+        if(err){ paintPfLine(err); return; }
+        var e2=setAvatar(store.active,dataUrl);
+        render(); paintPfLine(e2||'Foto gespeichert.');
+      });
+      t.value=''; return;
+    }
     if(!t || t.id!=='stFile' || !t.files || !t.files[0]) return;
     var fr=new FileReader();
     fr.onload=function(){
