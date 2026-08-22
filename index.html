@@ -823,6 +823,13 @@ var SUBJECTS = {
     useProfile(store.active);
     return null;
   }
+  function resetProfile(name){
+    var p=store.profiles[name]; if(!p) return;
+    var nm=p.meta.name, av=p.meta.avatar;          /* Name und Bild bleiben */
+    store.profiles[name]={ prog:{}, log:[],
+      meta:{ xp:0, streak:0, lastDay:null, name:nm, avatar:av } };
+    useProfile(name);
+  }
   function deleteProfile(name){
     if(!store.profiles[name]) return;
     delete store.profiles[name];
@@ -1153,7 +1160,7 @@ var SUBJECTS = {
     result:null, roundCorrect:0, roundTotal:0,
     sessionCorrect:0, sessionTotal:0, doneStops:[],
     scale:1, muted:false, typing:false, micMsg:null, newProf:false, delArm:false,
-    pick:{}, blitz:null,
+    pick:{}, blitz:null, resetArm:false,
     order:{picked:[]}, match:{sel:null,done:[],wrong:0}, sort:{i:0,trace:[]}
   };
 
@@ -1392,6 +1399,8 @@ var SUBJECTS = {
        '<div class="row"><button class="btn g" id="avPick">📷 Foto wählen</button>'+
        ((''+avatarOf(store.active)).indexOf('data:')===0?'<button class="btn g" id="avDrop">Foto entfernen</button>':'')+'</div>'+
        '<input type="file" id="avFile" accept="image/*" style="display:none"></div></div>'+
+       '<div class="row"><button class="btn g" id="doReset">'+(S.resetArm?'Wirklich zurücksetzen?':'Fortschritt zurücksetzen')+'</button>'+
+       (S.resetArm?'<button class="btn g" id="doResetNo">Abbrechen</button>':'')+'</div>'+
        '<div class="row"><button class="btn g" id="doDel">'+(S.delArm?'Wirklich löschen?':'Kind löschen')+'</button>'+
        (S.delArm?'<button class="btn g" id="doDelNo">Abbrechen</button>':'')+'</div>'+
        '<p class="hint" id="pfLine"></p>'+
@@ -2043,7 +2052,7 @@ var SUBJECTS = {
   /* ================= Ereignisse ================= */
   var lastClick=0;
   document.addEventListener('click',function(ev){
-    var t=ev.target.closest('[data-a],#go,#again,#toColl,#toRep,#back,#pr,#pdf,#csv,#cloud,#stExp,#stImp,#stCode,#stRead,#doRen,#doDel,#doDelNo,#avPick,#avDrop,#toPick,#toBlitz,#bSet,#nmMic,#bPlus,#bMinus,#bSound,#bTheme');
+    var t=ev.target.closest('[data-a],#go,#again,#toColl,#toRep,#back,#pr,#pdf,#csv,#cloud,#stExp,#stImp,#stCode,#stRead,#doRen,#doDel,#doDelNo,#doReset,#doResetNo,#avPick,#avDrop,#toPick,#toBlitz,#bSet,#nmMic,#bPlus,#bMinus,#bSound,#bTheme');
     if(!t) return;
     var now=Date.now(); if(now-lastClick<220) return; lastClick=now;
 
@@ -2077,7 +2086,7 @@ var SUBJECTS = {
     if(t.id==='again'){ location.reload(); return; }
     if(t.id==='bSet'){
       if(S.screen==='set'){ S.screen=S.back==='finish'?'finish':'home'; render(); return; }
-      S.back=(S.screen==='finish')?'finish':'home'; S.screen='set'; S.delArm=false; render(); return;
+      S.back=(S.screen==='finish')?'finish':'home'; S.screen='set'; S.delArm=false; S.resetArm=false; render(); return;
     }
     if(t.id==='toPick'){ S.back=S.screen; S.screen='pick'; render(); return; }
     if(t.id==='toBlitz'){ blitzStart(); return; }
@@ -2106,8 +2115,21 @@ var SUBJECTS = {
       rebuildPlan(); render(); paintPfLine('Umbenannt.');
       return;
     }
+    if(t.id==='doReset'){
+      if(!S.resetArm){
+        S.resetArm=true; S.delArm=false; render();
+        paintPfLine('Punkte, Abzeichen und alle Themen von '+store.active+' fangen wieder bei null an. '+
+                    store.active+' bleibt mit Name und Bild erhalten.');
+        return;
+      }
+      var wer=store.active;
+      resetProfile(wer); S.resetArm=false;
+      rebuildPlan(); render(); paintPfLine('Fortschritt von '+wer+' zurückgesetzt.');
+      return;
+    }
+    if(t.id==='doResetNo'){ S.resetArm=false; render(); return; }
     if(t.id==='doDel'){
-      if(!S.delArm){ S.delArm=true; render(); paintPfLine(store.active+' wird mit allem Fortschritt gelöscht. Das lässt sich nicht rückgängig machen – sichere vorher den Lernstand, wenn du unsicher bist.'); return; }
+      if(!S.delArm){ S.delArm=true; S.resetArm=false; render(); paintPfLine(store.active+' wird mit allem Fortschritt gelöscht. Das lässt sich nicht rückgängig machen – sichere vorher den Lernstand, wenn du unsicher bist.'); return; }
       var weg=store.active;
       deleteProfile(weg); S.delArm=false;
       rebuildPlan(); render(); paintPfLine(weg+' wurde gelöscht.');
