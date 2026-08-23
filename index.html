@@ -160,6 +160,11 @@
   .micbtn.on{ animation:pulse 1.2s ease-in-out infinite; }
   @keyframes pulse{ 0%,100%{ box-shadow:0 0 0 0 color-mix(in srgb,var(--accent) 45%,transparent);} 50%{ box-shadow:0 0 0 16px transparent;} }
   .miclab{ font-size:.9rem; color:var(--soft); text-align:center; }
+  .micbtn.mini{ width:auto; min-width:3.2rem; height:auto; align-self:stretch;
+    border-radius:var(--r-s); box-shadow:none; flex:none; }
+  .micbtn.mini svg{ width:1.5rem; height:1.5rem; }
+  .micbtn.mini.on{ animation:pulsemini 1.2s ease-in-out infinite; }
+  @keyframes pulsemini{ 0%,100%{ box-shadow:0 0 0 0 color-mix(in srgb,var(--accent) 45%,transparent);} 50%{ box-shadow:0 0 0 10px transparent;} }
   .micmsg{ max-width:26rem; }
   .link{ background:none; border:none; color:var(--soft); text-decoration:underline;
     text-underline-offset:3px; font-family:inherit; cursor:pointer; font-size:.9rem;
@@ -1779,8 +1784,21 @@ var SUBJECTS = {
     return S.item>=items().length-1;
   }
 
-  function micZone(idle,target,lang){
+  function micZone(idle,target,lang,numeric){
     var h='<div class="mic">';
+    /* Eine Zahl ist schnell getippt und schnell gesagt - hier gibt es kein
+       Entweder-oder: Zifferntastatur und Mikrofon stehen nebeneinander. */
+    if(numeric){
+      var kannSprechen = MIC.supported && !MIC.off;
+      h+='<div class="inrow"><input id="tin" inputmode="decimal" autocomplete="off"'+
+         ' aria-label="Zahl eingeben" placeholder="Zahl eingeben …">'+
+         (kannSprechen?'<button class="micbtn mini" data-a="mic" data-lang="'+lang+'" aria-pressed="false" aria-label="Zahl sprechen">'+ICON_MIC+'</button>':'')+
+         '<button class="btn p" data-a="sub">OK</button></div>'+
+         (kannSprechen?'<span class="miclab util" data-idle="🎤 oder die Zahl sagen">🎤 oder die Zahl sagen</span>':'')+
+         (MIC.supported&&MIC.off?'<button class="link" data-a="mic2">🎤 Mikrofon nochmal versuchen</button>':'');
+      h+='<p class="hint micmsg" style="text-align:center'+(S.micMsg?'':';display:none')+'">'+esc(S.micMsg||'')+'</p>';
+      return h+'</div>';
+    }
     if(MIC.supported && !MIC.off && !S.typing){
       h+='<button class="micbtn" data-a="mic" data-lang="'+lang+'" aria-pressed="false" aria-label="Antwort sprechen">'+ICON_MIC+'</button>'+
          '<span class="miclab util" data-idle="🎤 '+idle+'">🎤 '+idle+'</span>'+
@@ -1836,7 +1854,7 @@ var SUBJECTS = {
     var h=head()+'<p class="hint">'+esc(d.prompt||'')+'</p>'+
       '<div class="row"><div class="prompt" style="flex:1">'+esc(it.q)+'</div>'+
       '<button class="iconbtn" data-a="say" data-t="'+esc(it.q)+'">'+ICON_SPK+'</button></div>'+
-      (r? '' : micZone(d.numeric?'Zahl sagen':'Antwort sagen', it.q, langOf(st.world)));
+      (r? '' : micZone(d.numeric?'Zahl sagen':'Antwort sagen', it.q, langOf(st.world), !!d.numeric));
     if(r){
       h+='<div class="passage" style="font-size:1rem"><b>Deine Antwort:</b> '+esc(r.said||'–')+'</div>';
       h+= r.ok?'<div class="fb ok">⭐ '+kudos()+'</div>'
@@ -2240,7 +2258,11 @@ var SUBJECTS = {
       showMicMsg(null);
       listen(t.getAttribute('data-lang')||'de-DE',function(x,err){
         if(err){
-          if(MIC_FATAL[err]){ MIC.off=true; S.typing=true; S.micMsg=MICERR[err]||MICERR.err; render(); }
+          if(MIC_FATAL[err]){
+            MIC.off=true;
+            if(!(stop().def&&stop().def.numeric)) S.typing=true;
+            S.micMsg=MICERR[err]||MICERR.err; render();
+          }
           else showMicMsg(MICERR[err]!==undefined?MICERR[err]:MICERR.err);
           return;
         }
