@@ -318,6 +318,10 @@
     .avopts{ width:100%; }
   }
 
+  .savewarn{ margin:0; padding:.75rem .9rem; border-radius:var(--r-m); font-size:.88rem;
+    line-height:1.55; background:color-mix(in srgb,var(--clay) 16%,var(--raised));
+    border:1px solid color-mix(in srgb,var(--clay) 45%,transparent); color:var(--ink); }
+
   /* ---------- Einstellungen ---------- */
   .sect{ display:flex; flex-direction:column; gap:.7rem; padding-top:1rem;
     border-top:1px solid var(--line); }
@@ -355,6 +359,7 @@
       <button class="iconbtn" id="bSet" title="Einstellungen">⚙️</button>
     </div>
   </div>
+  <p class="savewarn noprint" id="saveWarn" style="display:none"></p>
   <div class="path noprint" id="path"></div>
   <main id="app"></main>
   <footer class="hint noprint" style="text-align:center">Diktieren braucht Chrome, Edge oder Safari <b>und</b> die Mikrofon-Erlaubnis. Im eingebetteten Fenster ist das Mikrofon gesperrt – dort hilft nur „In neuem Tab öffnen" bzw. die eigenständige Fassung. Tippen geht überall.</footer>
@@ -691,10 +696,38 @@ var SUBJECTS = {
   var K_ROOT='LW_v2';
   var K_PROG='LW_prog_v1', K_LOG='LW_log_v1', K_META='LW_meta_v1';   /* Altbestand */
   function load(k,d){ try{ var r=localStorage.getItem(k); return r?JSON.parse(r):d; }catch(e){ return d; } }
-  var storeFull=false;
+  var storeFull=false;      /* letzter Schreibversuch fehlgeschlagen */
+  var lostData=false;       /* der Browser hat einen früheren Stand entsorgt */
+  var lastSaved=null;
+  var K_SEEN='LW_seen';
+
+  /* Ein stiller Schreibfehler ist das Schlimmste, was hier passieren kann:
+     Das Kind übt eine Stunde, sieht die Punkte steigen - und beim nächsten
+     Start ist alles weg. Darum wird jeder Fehlschlag sichtbar gemeldet. */
   function persist(){
-    try{ localStorage.setItem(K_ROOT,JSON.stringify(store)); storeFull=false; return true; }
-    catch(e){ storeFull=true; return false; }
+    try{
+      store.savedAt=new Date().toISOString();
+      localStorage.setItem(K_ROOT,JSON.stringify(store));
+      lastSaved=store.savedAt;
+      if(storeFull){ storeFull=false; paintSaveWarn(); }
+      return true;
+    }catch(e){
+      if(!storeFull){ storeFull=true; paintSaveWarn(); }
+      return false;
+    }
+  }
+  function saveWarnText(){
+    if(storeFull) return '⚠️ Achtung: Der Fortschritt kann auf diesem Gerät gerade nicht gespeichert werden. '+
+      'Sichere ihn über Einstellungen → „Code zum Kopieren", sonst geht die Übungsrunde verloren.';
+    if(lostData) return '⚠️ Der Browser hat den gespeicherten Fortschritt gelöscht. '+
+      'Über Einstellungen → „Lernstand laden" kannst du eine Sicherung einlesen.';
+    return '';
+  }
+  function paintSaveWarn(){
+    var el=document.getElementById('saveWarn');
+    if(!el) return;
+    var t=saveWarnText();
+    el.textContent=t; el.style.display=t?'':'none';
   }
   /* Die alten save(K_PROG,…)-Aufrufe im Code schreiben jetzt das ganze
      Profil-Bündel - so bleibt der Rest der App unverändert. */
@@ -752,6 +785,9 @@ var SUBJECTS = {
       if(!st.active || !st.profiles[st.active]) st.active=Object.keys(st.profiles)[0];
       return st;
     }
+    /* War schon einmal etwas da? Dann wurde es entsorgt - das darf die
+       App nicht verschweigen, indem sie einfach neu anfängt. */
+    try{ if(localStorage.getItem(K_SEEN)) lostData=true; }catch(e){}
     st={ active:'Sam', profiles:{ Sam:samSeed() } };
     /* Auf einem Gerät, das die Vorgängerfassung genutzt hat, steht oft
        mehr als im Seed - das wird dazugemischt, nie überschrieben. */
@@ -842,6 +878,14 @@ var SUBJECTS = {
     useProfile(store.active===name?profileNames()[0]:store.active);
   }
   useProfile(store.active);
+  try{ localStorage.setItem(K_SEEN,'1'); }catch(e){}
+  /* Dauerhaften Speicher anfordern - iOS gewährt ihn Web-Apps, die auf dem
+     Home-Bildschirm liegen, und schützt sie so vor dem Aufräumen. */
+  try{
+    if(navigator.storage && navigator.storage.persist && navigator.storage.persisted){
+      navigator.storage.persisted().then(function(ok){ if(!ok) navigator.storage.persist(); });
+    }
+  }catch(e){}
 
   /* ---- Geräteübergreifender Lernstand -------------------------------
      Die veröffentlichte Seite darf sich eigene Datendateien schreiben.
@@ -1410,6 +1454,11 @@ var SUBJECTS = {
        (S.delArm?'<button class="btn g" id="doDelNo">Abbrechen</button>':'')+'</div>'+
        '<p class="hint" id="pfLine"></p>'+
       '</div><div class="sect">'+
+      '<h3>Speicher prüfen</h3>'+
+      '<p class="hint">Zeigt, ob dieses Gerät den Fortschritt wirklich behält.</p>'+
+      '<div id="diagBox">'+diagHTML()+'</div>'+
+      '<div class="row"><button class="btn g" id="doDiag">Erneut prüfen</button></div>'+
+      '</div><div class="sect">'+
        '<h3>Lernstand auf ein anderes Gerät übertragen</h3>'+
        '<p class="hint">Gesichert werden alle Kinder auf einmal. Auf dem anderen Gerät einlesen – beide Stände werden zusammengeführt, es geht nichts verloren.</p>'+
        '<div class="row"><button class="btn g" id="stExp">⬇ Als Datei sichern</button>'+
@@ -1420,6 +1469,35 @@ var SUBJECTS = {
       '<p class="hint" id="cloudLine">'+esc(cloudLabel())+'</p>'+
       '</div>';
     return h+'</div>';
+  }
+
+  function diagHTML(){
+    var rows=[];
+    /* Echter Schreibtest statt Vermutung */
+    var schreibt=false;
+    try{ localStorage.setItem('LW_test','1'); localStorage.removeItem('LW_test'); schreibt=true; }catch(e){}
+    rows.push(['Speichern möglich', schreibt?'ja':'NEIN – hier geht nichts verloren-sicher']);
+    rows.push(['Zuletzt gespeichert', lastSaved?fmtDate(lastSaved)+' um '+(''+lastSaved).slice(11,16)+' Uhr'
+                : (store.savedAt?fmtDate(store.savedAt)+' um '+(''+store.savedAt).slice(11,16)+' Uhr':'noch nie')]);
+    var alsApp=false;
+    try{ alsApp = (window.navigator.standalone===true) ||
+      (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches); }catch(e){}
+    rows.push(['Läuft als', alsApp?'App vom Home-Bildschirm':'Seite im Browser']);
+    var h='<div class="tw"><table><tbody>';
+    rows.forEach(function(r){ h+='<tr><td>'+esc(r[0])+'</td><td><b>'+esc(r[1])+'</b></td></tr>'; });
+    profileNames().forEach(function(nm){
+      var p=store.profiles[nm];
+      var themen=Object.keys(p.prog||{}).filter(function(k){ return (p.prog[k].done|0)>0; }).length;
+      h+='<tr><td>'+esc(nm)+'</td><td><b>'+(p.meta.xp|0)+' Punkte · Stufe '+(Math.floor((p.meta.xp|0)/200)+1)+
+         ' · '+themen+' Themen · '+((p.log||[]).length)+' Runden</b></td></tr>';
+    });
+    h+='</tbody></table></div>';
+    if(!schreibt) h+='<p class="hint"><b>Wichtig:</b> Sichere den Lernstand jetzt über „Code zum Kopieren". '+
+      'Solange hier NEIN steht, geht jede Übungsrunde beim Schließen verloren.</p>';
+    if(!alsApp) h+='<p class="hint">Auf dem iPhone hält der Fortschritt deutlich länger, wenn die Seite über '+
+      'Teilen → „Zum Home-Bildschirm" abgelegt und von dort geöffnet wird. Browser-Tab und App-Icon haben '+
+      '<b>getrennte Speicher</b> – ein Stand aus dem einen taucht im anderen nicht auf.</p>';
+    return h;
   }
 
   /* ================= Themen aussuchen ================= */
@@ -1984,6 +2062,7 @@ var SUBJECTS = {
     else if(S.screen==='set') a.innerHTML=vSettings();
     else a.innerHTML=vFinish();
     paintPath();
+    paintSaveWarn();
     document.documentElement.style.setProperty('--scale',S.scale);
     var b=document.getElementById('bSound'); if(b) b.textContent=S.muted?'🔇':'🔊';
   }
@@ -2007,7 +2086,9 @@ var SUBJECTS = {
     p.stars=Math.max(p.stars||0, q>=0.9?3:(q>=0.7?2:1));
     prog[w.id]=p; save(K_PROG,prog);
     log.push({d:new Date().toISOString(), w:w.id, r:st.round, c:S.roundCorrect, t:S.roundTotal});
-    if(log.length>200) log=log.slice(-200);
+    /* In place kürzen: ein neues Array würde das Profil abhängen und der
+       Verlauf würde ab 200 Runden nicht mehr mitgeschrieben. */
+    while(log.length>200) log.shift();
     save(K_LOG,log);
     S.doneStops.push({id:w.id, newBadge:newBadge});
     S.gainXP=(S.gainXP||0)+S.roundCorrect*10+(passed?25:0);
@@ -2070,7 +2151,7 @@ var SUBJECTS = {
   /* ================= Ereignisse ================= */
   var lastClick=0;
   document.addEventListener('click',function(ev){
-    var t=ev.target.closest('[data-a],#go,#again,#toColl,#toRep,#back,#pr,#pdf,#csv,#cloud,#stExp,#stImp,#stCode,#stRead,#doRen,#doDel,#doDelNo,#doReset,#doResetNo,#avPick,#avDrop,#toPick,#toBlitz,#bSet,#nmMic,#bPlus,#bMinus,#bSound,#bTheme');
+    var t=ev.target.closest('[data-a],#go,#again,#toColl,#toRep,#back,#pr,#pdf,#csv,#cloud,#stExp,#stImp,#stCode,#stRead,#doRen,#doDel,#doDelNo,#doReset,#doResetNo,#doDiag,#avPick,#avDrop,#toPick,#toBlitz,#bSet,#nmMic,#bPlus,#bMinus,#bSound,#bTheme');
     if(!t) return;
     var now=Date.now(); if(now-lastClick<220) return; lastClick=now;
 
@@ -2124,6 +2205,11 @@ var SUBJECTS = {
     if(t.id==='avDrop'){
       setAvatar(store.active,AVATARS[Math.floor(Math.random()*AVATARS.length)]);
       render(); paintPfLine('Foto entfernt.');
+      return;
+    }
+    if(t.id==='doDiag'){
+      var db=document.getElementById('diagBox');
+      if(db) db.innerHTML=diagHTML();
       return;
     }
     if(t.id==='doRen'){
