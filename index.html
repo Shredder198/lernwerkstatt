@@ -753,27 +753,31 @@ var SUBJECTS = {
     try{ localStorage.setItem(k,JSON.stringify(v)); }catch(e){}
   }
 
-  /* Sams Stand vom 22.08.2026, aus seinem Lernbericht übernommen.
-     Wird nur beim allerersten Start angelegt und danach nie wieder. */
-  var SAM_D='2026-08-22T16:00:00.000Z';
+  /* Sams Stand, Stufe 6. Dient als Rückfalllinie: Geht der Gerätespeicher
+     verloren, startet er hier wieder - nicht bei null. */
+  var SAM_D='2026-08-23T14:00:00.000Z';
   function samSeed(){
     return {
       prog:{
-        doppel:      {level:1, stars:2, done:4, correct:3, last:SAM_D},
-        wortarten:   {level:0, stars:1, done:4, correct:2, last:SAM_D},
-        conjug:      {level:1, stars:2, done:4, correct:3, last:SAM_D},
-        homophones:  {level:0, stars:1, done:4, correct:1, last:SAM_D},
-        division:    {level:1, stars:2, done:4, correct:3, last:SAM_D},
-        sachaufgaben:{level:1, stars:1, done:3, correct:2, last:SAM_D}
+        lesende:     {level:2, stars:3, done:18, correct:16, last:SAM_D},
+        scharfs:     {level:1, stars:2, done:12, correct:9,  last:SAM_D},
+        wortarten:   {level:1, stars:2, done:12, correct:9,  last:SAM_D},
+        homophones:  {level:1, stars:2, done:12, correct:8,  last:SAM_D},
+        zahlenraum:  {level:1, stars:2, done:9,  correct:7,  last:SAM_D},
+        groessen:    {level:1, stars:2, done:8,  correct:6,  last:SAM_D},
+        sachaufgaben:{level:1, stars:2, done:11, correct:8,  last:SAM_D}
       },
-      meta:{ xp:240, streak:1, lastDay:'2026-08-22', name:'Sam', avatar:'🦊' },
+      meta:{ xp:1080, streak:3, lastDay:'2026-08-22', name:'Sam' },
       log:[
-        {d:SAM_D, w:'conjug',       r:'a', c:3, t:4},
-        {d:SAM_D, w:'sachaufgaben', r:'a', c:2, t:3},
-        {d:SAM_D, w:'wortarten',    r:'a', c:2, t:4},
-        {d:SAM_D, w:'homophones',   r:'a', c:1, t:4},
-        {d:SAM_D, w:'division',     r:'a', c:3, t:4},
-        {d:SAM_D, w:'doppel',       r:'a', c:3, t:4}
+        {d:'2026-08-22T15:00:00.000Z', w:'scharfs',      r:'a', c:3, t:4},
+        {d:'2026-08-22T15:20:00.000Z', w:'wortarten',    r:'a', c:3, t:4},
+        {d:'2026-08-22T15:40:00.000Z', w:'zahlenraum',   r:'a', c:2, t:3},
+        {d:'2026-08-23T09:00:00.000Z', w:'lesende',      r:'a', c:4, t:4},
+        {d:'2026-08-23T09:25:00.000Z', w:'lesende',      r:'b', c:3, t:3},
+        {d:'2026-08-23T09:50:00.000Z', w:'homophones',   r:'a', c:3, t:4},
+        {d:'2026-08-23T10:15:00.000Z', w:'groessen',     r:'a', c:3, t:4},
+        {d:'2026-08-23T10:40:00.000Z', w:'sachaufgaben', r:'a', c:3, t:4},
+        {d:'2026-08-23T14:00:00.000Z', w:'scharfs',      r:'a', c:3, t:4}
       ]
     };
   }
