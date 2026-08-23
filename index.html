@@ -322,6 +322,15 @@
     line-height:1.55; background:color-mix(in srgb,var(--clay) 16%,var(--raised));
     border:1px solid color-mix(in srgb,var(--clay) 45%,transparent); color:var(--ink); }
 
+  .ziel{ display:flex; gap:.7rem; align-items:flex-start; padding:.85rem .95rem;
+    border-radius:var(--r-m); background:linear-gradient(165deg,color-mix(in srgb,var(--gold) 15%,var(--raised)),var(--raised));
+    border:1px solid color-mix(in srgb,var(--gold) 40%,transparent); }
+  .ziel.done{ align-items:center; flex-wrap:wrap; }
+  .ziel .zi{ font-size:1.6rem; line-height:1.2; }
+  .ziel div{ flex:1; min-width:9rem; }
+  .ziel b{ display:block; font-family:Lexend,"Segoe UI",system-ui,sans-serif; font-size:.95rem; }
+  .ziel span{ font-size:.85rem; color:var(--soft); }
+
   /* ---------- Einstellungen ---------- */
   .sect{ display:flex; flex-direction:column; gap:.7rem; padding-top:1rem;
     border-top:1px solid var(--line); }
@@ -1405,6 +1414,7 @@ var SUBJECTS = {
       '<div><div class="bar"><i style="width:'+Math.round(into/2)+'%"></i></div>'+
       '<p class="hint">Noch '+(200-into)+' Punkte bis Stufe '+(lvl+1)+' · '+m+' Themen ganz gemeistert ⭐</p></div>'+
       '<p class="hint">Heute dran: '+note+'</p>'+
+      zielHTML()+
       '<p class="hint" id="cloudLine">'+esc(cloudLabel())+'</p>'+
       (MIC.supported?'':'<p class="hint">Hinweis: Dieser Browser kann nicht diktieren – öffne die Seite in Chrome, Edge oder Safari. Tippen geht überall.</p>')+
       '<div class="row"><button class="btn p" id="go">Los geht\'s →</button></div>'+
@@ -1413,6 +1423,10 @@ var SUBJECTS = {
       '<span class="ad">Selbst aussuchen</span></button>'+
       '<button class="act" id="toBlitz"><span class="ai">⚡</span><span class="an">Blitzrunde</span>'+
       '<span class="ad">'+BLITZ_S+' Sekunden'+((meta.blitzBest|0)?' · Bestwert '+(meta.blitzBest|0):'')+'</span></button>'+
+      '<button class="act" id="toSerie"><span class="ai">🔥</span><span class="an">Serie</span>'+
+      '<span class="ad">Bis zum ersten Fehler'+((meta.serieBest|0)?' · Bestwert '+(meta.serieBest|0):'')+'</span></button>'+
+      '<button class="act" id="toSprint"><span class="ai">🔢</span><span class="an">Zahlen-Sprint</span>'+
+      '<span class="ad">'+SPRINT_S+' Sekunden Kopfrechnen'+((meta.sprintBest|0)?' · Bestwert '+(meta.sprintBest|0):'')+'</span></button>'+
       '<button class="act" id="toColl"><span class="ai">🏅</span><span class="an">Sammlung</span>'+
       '<span class="ad">'+e+' von '+tot+'</span></button>'+
       '<button class="act" id="toRep"><span class="ai">📋</span><span class="an">Lernbericht</span>'+
@@ -1462,6 +1476,12 @@ var SUBJECTS = {
        (S.delArm?'<button class="btn g" id="doDelNo">Abbrechen</button>':'')+'</div>'+
        '<p class="hint" id="pfLine"></p>'+
       '</div><div class="sect">'+
+      '<h3>Großes Ziel</h3>'+
+      '<p class="hint">Was es bei Stufe '+ZIEL_STUFE+' zu gewinnen gibt. Steht auf der Startseite.</p>'+
+      '<div class="inrow"><input id="rewIn" value="'+esc(rewardText())+'" aria-label="Belohnung" autocomplete="off">'+
+      '<button class="btn g" id="rewSave">Sichern</button></div>'+
+      '<p class="hint" id="rewLine"></p>'+
+      '</div><div class="sect">'+
       '<h3>Speicher prüfen</h3>'+
       '<p class="hint">Zeigt, ob dieses Gerät den Fortschritt wirklich behält.</p>'+
       '<div id="diagBox">'+diagHTML()+'</div>'+
@@ -1510,6 +1530,177 @@ var SUBJECTS = {
       'Teilen → „Zum Home-Bildschirm" abgelegt und von dort geöffnet wird. Browser-Tab und App-Icon haben '+
       '<b>getrennte Speicher</b> – ein Stand aus dem einen taucht im anderen nicht auf.</p>';
     return h;
+  }
+
+
+  /* ================= Serie =================
+     Eine Frage nach der anderen, ein Fehler beendet alles. Kein Zeitdruck -
+     belohnt Sorgfalt, wo die Blitzrunde Tempo belohnt. */
+  function serieStart(){
+    var pool=blitzPool();
+    if(!pool.length) return;
+    S.serie={ pool:pool, i:0, streak:0, picked:null, over:false, hop:null };
+    S.screen='serie'; render();
+  }
+  function serieAnswer(v){
+    var g=S.serie; if(!g||g.over||g.picked!=null) return;
+    var cur=g.pool[g.i];
+    g.picked=v;
+    var ok = v===cur.it.correct;
+    if(ok) g.streak++;
+    render();
+    g.hop=setTimeout(function(){
+      if(!S.serie||S.serie.over) return;
+      if(!ok){ serieEnd(); return; }
+      g.i++; g.picked=null;
+      if(g.i>=g.pool.length) g.pool=g.pool.concat(blitzPool());
+      render();
+    }, ok?520:1100);
+  }
+  function serieEnd(){
+    var g=S.serie; if(!g||g.over) return;
+    g.over=true; if(g.hop) clearTimeout(g.hop);
+    meta.serieBest=Math.max(meta.serieBest|0, g.streak);
+    meta.xp=(meta.xp||0)+g.streak*5;
+    save(K_META,meta);
+    S.screen='serieend'; render();
+  }
+  function serieQuit(){
+    var g=S.serie; if(g&&g.hop) clearTimeout(g.hop);
+    S.serie=null; S.screen='home'; render();
+  }
+
+  function vSerie(){
+    var g=S.serie;
+    if(!g) return '<div class="card"><p>Keine Runde aktiv.</p></div>';
+    var cur=g.pool[g.i], it=cur.it, sub=SUBJECTS[cur.w.subject];
+    var h='<div class="card">'+
+      '<div class="bzhead"><span class="bztag">🔥 Serie</span>'+
+      '<span class="bzscore">'+g.streak+' in Folge</span>'+
+      '<span class="bztime">Bestwert '+(meta.serieBest|0)+'</span></div>'+
+      '<div class="tag t-'+cur.w.subject+'"><span>'+sub.icon+'</span>'+esc(sub.name)+' · '+esc(cur.w.title)+'</div>'+
+      '<div class="prompt">'+esc(it.q)+'</div><div class="opts">';
+    it.options.forEach(function(o){
+      var c='opt', m='';
+      if(g.picked!=null){
+        if(o===it.correct){ c+=' ok'; m='✓'; }
+        else if(o===g.picked){ c+=' no'; m='✕'; }
+      }
+      h+='<button class="'+c+'" data-a="sr" data-v="'+esc(o)+'"'+(g.picked!=null?' disabled':'')+'>'+
+         '<span>'+esc(o)+'</span><span>'+m+'</span></button>';
+    });
+    h+='</div><p class="hint">Ein Fehler beendet die Serie. Lieber einmal kurz nachdenken.</p>'+
+       '<div class="row"><span class="sp"></span><button class="btn g" data-a="srquit">Aufhören</button></div>';
+    return h+'</div>';
+  }
+  function vSerieEnd(){
+    var g=S.serie, best=meta.serieBest|0, neu=g.streak>0 && g.streak>=best;
+    return '<div class="card" style="text-align:center">'+
+      '<h1>🔥 '+g.streak+' richtig in Folge</h1>'+
+      (neu?'<div class="kudos">🎉 Neuer Bestwert!</div>':'<p class="lead">Bestwert: '+best+'</p>')+
+      '<p class="lead">+'+(g.streak*5)+' Punkte</p>'+
+      '<div class="row" style="justify-content:center">'+
+      '<button class="btn p" data-a="srnew">Nochmal</button>'+
+      '<button class="btn g" data-a="srquit">Zur Startseite</button></div></div>';
+  }
+
+  /* ================= Zahlen-Sprint =================
+     60 Sekunden Kopfrechnen. Die Aufgaben werden erzeugt, nicht aus den
+     Themen gezogen - so geht der Vorrat nie aus. */
+  var SPRINT_S=60;
+  function sprintTask(){
+    var r=Math.random();
+    if(r<0.4){ var a=2+Math.floor(Math.random()*8), b=2+Math.floor(Math.random()*8);
+      return {q:a+' × '+b+' = ?', a:a*b}; }
+    if(r<0.65){ var x=2+Math.floor(Math.random()*8), y=2+Math.floor(Math.random()*8);
+      return {q:(x*y)+' : '+x+' = ?', a:y}; }
+    if(r<0.85){ var m=Math.floor(Math.random()*400)+50, k=Math.floor(Math.random()*300)+20;
+      return {q:m+' + '+k+' = ?', a:m+k}; }
+    var p=Math.floor(Math.random()*500)+200, q2=Math.floor(Math.random()*180)+10;
+    return {q:p+' − '+q2+' = ?', a:p-q2};
+  }
+  function sprintStart(){
+    S.sprint={ task:sprintTask(), correct:0, wrong:0, endsAt:Date.now()+SPRINT_S*1000,
+               over:false, timer:null, flash:null };
+    S.screen='sprint'; render();
+    S.sprint.timer=setInterval(sprintTick,200);
+    var i=document.getElementById('spIn'); if(i) i.focus();
+  }
+  function sprintTick(){
+    var g=S.sprint; if(!g||g.over) return;
+    var left=Math.max(0,g.endsAt-Date.now());
+    var bar=document.getElementById('spBar'), t=document.getElementById('spTime');
+    if(bar) bar.style.width=(left/(SPRINT_S*1000)*100)+'%';
+    if(t) t.textContent=Math.ceil(left/1000)+' s';
+    if(left<=0) sprintEnd();
+  }
+  function sprintSubmit(){
+    var g=S.sprint; if(!g||g.over) return;
+    var i=document.getElementById('spIn');
+    var v=parseNum(i?i.value:'');
+    if(v===null){ if(i){ i.value=''; i.focus(); } return; }
+    if(Math.abs(v-g.task.a)<1e-9){ g.correct++; g.flash='ok'; }
+    else { g.wrong++; g.flash='no'; }
+    g.task=sprintTask();
+    render();
+    var ni=document.getElementById('spIn'); if(ni){ ni.value=''; ni.focus(); }
+  }
+  function sprintEnd(){
+    var g=S.sprint; if(!g||g.over) return;
+    g.over=true; if(g.timer) clearInterval(g.timer);
+    meta.sprintBest=Math.max(meta.sprintBest|0, g.correct);
+    meta.xp=(meta.xp||0)+g.correct*5;
+    save(K_META,meta);
+    S.screen='sprintend'; render();
+  }
+  function sprintQuit(){
+    var g=S.sprint; if(g&&g.timer) clearInterval(g.timer);
+    S.sprint=null; S.screen='home'; render();
+  }
+  function vSprint(){
+    var g=S.sprint;
+    if(!g) return '<div class="card"><p>Keine Runde aktiv.</p></div>';
+    return '<div class="card">'+
+      '<div class="bzhead"><span class="bztag">🔢 Zahlen-Sprint</span>'+
+      '<span class="bzscore">'+g.correct+' richtig</span>'+
+      '<span class="bztime" id="spTime">'+SPRINT_S+' s</span></div>'+
+      '<div class="bzbar"><i id="spBar" style="width:100%"></i></div>'+
+      (g.flash?'<div class="fb '+g.flash+'">'+(g.flash==='ok'?'⭐ Richtig!':'Weiter geht\'s!')+'</div>':'')+
+      '<div class="prompt" style="text-align:center;font-size:1.7rem">'+esc(g.task.q)+'</div>'+
+      '<div class="inrow"><input id="spIn" inputmode="decimal" autocomplete="off" aria-label="Ergebnis">'+
+      '<button class="btn p" data-a="spok">OK</button></div>'+
+      '<p class="hint">Zahl eingeben und auf OK tippen – oder die Eingabetaste drücken.</p>'+
+      '<div class="row"><span class="sp"></span><button class="btn g" data-a="spquit">Aufhören</button></div>'+
+    '</div>';
+  }
+  function vSprintEnd(){
+    var g=S.sprint, best=meta.sprintBest|0, neu=g.correct>0 && g.correct>=best;
+    return '<div class="card" style="text-align:center">'+
+      '<h1>🔢 '+g.correct+' Aufgaben in '+SPRINT_S+' Sekunden</h1>'+
+      (neu?'<div class="kudos">🎉 Neuer Bestwert!</div>':'<p class="lead">Bestwert: '+best+'</p>')+
+      '<p class="lead">+'+(g.correct*5)+' Punkte'+(g.wrong?' · '+g.wrong+' daneben':'')+'</p>'+
+      '<div class="row" style="justify-content:center">'+
+      '<button class="btn p" data-a="spnew">Nochmal</button>'+
+      '<button class="btn g" data-a="spquit">Zur Startseite</button></div></div>';
+  }
+
+  /* ================= Großes Ziel =================
+     Eine Belohnung, die die Eltern selbst festlegen. */
+  var ZIEL_STUFE=10;
+  function rewardText(){ return store.reward || 'ein Amazon-Gutschein'; }
+  function stufeVon(xp){ return Math.floor((xp||0)/200)+1; }
+  function zielHTML(){
+    var lvl=stufeVon(meta.xp), fehlt=(ZIEL_STUFE-1)*200-(meta.xp||0);
+    if(lvl>=ZIEL_STUFE){
+      if(store.rewardClaimed) return '';
+      return '<div class="ziel done"><span class="zi">🎁</span><div><b>Stufe '+ZIEL_STUFE+' geschafft!</b>'+
+        '<span>Versprochen war: '+esc(rewardText())+'</span></div>'+
+        '<button class="btn g" id="zielOk">Eingelöst</button></div>';
+    }
+    var anteil=Math.max(0,Math.min(100,Math.round((meta.xp||0)/((ZIEL_STUFE-1)*200)*100)));
+    return '<div class="ziel"><span class="zi">🎁</span><div><b>Großes Ziel: Stufe '+ZIEL_STUFE+'</b>'+
+      '<span>Dann wartet: '+esc(rewardText())+' · noch '+fehlt+' Punkte</span>'+
+      '<div class="bar" style="margin-top:.4rem"><i style="width:'+anteil+'%"></i></div></div></div>';
   }
 
   /* ================= Themen aussuchen ================= */
@@ -2072,6 +2263,10 @@ var SUBJECTS = {
     else if(S.screen==='coll') a.innerHTML=vColl();
     else if(S.screen==='rep') a.innerHTML=vReport();
     else if(S.screen==='set') a.innerHTML=vSettings();
+    else if(S.screen==='serie') a.innerHTML=vSerie();
+    else if(S.screen==='serieend') a.innerHTML=vSerieEnd();
+    else if(S.screen==='sprint') a.innerHTML=vSprint();
+    else if(S.screen==='sprintend') a.innerHTML=vSprintEnd();
     else a.innerHTML=vFinish();
     paintPath();
     paintSaveWarn();
@@ -2165,7 +2360,7 @@ var SUBJECTS = {
   /* ================= Ereignisse ================= */
   var lastClick=0;
   document.addEventListener('click',function(ev){
-    var t=ev.target.closest('[data-a],#go,#again,#toColl,#toRep,#back,#pr,#pdf,#csv,#cloud,#stExp,#stImp,#stCode,#stRead,#doRen,#doDel,#doDelNo,#doReset,#doResetNo,#doDiag,#stShare,#avPick,#avDrop,#toPick,#toBlitz,#bSet,#nmMic,#bPlus,#bMinus,#bSound,#bTheme');
+    var t=ev.target.closest('[data-a],#go,#again,#toColl,#toRep,#back,#pr,#pdf,#csv,#cloud,#stExp,#stImp,#stCode,#stRead,#doRen,#doDel,#doDelNo,#doReset,#doResetNo,#doDiag,#stShare,#rewSave,#avPick,#avDrop,#toPick,#toBlitz,#toSerie,#toSprint,#zielOk,#bSet,#nmMic,#bPlus,#bMinus,#bSound,#bTheme');
     if(!t) return;
     var now=Date.now(); if(now-lastClick<220) return; lastClick=now;
 
@@ -2203,6 +2398,9 @@ var SUBJECTS = {
     }
     if(t.id==='toPick'){ S.back=S.screen; S.screen='pick'; render(); return; }
     if(t.id==='toBlitz'){ blitzStart(); return; }
+    if(t.id==='toSerie'){ serieStart(); return; }
+    if(t.id==='toSprint'){ sprintStart(); return; }
+    if(t.id==='zielOk'){ store.rewardClaimed=true; persist(); render(); return; }
     if(t.id==='toColl'){ S.back=S.screen; S.screen='coll'; render(); return; }
     if(t.id==='toRep'){ S.back=S.screen; S.screen='rep'; S.delArm=false; render(); return; }
     if(t.id==='back'){ S.pick={}; S.screen=S.back==='finish'?'finish':'home'; render(); return; }
@@ -2219,6 +2417,15 @@ var SUBJECTS = {
     if(t.id==='avDrop'){
       setAvatar(store.active,AVATARS[Math.floor(Math.random()*AVATARS.length)]);
       render(); paintPfLine('Foto entfernt.');
+      return;
+    }
+    if(t.id==='rewSave'){
+      var ri=document.getElementById('rewIn');
+      var txt=ri?ri.value.trim():'';
+      store.reward=txt||'ein Amazon-Gutschein';
+      if(stufeVon(meta.xp)<ZIEL_STUFE) store.rewardClaimed=false;
+      persist();
+      var rl=document.getElementById('rewLine'); if(rl) rl.textContent='Gesichert.';
       return;
     }
     if(t.id==='doDiag'){
@@ -2330,6 +2537,12 @@ var SUBJECTS = {
       S.pick={}; startTopics(ids); return;
     }
     if(a==='bz'){ blitzAnswer(t.getAttribute('data-v')); return; }
+    if(a==='sr'){ serieAnswer(t.getAttribute('data-v')); return; }
+    if(a==='srquit'){ serieQuit(); return; }
+    if(a==='srnew'){ serieStart(); return; }
+    if(a==='spok'){ sprintSubmit(); return; }
+    if(a==='spquit'){ sprintQuit(); return; }
+    if(a==='spnew'){ sprintStart(); return; }
     if(a==='bzquit'){ blitzQuit(); return; }
     if(a==='bzagain'){ blitzStart(); return; }
     if(a==='bzhome'){ S.blitz=null; S.screen='home'; render(); return; }
@@ -2456,6 +2669,8 @@ var SUBJECTS = {
 
   document.addEventListener('keydown',function(e){
     if(e.key==='Enter'){
+      var sp=document.getElementById('spIn');
+      if(sp && document.activeElement===sp){ sprintSubmit(); return; }
       var i=document.getElementById('tin');
       if(i && document.activeElement===i){ checkInput(i.value); }
     }
