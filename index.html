@@ -804,12 +804,22 @@ var SUBJECTS = {
     var st=load(K_ROOT,null);
     if(st && st.profiles && typeof st.profiles==='object' && Object.keys(st.profiles).length){
       if(!st.active || !st.profiles[st.active]) st.active=Object.keys(st.profiles)[0];
+      /* Der Startstand greift sonst nur bei einer leeren Installation - bestehende
+         Geräte hingen auf dem alten Stand fest. Einmalig nachziehen; gemischt wird
+         nach der Bestwert-Regel, wer weiter ist verliert also nichts. */
+      if(!st.seedV6){
+        if(!st.profiles['Sam']) st.profiles['Sam']=blankProfile('Sam');
+        mergeData(st.profiles['Sam'], samSeed());
+        st.profiles['Sam'].meta.name='Sam';
+        st.seedV6=true;
+        try{ localStorage.setItem(K_ROOT,JSON.stringify(st)); }catch(e){}
+      }
       return st;
     }
     /* War schon einmal etwas da? Dann wurde es entsorgt - das darf die
        App nicht verschweigen, indem sie einfach neu anfängt. */
     try{ if(localStorage.getItem(K_SEEN)) lostData=true; }catch(e){}
-    st={ active:'Sam', profiles:{ Sam:samSeed() } };
+    st={ active:'Sam', seedV6:true, profiles:{ Sam:samSeed() } };
     /* Auf einem Gerät, das die Vorgängerfassung genutzt hat, steht oft
        mehr als im Seed - das wird dazugemischt, nie überschrieben. */
     var oProg=load(K_PROG,null), oMeta=load(K_META,null), oLog=load(K_LOG,null);
