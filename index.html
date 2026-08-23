@@ -736,7 +736,7 @@ var SUBJECTS = {
       'Sichere ihn über Einstellungen → „Code zum Kopieren", sonst geht die Übungsrunde verloren.';
     if(lostData) return '⚠️ Der Browser hat den gespeicherten Fortschritt gelöscht. '+
       'Über Einstellungen → „Lernstand laden" kannst du eine Sicherung einlesen.';
-    if(backupDue()) return '💾 Seit '+(store.runsSinceBackup|0)+' Runden keine Sicherung. '+
+    if(backupDue() && !syncOn()) return '💾 Seit '+(store.runsSinceBackup|0)+' Runden keine Sicherung. '+
       'Einstellungen → „Sicherung teilen" dauert zwei Tipps und schützt vor Datenverlust.';
     return '';
   }
@@ -1202,7 +1202,7 @@ var SUBJECTS = {
     meta.blitzBest=Math.max(meta.blitzBest|0, b.correct);
     meta.blitzRuns=(meta.blitzRuns|0)+1;
     meta.xp=(meta.xp||0)+b.correct*5;
-    save(K_META,meta);
+    save(K_META,meta); syncSoon();
     S.screen='blitzend'; render();
   }
   function blitzAnswer(v){
@@ -1220,7 +1220,16 @@ var SUBJECTS = {
   }
   function blitzQuit(){
     var b=S.blitz;
-    if(b){ if(b.timer) clearInterval(b.timer); if(b.hop) clearTimeout(b.hop); }
+    if(b){
+      if(b.timer) clearInterval(b.timer);
+      if(b.hop) clearTimeout(b.hop);
+      if(!b.over){                       /* mittendrin aufgehört: Punkte bleiben */
+        b.over=true;
+        meta.blitzBest=Math.max(meta.blitzBest|0, b.correct);
+        meta.xp=(meta.xp||0)+b.correct*5;
+        save(K_META,meta); syncSoon();
+      }
+    }
     S.blitz=null; S.screen='home'; render();
   }
 
@@ -1491,7 +1500,21 @@ var SUBJECTS = {
       '<div id="diagBox">'+diagHTML()+'</div>'+
       '<div class="row"><button class="btn g" id="doDiag">Erneut prüfen</button></div>'+
       '</div><div class="sect">'+
-       '<h3>Lernstand auf ein anderes Gerät übertragen</h3>'+
+       '<h3>Automatische Sicherung</h3>'+
+      '<p class="hint">Der Lernstand liegt zusätzlich auf eurem eigenen kleinen Server und ist auf jedem Gerät sofort da. '+
+      'Auf jedem Gerät dieselbe Adresse und dasselbe Kennwort eintragen.</p>'+
+      '<div class="inrow"><input id="syUrl" value="'+esc(syncCfg().url||SYNC_URL_DEFAULT)+'" '+
+      'placeholder="https://…workers.dev" aria-label="Server-Adresse" autocomplete="off" spellcheck="false"></div>'+
+      '<div class="inrow"><input id="syPw" type="password" placeholder="Familien-Kennwort" '+
+      'aria-label="Familien-Kennwort" autocomplete="off"></div>'+
+      '<div class="row"><button class="btn p" id="syOn">Verbinden</button>'+
+      (syncOn()?'<button class="btn g" id="syNow">Jetzt abgleichen</button>'+
+                '<button class="btn g" id="syOff">Trennen</button>':'')+'</div>'+
+      '<p class="hint" id="syncLine">'+esc(syncLabel())+'</p>'+
+      '<p class="hint">Das Kennwort wird nie übertragen und nicht gespeichert – nur sein Fingerabdruck. '+
+      'Wer es kennt, kommt an den Lernstand: Nimm etwas, das nicht zu erraten ist.</p>'+
+      '</div><div class="sect">'+
+      '<h3>Lernstand auf ein anderes Gerät übertragen</h3>'+
        '<p class="hint">Gesichert werden alle Kinder auf einmal. Auf dem anderen Gerät einlesen – beide Stände werden zusammengeführt, es geht nichts verloren.</p>'+
        (navigator.share?'<div class="row"><button class="btn p" id="stShare">📤 Sicherung teilen</button></div>'+
          '<p class="hint">Öffnet das Teilen-Menü des Geräts – zum Beispiel in Notizen ablegen. Zwei Tipps, fertig.</p>':'')+
@@ -1517,6 +1540,7 @@ var SUBJECTS = {
     try{ alsApp = (window.navigator.standalone===true) ||
       (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches); }catch(e){}
     rows.push(['Läuft als', alsApp?'App vom Home-Bildschirm':'Seite im Browser']);
+    rows.push(['Automatische Sicherung', syncOn()?(syncState==='fehler'?'verbunden, Server antwortet nicht':'an'):'aus']);
     rows.push(['Letzte Sicherung', store.lastBackup?fmtDate(store.lastBackup)
       +' · seitdem '+(store.runsSinceBackup|0)+' Runden' : 'noch keine']);
     var h='<div class="tw"><table><tbody>';
@@ -1566,11 +1590,20 @@ var SUBJECTS = {
     g.over=true; if(g.hop) clearTimeout(g.hop);
     meta.serieBest=Math.max(meta.serieBest|0, g.streak);
     meta.xp=(meta.xp||0)+g.streak*5;
-    save(K_META,meta);
+    save(K_META,meta); syncSoon();
     S.screen='serieend'; render();
   }
   function serieQuit(){
-    var g=S.serie; if(g&&g.hop) clearTimeout(g.hop);
+    var g=S.serie;
+    if(g){
+      if(g.hop) clearTimeout(g.hop);
+      if(!g.over){
+        g.over=true;
+        meta.serieBest=Math.max(meta.serieBest|0, g.streak);
+        meta.xp=(meta.xp||0)+g.streak*5;
+        save(K_META,meta); syncSoon();
+      }
+    }
     S.serie=null; S.screen='home'; render();
   }
 
@@ -1654,11 +1687,20 @@ var SUBJECTS = {
     g.over=true; if(g.timer) clearInterval(g.timer);
     meta.sprintBest=Math.max(meta.sprintBest|0, g.correct);
     meta.xp=(meta.xp||0)+g.correct*5;
-    save(K_META,meta);
+    save(K_META,meta); syncSoon();
     S.screen='sprintend'; render();
   }
   function sprintQuit(){
-    var g=S.sprint; if(g&&g.timer) clearInterval(g.timer);
+    var g=S.sprint;
+    if(g){
+      if(g.timer) clearInterval(g.timer);
+      if(!g.over){
+        g.over=true;
+        meta.sprintBest=Math.max(meta.sprintBest|0, g.correct);
+        meta.xp=(meta.xp||0)+g.correct*5;
+        save(K_META,meta); syncSoon();
+      }
+    }
     S.sprint=null; S.screen='home'; render();
   }
   function vSprint(){
@@ -1705,6 +1747,78 @@ var SUBJECTS = {
     return '<div class="ziel"><span class="zi">🎁</span><div><b>Großes Ziel: Stufe '+ZIEL_STUFE+'</b>'+
       '<span>Dann wartet: '+esc(rewardText())+' · noch '+fehlt+' Punkte</span>'+
       '<div class="bar" style="margin-top:.4rem"><i style="width:'+anteil+'%"></i></div></div></div>';
+  }
+
+
+  /* ================= Automatische Sicherung =================
+     Der Lernstand liegt zusätzlich auf einem kleinen eigenen Server.
+     Das Familien-Kennwort verlässt das Gerät nie - gespeichert und
+     gesendet wird nur sein Fingerabdruck, der als Schlüssel dient.
+     Fällt der Server aus, läuft alles unverändert lokal weiter. */
+  var SYNC_URL_DEFAULT='';
+  var syncState='aus', syncBusy=false, syncTimer=null;
+
+  function syncCfg(){ return store.sync || {}; }
+  function syncOn(){ var c=syncCfg(); return !!(c.url && c.key); }
+  function syncBase(){ return (syncCfg().url||'').replace(/\/+$/,''); }
+
+  function sha256hex(txt){
+    if(!(window.crypto && window.crypto.subtle)) return Promise.resolve(null);
+    var buf=new TextEncoder().encode('lernwerkstatt:'+txt);
+    return window.crypto.subtle.digest('SHA-256',buf).then(function(d){
+      var b=new Uint8Array(d), out='';
+      for(var i=0;i<b.length;i++) out+=('0'+b[i].toString(16)).slice(-2);
+      return out;
+    });
+  }
+
+  function syncLabel(){
+    if(!syncOn()) return 'Automatische Sicherung ist aus.';
+    if(syncState==='laeuft') return '☁ Wird abgeglichen …';
+    if(syncState==='fehler') return '⚠️ Server nicht erreichbar. Der Stand bleibt auf diesem Gerät.';
+    var t=syncCfg().lastSync;
+    return '☁ Abgeglichen'+(t?' – '+fmtDate(t)+' um '+(''+t).slice(11,16)+' Uhr':'')+'.';
+  }
+  function paintSyncLine(txt){
+    var el=document.getElementById('syncLine');
+    if(el) el.textContent = txt || syncLabel();
+  }
+
+  function syncPull(){
+    if(!syncOn()) return Promise.resolve(null);
+    return fetch(syncBase()+'/s/'+syncCfg().key,{cache:'no-store'})
+      .then(function(r){ if(!r.ok) throw new Error('http '+r.status); return r.json(); });
+  }
+  function syncPut(){
+    return fetch(syncBase()+'/s/'+syncCfg().key,{
+      method:'PUT', headers:{'Content-Type':'application/json'}, body:exportState(null,true)
+    }).then(function(r){ if(!r.ok) throw new Error('http '+r.status); return true; });
+  }
+
+  /* Immer erst holen und mischen, dann schreiben - sonst überschreibt
+     das zuletzt benutzte Gerät die Arbeit des anderen. */
+  function syncNow(cb){
+    if(!syncOn()||syncBusy){ cb&&cb(syncState); return; }
+    syncBusy=true; syncState='laeuft'; paintSyncLine();
+    syncPull().then(function(fern){
+      if(fern && typeof fern==='object') mergeIn(fern);
+      return syncPut();
+    }).then(function(){
+      store.sync.lastSync=new Date().toISOString();
+      store.runsSinceBackup=0;
+      persist();
+      syncBusy=false; syncState='ok'; paintSyncLine(); paintSaveWarn();
+      cb&&cb('ok');
+    })['catch'](function(){
+      syncBusy=false; syncState='fehler'; paintSyncLine();
+      cb&&cb('fehler');
+    });
+  }
+  /* Nicht bei jeder Kleinigkeit funken. */
+  function syncSoon(){
+    if(!syncOn()) return;
+    if(syncTimer) clearTimeout(syncTimer);
+    syncTimer=setTimeout(function(){ syncNow(); }, 2500);
   }
 
   /* ================= Themen aussuchen ================= */
@@ -2316,6 +2430,7 @@ var SUBJECTS = {
       meta.xp=(meta.xp||0)+(S.gainXP||0);
       store.runsSinceBackup=(store.runsSinceBackup|0)+1;
       save(K_META,meta);
+      syncSoon();
       S.screen='finish'; render();
       cloudSave(function(){ paintCloudLine(); });
     }
@@ -2364,7 +2479,7 @@ var SUBJECTS = {
   /* ================= Ereignisse ================= */
   var lastClick=0;
   document.addEventListener('click',function(ev){
-    var t=ev.target.closest('[data-a],#go,#again,#toColl,#toRep,#back,#pr,#pdf,#csv,#cloud,#stExp,#stImp,#stCode,#stRead,#doRen,#doDel,#doDelNo,#doReset,#doResetNo,#doDiag,#stShare,#rewSave,#avPick,#avDrop,#toPick,#toBlitz,#toSerie,#toSprint,#zielOk,#bSet,#nmMic,#bPlus,#bMinus,#bSound,#bTheme');
+    var t=ev.target.closest('[data-a],#go,#again,#toColl,#toRep,#back,#pr,#pdf,#csv,#cloud,#stExp,#stImp,#stCode,#stRead,#doRen,#doDel,#doDelNo,#doReset,#doResetNo,#doDiag,#stShare,#rewSave,#syOn,#syNow,#syOff,#avPick,#avDrop,#toPick,#toBlitz,#toSerie,#toSprint,#zielOk,#bSet,#nmMic,#bPlus,#bMinus,#bSound,#bTheme');
     if(!t) return;
     var now=Date.now(); if(now-lastClick<220) return; lastClick=now;
 
@@ -2423,6 +2538,26 @@ var SUBJECTS = {
       render(); paintPfLine('Foto entfernt.');
       return;
     }
+    if(t.id==='syOn'){
+      var u=(document.getElementById('syUrl')||{}).value||'';
+      var pw=(document.getElementById('syPw')||{}).value||'';
+      u=u.trim().replace(/\/+$/,''); pw=pw.trim();
+      if(!/^https:\/\/\S+$/.test(u)){ paintSyncLine('Die Adresse muss mit https:// beginnen.'); return; }
+      if(pw.length<6){ paintSyncLine('Nimm ein Kennwort mit mindestens 6 Zeichen.'); return; }
+      paintSyncLine('Verbinde …');
+      sha256hex(pw).then(function(k){
+        if(!k){ paintSyncLine('Dieser Browser kann den Fingerabdruck nicht bilden.'); return; }
+        store.sync={ url:u, key:k, lastSync:null }; persist();
+        syncNow(function(r){
+          render();
+          paintSyncLine(r==='ok'?'Verbunden. Der Lernstand ist gesichert.'
+                               :'Verbunden, aber der Server antwortet nicht. Adresse prüfen.');
+        });
+      });
+      return;
+    }
+    if(t.id==='syNow'){ syncNow(function(){ paintSyncLine(); }); return; }
+    if(t.id==='syOff'){ store.sync=null; persist(); syncState='aus'; render(); return; }
     if(t.id==='rewSave'){
       var ri=document.getElementById('rewIn');
       var txt=ri?ri.value.trim():'';
@@ -2706,6 +2841,17 @@ var SUBJECTS = {
   cloudInit(function(){
     if(S.screen==='home'){ rebuildPlan(); render(); }
     else paintCloudLine();
+    if(syncOn()){
+      syncState='laeuft'; paintSyncLine();
+      syncPull().then(function(fern){
+        if(fern && typeof fern==='object'){ mergeIn(fern); rebuildPlan(); }
+        return syncPut();
+      }).then(function(){
+        store.sync.lastSync=new Date().toISOString(); store.runsSinceBackup=0; persist();
+        syncState='ok';
+        if(S.screen==='home') render(); else { paintSyncLine(); paintSaveWarn(); }
+      })['catch'](function(){ syncState='fehler'; paintSyncLine(); });
+    }
   });
 })();
 
