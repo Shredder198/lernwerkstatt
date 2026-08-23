@@ -716,11 +716,19 @@ var SUBJECTS = {
       return false;
     }
   }
+  function markBackup(){
+    store.lastBackup=new Date().toISOString();
+    store.runsSinceBackup=0; persist(); paintSaveWarn();
+  }
+  function backupDue(){ return (store.runsSinceBackup|0)>=5; }
+
   function saveWarnText(){
     if(storeFull) return '⚠️ Achtung: Der Fortschritt kann auf diesem Gerät gerade nicht gespeichert werden. '+
       'Sichere ihn über Einstellungen → „Code zum Kopieren", sonst geht die Übungsrunde verloren.';
     if(lostData) return '⚠️ Der Browser hat den gespeicherten Fortschritt gelöscht. '+
       'Über Einstellungen → „Lernstand laden" kannst du eine Sicherung einlesen.';
+    if(backupDue()) return '💾 Seit '+(store.runsSinceBackup|0)+' Runden keine Sicherung. '+
+      'Einstellungen → „Sicherung teilen" dauert zwei Tipps und schützt vor Datenverlust.';
     return '';
   }
   function paintSaveWarn(){
@@ -1461,6 +1469,8 @@ var SUBJECTS = {
       '</div><div class="sect">'+
        '<h3>Lernstand auf ein anderes Gerät übertragen</h3>'+
        '<p class="hint">Gesichert werden alle Kinder auf einmal. Auf dem anderen Gerät einlesen – beide Stände werden zusammengeführt, es geht nichts verloren.</p>'+
+       (navigator.share?'<div class="row"><button class="btn p" id="stShare">📤 Sicherung teilen</button></div>'+
+         '<p class="hint">Öffnet das Teilen-Menü des Geräts – zum Beispiel in Notizen ablegen. Zwei Tipps, fertig.</p>':'')+
        '<div class="row"><button class="btn g" id="stExp">⬇ Als Datei sichern</button>'+
        '<button class="btn g" id="stImp">⬆ Aus Datei laden</button>'+
        '<button class="btn g" id="stCode">🔤 Code zum Kopieren</button></div>'+
@@ -1483,6 +1493,8 @@ var SUBJECTS = {
     try{ alsApp = (window.navigator.standalone===true) ||
       (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches); }catch(e){}
     rows.push(['Läuft als', alsApp?'App vom Home-Bildschirm':'Seite im Browser']);
+    rows.push(['Letzte Sicherung', store.lastBackup?fmtDate(store.lastBackup)
+      +' · seitdem '+(store.runsSinceBackup|0)+' Runden' : 'noch keine']);
     var h='<div class="tw"><table><tbody>';
     rows.forEach(function(r){ h+='<tr><td>'+esc(r[0])+'</td><td><b>'+esc(r[1])+'</b></td></tr>'; });
     profileNames().forEach(function(nm){
@@ -2102,7 +2114,9 @@ var SUBJECTS = {
       S.order={picked:[]}; S.match={sel:null,done:[],wrong:0}; S.sort={i:0,trace:[]};
       render();
     }else{
-      meta.xp=(meta.xp||0)+(S.gainXP||0); save(K_META,meta);
+      meta.xp=(meta.xp||0)+(S.gainXP||0);
+      store.runsSinceBackup=(store.runsSinceBackup|0)+1;
+      save(K_META,meta);
       S.screen='finish'; render();
       cloudSave(function(){ paintCloudLine(); });
     }
@@ -2151,7 +2165,7 @@ var SUBJECTS = {
   /* ================= Ereignisse ================= */
   var lastClick=0;
   document.addEventListener('click',function(ev){
-    var t=ev.target.closest('[data-a],#go,#again,#toColl,#toRep,#back,#pr,#pdf,#csv,#cloud,#stExp,#stImp,#stCode,#stRead,#doRen,#doDel,#doDelNo,#doReset,#doResetNo,#doDiag,#avPick,#avDrop,#toPick,#toBlitz,#bSet,#nmMic,#bPlus,#bMinus,#bSound,#bTheme');
+    var t=ev.target.closest('[data-a],#go,#again,#toColl,#toRep,#back,#pr,#pdf,#csv,#cloud,#stExp,#stImp,#stCode,#stRead,#doRen,#doDel,#doDelNo,#doReset,#doResetNo,#doDiag,#stShare,#avPick,#avDrop,#toPick,#toBlitz,#bSet,#nmMic,#bPlus,#bMinus,#bSound,#bTheme');
     if(!t) return;
     var now=Date.now(); if(now-lastClick<220) return; lastClick=now;
 
@@ -2240,8 +2254,19 @@ var SUBJECTS = {
       return;
     }
     if(t.id==='doDelNo'){ S.delArm=false; render(); return; }
+    if(t.id==='stShare'){
+      var txt='Lernwerkstatt – Sicherung vom '+fmtDate(new Date().toISOString())+
+        '\n\nDiesen ganzen Text in der App unter Einstellungen → „Code zum Kopieren" einfügen und auf „Einlesen" tippen.\n\n'+
+        exportState();
+      try{
+        navigator.share({title:'Lernwerkstatt – Sicherung', text:txt})
+          .then(function(){ markBackup(); paintStLine('Sicherung geteilt.'); })
+          ['catch'](function(){ /* vom Nutzer abgebrochen - keine Meldung */ });
+      }catch(e){ paintStLine('Teilen geht auf diesem Gerät nicht – nimm den Code darunter.'); }
+      return;
+    }
     if(t.id==='stExp'){
-      offerFile('Lernstand.json', exportState(null,true), null, function(m){ paintStLine(m); });
+      offerFile('Lernstand.json', exportState(null,true), null, function(m){ markBackup(); paintStLine(m); });
       return;
     }
     if(t.id==='stImp'){
@@ -2261,7 +2286,7 @@ var SUBJECTS = {
       var ta=document.getElementById('stTa');
       var err=importState(ta?ta.value:'');
       if(err){ paintStLine(err); return; }
-      render(); paintStLine('Lernstand übernommen und zusammengeführt.');
+      markBackup(); render(); paintStLine('Lernstand übernommen und zusammengeführt.');
       return;
     }
     if(t.id==='pr'){ window.print(); return; }
@@ -2422,7 +2447,7 @@ var SUBJECTS = {
     fr.onload=function(){
       var err=importState(fr.result);
       if(err){ paintStLine(err); return; }
-      render(); paintStLine('Lernstand übernommen und zusammengeführt.');
+      markBackup(); render(); paintStLine('Lernstand übernommen und zusammengeführt.');
     };
     fr.onerror=function(){ paintStLine('Die Datei konnte nicht gelesen werden.'); };
     fr.readAsText(t.files[0]);
