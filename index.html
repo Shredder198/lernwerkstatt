@@ -18,7 +18,7 @@
     --ink:#1C2823; --soft:#54655A; --line:#D4DCCF;
     --accent:#2C7053; --accent-ink:#FFFFFF;
     --blue:#2A6480; --clay:#AE5527; --gold:#A9701A;
-    --ring:#C9832E;
+    --lila:#7A4FA3; --ring:#C9832E;
     --shadow:0 1px 2px rgba(28,40,35,.06), 0 8px 20px -14px rgba(28,40,35,.35);
     --shadow-lift:0 2px 4px rgba(28,40,35,.07), 0 16px 32px -18px rgba(28,40,35,.4);
     --r-s:.6rem; --r-m:.9rem; --r-l:1.25rem;
@@ -30,7 +30,7 @@
       --ink:#E3ECE6; --soft:#A2B6A9; --line:#29372F;
       --accent:#57B48A; --accent-ink:#0B1611;
       --blue:#6DB2D2; --clay:#DE8F5C; --gold:#DFA857;
-      --ring:#E3A857;
+      --lila:#B98BE0; --ring:#E3A857;
       --shadow:0 1px 2px rgba(0,0,0,.4), 0 8px 22px -14px rgba(0,0,0,.7);
       --shadow-lift:0 2px 6px rgba(0,0,0,.45), 0 18px 36px -18px rgba(0,0,0,.75);
       color-scheme:dark;
@@ -41,7 +41,7 @@
     --ink:#E3ECE6; --soft:#A2B6A9; --line:#29372F;
     --accent:#57B48A; --accent-ink:#0B1611;
     --blue:#6DB2D2; --clay:#DE8F5C; --gold:#DFA857;
-    --ring:#E3A857;
+    --lila:#B98BE0; --ring:#E3A857;
     --shadow:0 1px 2px rgba(0,0,0,.4), 0 8px 22px -14px rgba(0,0,0,.7);
     --shadow-lift:0 2px 6px rgba(0,0,0,.45), 0 18px 36px -18px rgba(0,0,0,.75);
     color-scheme:dark;
@@ -119,6 +119,7 @@
   .tag.t-de{ color:var(--accent); }
   .tag.t-fr{ color:var(--blue); }
   .tag.t-ma{ color:var(--clay); }
+  .tag.t-me{ color:var(--lila); }
   .prompt{ font-size:1.3rem; font-weight:700; line-height:1.55; text-wrap:balance; }
   .passage{ font-size:1.12rem; line-height:1.9; background:var(--sunk);
     border:1px solid var(--line); border-left:4px solid var(--accent);
@@ -238,6 +239,11 @@
   tbody tr:last-child td{ border-bottom:none; }
   .tw{ overflow-x:auto; -webkit-overflow-scrolling:touch; }
   td.num,th.num{ text-align:right; font-variant-numeric:tabular-nums; white-space:nowrap; }
+
+  .tips{ margin:0; padding-left:1.2rem; color:var(--soft); font-size:.9rem; line-height:1.7; }
+  .tips li{ margin-bottom:.15rem; }
+  .freitext{ font-family:inherit !important; font-size:1.05rem !important; min-height:9rem !important;
+    line-height:1.7 !important; }
 
   textarea{ width:100%; min-height:7rem; font-family:ui-monospace,Menlo,Consolas,monospace;
     font-size:.78rem; line-height:1.5; border:1.5px solid var(--line); border-radius:var(--r-s);
@@ -702,8 +708,100 @@ var BADGES = {
 var SUBJECTS = {
   de:{name:'Deutsch', color:'#2F7A5E', icon:'🇩🇪'},
   fr:{name:'Französisch', color:'#2E6E8E', icon:'🇫🇷'},
-  ma:{name:'Mathematik', color:'#B5652F', icon:'🔢'}
+  ma:{name:'Mathematik', color:'#B5652F', icon:'🔢'},
+  me:{name:'Medien', color:'#7A4FA3', icon:'📱'}
 };
+
+/* ================= Rubrik Medien =================
+   Influencer-Thematik, aber mit Lernwert: Werbung erkennen, genau lesen,
+   selbst schreiben, mit Zahlen umgehen. Gibt bewusst halbe Punkte -
+   Bonus, kein Ersatz für Deutsch, Mathe und Französisch. */
+WORLDS.push(
+  {
+    id:'werbung', subject:'me', icon:'🕵️', color:'#7A4FA3', xpFaktor:0.5,
+    title:'Werbung erkennen', sub:'Was ist bezahlt, was ist echte Meinung?',
+    a:{ type:'choice', items:[
+      {q:'Über einem Video steht groß „Anzeige". Was heißt das?', options:['Jemand hat für das Video bezahlt','Das Video ist besonders beliebt','Das Video ist neu'], correct:'Jemand hat für das Video bezahlt', d:1},
+      {q:'Woran erkennst du bezahlte Werbung am sichersten?', options:['An der Kennzeichnung „Werbung" oder „Anzeige"','Daran, dass das Produkt schön aussieht','An der Anzahl der Likes'], correct:'An der Kennzeichnung „Werbung" oder „Anzeige"', d:1},
+      {q:'Warum müssen Influencer Werbung kennzeichnen?', options:['Weil es Gesetz ist','Weil es hübscher aussieht','Weil die Zuschauer es verlangen'], correct:'Weil es Gesetz ist', d:2},
+      {q:'Ein Video verspricht: „In 3 Tagen 10 000 Follower!" Wie schätzt du das ein?', options:['Sehr wahrscheinlich übertrieben','Bestimmt wahr','Das geht immer'], correct:'Sehr wahrscheinlich übertrieben', d:2},
+      {q:'Eine Influencerin bekommt eine Flasche geschenkt und zeigt sie. Ist das Werbung?', options:['Ja, auch geschenkte Dinge zählen','Nein, sie hat ja nichts bezahlt bekommen','Nur wenn sie es sagt'], correct:'Ja, auch geschenkte Dinge zählen', d:3},
+      {q:'Ein Kanal zeigt nur begeisterte Meinungen über ein Spiel. Was ist sinnvoll?', options:['Noch woanders nachlesen','Sofort kaufen','Den Kanal melden'], correct:'Noch woanders nachlesen', d:2},
+      {q:'Ein Video sagt: „Link in der Beschreibung, nur heute günstig!" Was steckt oft dahinter?', options:['Zeitdruck, damit man schnell kauft','Ein technischer Hinweis','Eine Warnung'], correct:'Zeitdruck, damit man schnell kauft', d:3},
+      {q:'Was ist eine „Meinung" im Unterschied zu einer „Tatsache"?', options:['Etwas, das jemand findet','Etwas, das man nachprüfen kann','Etwas, das im Fernsehen kam'], correct:'Etwas, das jemand findet', d:2},
+      {q:'Jemand schreibt unter dein Video etwas Gemeines. Was ist am besten?', options:['Nicht antworten und einer erwachsenen Person zeigen','Zurückschimpfen','Das Video löschen'], correct:'Nicht antworten und einer erwachsenen Person zeigen', d:1},
+      {q:'Warum zeigen viele Videos nur die schönsten Momente?', options:['Weil das mehr Aufrufe bringt','Weil nichts anderes passiert','Weil es verboten ist, anderes zu zeigen'], correct:'Weil das mehr Aufrufe bringt', d:3}
+    ]},
+    b:{ type:'sort', prompt:'Ist das Werbung oder eine eigene Meinung?',
+      bucketA:'Werbung', bucketB:'eigene Meinung',
+      items:[
+        {text:'„Anzeige: Diese Schuhe bekommt ihr mit meinem Code."', a:true, d:1},
+        {text:'„Ich finde den Film ehrlich gesagt langweilig."', a:false, d:1},
+        {text:'„Bezahlte Partnerschaft mit einer Getränkemarke."', a:true, d:1},
+        {text:'„Mir gefällt der blaue Stift besser als der rote."', a:false, d:1},
+        {text:'„Werbung: Nur heute 20 Prozent mit meinem Link."', a:true, d:2},
+        {text:'„Das Buch hat mich zum Weinen gebracht."', a:false, d:2},
+        {text:'„Dieses Produkt wurde mir kostenlos zugeschickt."', a:true, d:3},
+        {text:'„Ich spiele das Spiel seit zwei Jahren gern."', a:false, d:2}
+      ]}
+  },
+  {
+    id:'videotext', subject:'me', icon:'✍️', color:'#7A4FA3', xpFaktor:0.5,
+    title:'Video-Text schreiben', sub:'Selbst formulieren statt nur zuschauen',
+    a:{ type:'frei', prompt:'Schreib in ganzen Sätzen. Punkt am Satzende nicht vergessen.',
+      items:[
+        {q:'Beschreibe dein Lieblingsvideo für jemanden, der es nicht kennt.',
+         hinweise:['Worum geht es?','Was gefällt dir besonders?','Was würdest du anders machen?'], min:120, d:1},
+        {q:'Du möchtest ein Video über dein Hobby machen. Schreibe, was in den ersten zehn Sekunden passiert.',
+         hinweise:['Womit fängst du an?','Was sieht man?','Warum bleibt jemand dran?'], min:120, d:2},
+        {q:'Ein Freund will Videos über Fußballtricks machen. Schreib ihm drei Tipps.',
+         hinweise:['Ein Tipp zum Anfang','Ein Tipp zum Erklären','Ein Tipp zum Schluss'], min:140, d:2},
+        {q:'Erkläre in eigenen Worten, woran man bezahlte Werbung erkennt.',
+         hinweise:['Nenne ein Kennzeichen','Nenne ein Beispiel','Sag, warum das wichtig ist'], min:140, d:3},
+        {q:'Schreibe einen freundlichen Kommentar unter ein Video, das dir gefallen hat.',
+         hinweise:['Sag, was dir gefiel','Bleib höflich','Stell eine Frage'], min:100, d:1},
+        {q:'Denk dir einen Titel für ein Video über deine Schule aus und erkläre, warum er neugierig macht.',
+         hinweise:['Der Titel selbst','Warum er neugierig macht','Was das Video zeigt'], min:130, d:3}
+      ]},
+    b:{ type:'choice', items:[
+      {q:'Welcher Videotitel sagt am genauesten, worum es geht?', options:['„So baust du ein Vogelhaus in 10 Minuten"','„Das müsst ihr sehen!!!"','„Unglaublich krass"'], correct:'„So baust du ein Vogelhaus in 10 Minuten"', d:1},
+      {q:'Welcher Kommentar ist höflich und hilfreich?', options:['„Schöne Idee – wie lange hast du gebraucht?"','„Langweilig."','„Kann jeder besser."'], correct:'„Schöne Idee – wie lange hast du gebraucht?"', d:1},
+      {q:'Was gehört in eine gute Videobeschreibung?', options:['Worum es geht und was man braucht','Möglichst viele Ausrufezeichen','Nur Emojis'], correct:'Worum es geht und was man braucht', d:2},
+      {q:'Ein Satz lautet: „ich zeig euch heut wie mans macht". Was fehlt?', options:['Großschreibung und Punkt','Ein Bild','Ein Link'], correct:'Großschreibung und Punkt', d:2},
+      {q:'Warum ist ein klarer erster Satz wichtig?', options:['Weil viele nach wenigen Sekunden weiterklicken','Weil er länger sein muss','Weil es Vorschrift ist'], correct:'Weil viele nach wenigen Sekunden weiterklicken', d:3},
+      {q:'Welche Reihenfolge passt für eine Anleitung?', options:['Was man braucht – Schritte – Ergebnis','Ergebnis – Was man braucht – Schritte','Schritte – Ergebnis – Begrüßung'], correct:'Was man braucht – Schritte – Ergebnis', d:3}
+    ]}
+  },
+  {
+    id:'netzzahlen', subject:'me', icon:'📈', color:'#7A4FA3', xpFaktor:0.5,
+    title:'Zahlen im Netz', sub:'Aufrufe, Likes und Zeit ausrechnen',
+    a:{ type:'input', prompt:'Rechne aus. Nur die Zahl eingeben oder sagen.', numeric:true,
+      items:[
+        {q:'Ein Video hat am Montag 1 200 Aufrufe und am Dienstag 2 350. Wie viele zusammen?', answer:3550, d:1},
+        {q:'Ein Kanal hat 4 800 Follower und gewinnt 350 dazu. Wie viele sind es dann?', answer:5150, d:1},
+        {q:'Von 500 Zuschauern haben 125 geliket. Wie viele haben nicht geliket?', answer:375, d:2},
+        {q:'Ein Video dauert 4 Minuten. Wie viele Sekunden sind das?', answer:240, d:1},
+        {q:'Zehn Videos dauern je 3 Minuten. Wie viele Minuten insgesamt?', answer:30, d:1},
+        {q:'Ein Video hatte 900 Aufrufe, jetzt sind es 1 350. Wie viele kamen dazu?', answer:450, d:2},
+        {q:'6 Freunde teilen sich 48 Minuten Bildschirmzeit gerecht. Wie viele Minuten bekommt jeder?', answer:8, d:2},
+        {q:'Ein Kanal lädt jede Woche 3 Videos hoch. Wie viele sind das in 8 Wochen?', answer:24, d:2},
+        {q:'Von 1 000 Aufrufen kommen 250 aus Luxemburg. Wie viele kommen von woanders?', answer:750, d:3},
+        {q:'Ein Video dauert 2 Minuten 30 Sekunden. Wie viele Sekunden sind das?', answer:150, d:3}
+      ]},
+    b:{ type:'choice', items:[
+      {q:'Ein Kanal hat 1 000 Follower, ein anderer 10 000. Wie viel mehr hat der zweite?', options:['Zehnmal so viele','Hundertmal so viele','Doppelt so viele'], correct:'Zehnmal so viele', d:2},
+      {q:'Ein Video wird 3 Minuten lang geschaut, ein zweites 180 Sekunden. Was stimmt?', options:['Beide sind gleich lang','Das erste ist länger','Das zweite ist länger'], correct:'Beide sind gleich lang', d:2},
+      {q:'Jeden Tag 20 Minuten schauen – wie viel ist das in einer Woche?', options:['2 Stunden 20 Minuten','1 Stunde 40 Minuten','3 Stunden'], correct:'2 Stunden 20 Minuten', d:3},
+      {q:'Von 200 Kommentaren sind 50 Fragen. Welcher Anteil ist das?', options:['ein Viertel','die Hälfte','ein Zehntel'], correct:'ein Viertel', d:3},
+      {q:'Ein Video hat 12 500 Aufrufe. Wie liest man das?', options:['zwölftausendfünfhundert','hundertfünfundzwanzig','zwölfhundertfünfzig'], correct:'zwölftausendfünfhundert', d:1},
+      {q:'Was bedeutet „1,2 Mio. Aufrufe"?', options:['1 200 000','12 000','120 000'], correct:'1 200 000', d:3}
+    ]}
+  }
+);
+
+BADGES.werbung    = {emoji:'🕵️', name:'Werbe-Detektiv'};
+BADGES.videotext  = {emoji:'✍️', name:'Video-Texter'};
+BADGES.netzzahlen = {emoji:'📈', name:'Reichweiten-Rechner'};
 
 /* ================= Nachschub =================
    Mehr Aufgaben je Thema, gestuft nach Schwierigkeit (d:1 leicht, 2 mittel,
@@ -1259,6 +1357,14 @@ var SUBJECTS = {
     dst.meta.bestStufe=Math.max(dst.meta.bestStufe|0, rm.bestStufe|0);
     if((rm.lastDay||'')>(dst.meta.lastDay||'')) dst.meta.lastDay=rm.lastDay;
     if(!dst.meta.name && rm.name) dst.meta.name=rm.name;
+    /* Das Bild fehlte hier - dadurch kam ein Foto zwar beim Sichern mit,
+       wurde auf dem anderen Gerät aber verworfen. Ein echtes Foto sticht
+       ein Emoji; ein Emoji überschreibt nie ein Foto. */
+    if(rm.avatar){
+      var fernFoto=(''+rm.avatar).indexOf('data:')===0;
+      var hierFoto=(''+(dst.meta.avatar||'')).indexOf('data:')===0;
+      if(!dst.meta.avatar || (fernFoto && !hierFoto)) dst.meta.avatar=rm.avatar;
+    }
     if(!dst.meta.avatar && rm.avatar) dst.meta.avatar=rm.avatar;
     if(Array.isArray(rem.log)){
       var seen={}, out=[];
@@ -1519,8 +1625,9 @@ var SUBJECTS = {
           var out='';
           try{ out=c.toDataURL('image/webp',0.82); }catch(e){}
           if(out.indexOf('data:image/webp')!==0) out=c.toDataURL('image/jpeg',0.82);
-          if(out.length>90000) out=c.toDataURL('image/jpeg',0.6);
-          if(out.length>90000){ cb(null,'Das Bild ist zu groß. Nimm ein anderes.'); return; }
+          if(out.length>60000) out=c.toDataURL('image/jpeg',0.6);
+          if(out.length>60000) out=c.toDataURL('image/jpeg',0.45);
+          if(out.length>60000){ cb(null,'Das Bild ist zu groß. Nimm ein anderes.'); return; }
           cb(out,null);
         }catch(e){ cb(null,'Das Bild konnte nicht verkleinert werden.'); }
       };
@@ -1545,14 +1652,14 @@ var SUBJECTS = {
 
   function buildSession(){
     var TARGET=6, picks=[];
-    var bySub={de:[],fr:[],ma:[]};
+    var bySub={de:[],fr:[],ma:[],me:[]};
     WORLDS.forEach(function(w){ bySub[w.subject].push(w); });
     // Reihenfolge: Deutsch, Mathe, Französisch abwechselnd
-    var order=['de','ma','fr'], pools={};
+    var order=['de','ma','fr','me'], pools={};
     order.forEach(function(s){
       pools[s]=shuffle(bySub[s]).sort(function(x,y){ return levelOf(x.id)-levelOf(y.id); });
     });
-    var idx={de:0,ma:0,fr:0}, guard=0;
+    var idx={de:0,ma:0,fr:0,me:0}, guard=0;
     while(picks.length<TARGET && guard++<60){
       for(var i=0;i<order.length && picks.length<TARGET;i++){
         var s=order[i], pool=pools[s];
@@ -1696,9 +1803,121 @@ var SUBJECTS = {
   /* Fehler, nach denen Sprechen dauerhaft keinen Sinn mehr hat */
   var MIC_FATAL={unsupported:1,blocked:1,'not-allowed':1,'service-not-allowed':1,nomic:1,'audio-capture':1,embedded:1};
 
+  /* ---------- Vorlesen ----------
+     Drei Dinge machten es vorher hölzern: eine beliebige Stimme, ein
+     einziger langer Block (dabei schwankt das Tempo hörbar - es klingt,
+     als würde die Stimme an manchen Stellen bremsen) und Rohtext mit
+     Unterstrichen, Rechenzeichen und Anführungszeichen. */
+  var STIMMEN=[];
+  function ladeStimmen(){
+    try{ STIMMEN=window.speechSynthesis.getVoices()||[]; }catch(e){ STIMMEN=[]; }
+  }
+  if('speechSynthesis' in window){
+    ladeStimmen();
+    try{ window.speechSynthesis.onvoiceschanged=ladeStimmen; }catch(e){}
+  }
+  function stimmenFuer(lang){
+    if(!STIMMEN.length) ladeStimmen();
+    var voll=(lang||'de-DE').toLowerCase().replace('_','-');
+    var pre=voll.slice(0,2);
+    var passend=STIMMEN.filter(function(v){ return (''+(v.lang||'')).toLowerCase().replace('_','-').indexOf(pre)===0; });
+    function rang(v){
+      var nm=(''+(v.name||'')).toLowerCase();
+      var vl=(''+(v.lang||'')).toLowerCase().replace('_','-');
+      var p=0;
+      /* Erweiterte Stimmen klingen deutlich menschlicher als die
+         mitgelieferten Kompaktstimmen - die sind das Blecherne. */
+      if(/premium|enhanced|neural|natural|siri/.test(nm)) p-=8;
+      if(vl===voll) p-=3;                       /* fr-FR vor fr-CA */
+      if(v.localService) p-=1;
+      if(/compact|eloquence|espeak|novelty/.test(nm)) p+=6;
+      return p;
+    }
+    passend.sort(function(a,b){ return rang(a)-rang(b); });
+    return passend;
+  }
+  function besteStimme(lang){
+    var l=stimmenFuer(lang);
+    return l.length?l[0]:null;
+  }
+  function stimmeIstKompakt(lang){
+    var v=besteStimme(lang);
+    if(!v) return true;
+    return !/premium|enhanced|neural|natural|siri/i.test(''+(v.name||''));
+  }
+
+  /* Aus Aufgabentext wird sprechbarer Text - je Sprache eigene Wörter.
+     Vorher wurden auch französische Sätze mit deutschen Ersatzwörtern
+     gefüttert („mal", „ist gleich"), das klang zwangsläufig falsch. */
+  var SPRECHWORT={
+    de:{ mal:' mal ', durch:' geteilt durch ', geld:' Euro', frage:' — wie viel ist das?', gleich:' ist gleich ' },
+    fr:{ mal:' fois ', durch:' divisé par ', geld:' euros', frage:' — ça fait combien ?', gleich:' égale ' }
+  };
+  function sprechbar(t,lang){
+    var W=SPRECHWORT[(lang||'de').slice(0,2).toLowerCase()]||SPRECHWORT.de;
+    return (''+t)
+      .replace(/_{2,}/g, ' — ')                        /* Lücke wird zur Pause, nicht buchstabiert */
+      .replace(/[„“”"»«]/g, '')
+      .replace(/(\d)\s+(\d{3})(?!\d)/g, '$1$2')       /* 1 000 -> 1000 */
+      .replace(/\s*×\s*/g, W.mal)
+      .replace(/\s*÷\s*/g, W.durch)
+      .replace(/(\d)\s*:\s*(\d)/g, '$1'+W.durch+'$2')
+      .replace(/\s*€/g, W.geld)
+      .replace(/\s*=\s*\?/g, W.frage)
+      .replace(/\s*=\s*/g, W.gleich)
+      .replace(/\s+/g, ' ')
+      .trim();
+  }
+  /* In Sätze zerlegen: gleichmäßiges Tempo und natürliche Pausen. */
+  function hatInhalt(t){ return /[0-9A-Za-zÄÖÜäöüß]/.test(t); }
+  function saetze(t,lang){
+    var txt=sprechbar(t,lang), roh=[], cur='';
+    for(var i=0;i<txt.length;i++){
+      cur+=txt.charAt(i);
+      if('.!?'.indexOf(txt.charAt(i))>=0 && (i+1>=txt.length || txt.charAt(i+1)===' ')){
+        if(cur.trim()) roh.push(cur.trim());
+        cur='';
+      }
+    }
+    if(cur.trim()) roh.push(cur.trim());
+    /* Bruchstücke ohne Buchstaben an den Satz davor hängen, statt sie
+       als eigene Äußerung zu sprechen - sonst stockt die Stimme. */
+    var out=[];
+    roh.forEach(function(teil){
+      if(!hatInhalt(teil) && out.length) out[out.length-1]+=' '+teil;
+      else if(hatInhalt(teil)) out.push(teil);
+    });
+    return out.length?out:[txt];
+  }
+  function stimmenLage(){
+    var de=besteStimme('de-DE'), fr=besteStimme('fr-FR');
+    var teile=[];
+    teile.push('Deutsch: '+(de?de.name:'keine Stimme gefunden'));
+    teile.push('Französisch: '+(fr?fr.name:'keine Stimme gefunden'));
+    var tipp='';
+    if(!fr || stimmeIstKompakt('fr-FR') || !de || stimmeIstKompakt('de-DE')){
+      tipp=' — Klingt es blechern? Auf dem iPhone unter Einstellungen → Bedienungshilfen → '+
+           'Gesprochene Inhalte → Stimmen eine erweiterte Stimme laden. Das ist der grösste Unterschied.';
+    }
+    return teile.join(' · ')+tipp;
+  }
+
+  function vorleseTempo(){
+    var t=parseFloat(store.tempo);
+    return (t>=0.6 && t<=1.4) ? t : 0.97;
+  }
   function speak(t,lang){
-    if(S.muted||!('speechSynthesis' in window))return;
-    try{ speechSynthesis.cancel(); var u=new SpeechSynthesisUtterance(t); u.lang=lang||'de-DE'; u.rate=.88; speechSynthesis.speak(u);}catch(e){}
+    if(S.muted || !('speechSynthesis' in window)) return;
+    try{
+      window.speechSynthesis.cancel();
+      var l=lang||'de-DE', v=besteStimme(l), tempo=vorleseTempo();
+      saetze(t,l).forEach(function(satz){
+        var u=new SpeechSynthesisUtterance(satz);
+        u.lang=l; if(v) u.voice=v;
+        u.rate=tempo; u.pitch=1; u.volume=1;
+        window.speechSynthesis.speak(u);
+      });
+    }catch(e){}
   }
 
   function embedded(){ try{ return window.self!==window.top; }catch(e){ return true; } }
@@ -1918,6 +2137,18 @@ var SUBJECTS = {
        '<div class="row"><button class="btn g" id="doDel">'+(S.delArm?'Wirklich löschen?':'Kind löschen')+'</button>'+
        (S.delArm?'<button class="btn g" id="doDelNo">Abbrechen</button>':'')+'</div>'+
        '<p class="hint" id="pfLine"></p>'+
+      '</div><div class="sect">'+
+      '<h3>Vorlesen</h3>'+
+      '<p class="hint">Wie schnell die Stimme liest. Zum Ausprobieren antippen.</p>'+
+      '<div class="row">'+
+      [['0.82','Langsam'],['0.97','Normal'],['1.12','Zügig']].map(function(o){
+        return '<button class="btn '+(Math.abs(vorleseTempo()-parseFloat(o[0]))<0.01?'p':'g')+
+               '" data-a="tempo" data-v="'+o[0]+'">'+o[1]+'</button>';
+      }).join('')+'</div>'+
+      '<p class="hint" id="tempoLine"></p>'+
+      '<div class="row"><button class="btn g" data-a="probe" data-l="de-DE">🔊 Deutsch testen</button>'+
+      '<button class="btn g" data-a="probe" data-l="fr-FR">🔊 Französisch testen</button></div>'+
+      '<p class="hint">'+esc(stimmenLage())+'</p>'+
       '</div><div class="sect">'+
       '<h3>Großes Ziel</h3>'+
       '<p class="hint">Alle zehn Stufen gibt es etwas. Trag ein, was bei euch gilt – leer lassen nimmt den Vorschlag.</p>'+
@@ -2313,7 +2544,7 @@ var SUBJECTS = {
       '<p class="lead">Such dir aus, was du üben willst – zum Beispiel etwas, das beim letzten Mal wacklig war.</p>'+
       '<div class="row"><button class="btn g" data-a="pickweak">Meine schwächsten 3</button>'+
       (sel.length?'<button class="btn g" data-a="pickclear">Auswahl leeren</button>':'')+'</div>';
-    ['de','fr','ma'].forEach(function(sub){
+    Object.keys(SUBJECTS).forEach(function(sub){
       h+='<div class="grp"><h3 class="t-'+sub+'">'+SUBJECTS[sub].icon+' '+esc(SUBJECTS[sub].name)+'</h3><div class="topics">';
       WORLDS.filter(function(w){ return w.subject===sub; }).forEach(function(w){
         var p=P(w.id), q=quoteOf(w.id);
@@ -2722,7 +2953,7 @@ var SUBJECTS = {
     return kopie;
   }
 
-  var ANZAHL={ choice:4, input:4, order:3, sort:6, match:4 };
+  var ANZAHL={ choice:4, input:4, order:3, sort:6, match:4, frei:1 };
 
   function baueStop(st){
     var d=st.def, w=st.world, band=stufeDerAufgaben(w);
@@ -2933,6 +3164,30 @@ var SUBJECTS = {
     return h;
   }
 
+  /* Freies Schreiben: Hier gibt es kein Richtig im Sinne einer Lösung.
+     Gewertet wird, ob wirklich geschrieben wurde - beurteilen darf das
+     Kind sich danach selbst an einer Merkliste. */
+  function vFrei(){
+    var st=stop(), d=st.def, it=item(), r=S.result;
+    var min=it.min||120;
+    var h=head()+'<p class="hint">'+esc(d.prompt||'')+'</p>'+
+      '<div class="prompt">'+esc(it.q)+'</div>';
+    if(it.hinweise && it.hinweise.length){
+      h+='<ul class="tips">'+it.hinweise.map(function(x){ return '<li>'+esc(x)+'</li>'; }).join('')+'</ul>';
+    }
+    if(!r){
+      h+='<textarea id="freiIn" class="freitext" placeholder="Schreib hier los …"></textarea>'+
+         '<p class="hint" id="freiZaehler">Mindestens '+min+' Zeichen.</p>'+
+         '<div class="row"><span class="sp"></span><button class="btn p" data-a="freiok">Fertig</button></div>';
+      return h;
+    }
+    h+='<div class="passage" style="font-size:1rem">'+esc(r.said||'')+'</div>'+
+       (r.ok?'<div class="fb ok">⭐ '+kudos()+' '+r.zeichen+' Zeichen geschrieben.</div>'
+            :'<div class="fb no">Das war noch sehr kurz. Beim nächsten Mal ruhig mehr aufschreiben.</div>')+
+       '<p class="hint">Lies noch einmal durch: Sind alle Punkte oben vorgekommen? Stimmen die Satzanfänge und die Punkte am Satzende?</p>';
+    return h+nav(true);
+  }
+
   function vPlay(){
     var t=stop().def.type;
     if(t==='choice') return '<div class="card">'+vChoice()+'</div>';
@@ -2941,6 +3196,7 @@ var SUBJECTS = {
     if(t==='order')  return '<div class="card">'+vOrder()+'</div>';
     if(t==='match')  return '<div class="card">'+vMatch()+'</div>';
     if(t==='sort')   return '<div class="card">'+vSort()+'</div>';
+    if(t==='frei')   return '<div class="card">'+vFrei()+'</div>';
     return '<div class="card">Unbekannte Aufgabe</div>';
   }
 
@@ -3022,7 +3278,7 @@ var SUBJECTS = {
     while(log.length>200) log.shift();
     save(K_LOG,log);
     S.doneStops.push({id:w.id, newBadge:newBadge});
-    S.gainXP=(S.gainXP||0)+S.roundCorrect*10+(passed?25:0);
+    S.gainXP=(S.gainXP||0)+Math.round((S.roundCorrect*10+(passed?25:0))*(w.xpFaktor||1));
     S.roundCorrect=0; S.roundTotal=0;
   }
 
@@ -3303,6 +3559,17 @@ var SUBJECTS = {
       render(); paintPfLine(err||'');
       return;
     }
+    if(a==='probe'){
+      var l=t.getAttribute('data-l')||'de-DE';
+      speak(l==='fr-FR' ? "Bonjour ! Aujourd'hui, la classe visite la ferme. Les élèves voient des vaches et deux chevaux."
+                        : 'Guten Tag! Heute üben wir zusammen. Der Hund lief über die Wiese und bellte zweimal.', l);
+      return;
+    }
+    if(a==='tempo'){
+      store.tempo=parseFloat(t.getAttribute('data-v')); persist(); render();
+      speak('So klingt es jetzt. Der Hund lief über die Wiese und bellte zweimal.','de-DE');
+      return;
+    }
     if(a==='prof'){
       var nm=t.getAttribute('data-v');
       if(nm!==store.active){ useProfile(nm); rebuildPlan(); }
@@ -3354,6 +3621,16 @@ var SUBJECTS = {
       return;
     }
 
+    if(a==='freiok'){
+      var ta=document.getElementById('freiIn');
+      var txt=(ta?ta.value:'').trim();
+      var it=item(), min=it.min||120;
+      var saetzeZahl=(txt.match(/[.!?]/g)||[]).length;
+      var ok = txt.length>=min && saetzeZahl>=2;
+      S.result={ said:txt||'(nichts geschrieben)', ok:ok, zeichen:txt.length };
+      recordAnswer(ok);
+      render(); return;
+    }
     if(a==='ord'){
       var w=t.getAttribute('data-v');
       var sol=item().solution, k=S.order.picked.length;
@@ -3394,6 +3671,16 @@ var SUBJECTS = {
       else if(d2.type==='order' && S.order.picked.length<item().solution.length){ recordAnswer(false); }
       advance(); return;
     }
+  });
+
+  document.addEventListener('input',function(ev){
+    var t=ev.target;
+    if(!t || t.id!=='freiIn') return;
+    var z=document.getElementById('freiZaehler');
+    if(!z) return;
+    var it=item(), min=(it&&it.min)||120, len=t.value.trim().length;
+    z.textContent = len>=min ? (len+' Zeichen – das reicht. Gern noch mehr.')
+                             : ('Noch '+(min-len)+' Zeichen bis zum Ziel.');
   });
 
   document.addEventListener('change',function(ev){
