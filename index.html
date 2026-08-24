@@ -322,6 +322,15 @@
     line-height:1.55; background:color-mix(in srgb,var(--clay) 16%,var(--raised));
     border:1px solid color-mix(in srgb,var(--clay) 45%,transparent); color:var(--ink); }
 
+  .rewlist{ display:flex; flex-direction:column; gap:.4rem; }
+  .rewrow{ display:flex; align-items:center; gap:.6rem; }
+  .rewrow span{ flex:none; width:5.2rem; font-size:.85rem; color:var(--soft);
+    font-family:Lexend,"Segoe UI",system-ui,sans-serif; }
+  .rewrow input{ flex:1; min-width:0; font-family:inherit; font-size:.95rem; padding:.5rem .7rem;
+    border-radius:var(--r-s); border:1.5px solid var(--line); background:var(--sunk); color:var(--ink); }
+  .rewrow input:focus{ border-color:var(--accent); }
+  .ziel span+span{ display:block; margin-top:.15rem; }
+
   .ziel{ display:flex; gap:.7rem; align-items:flex-start; padding:.85rem .95rem;
     border-radius:var(--r-m); background:linear-gradient(165deg,color-mix(in srgb,var(--gold) 15%,var(--raised)),var(--raised));
     border:1px solid color-mix(in srgb,var(--gold) 40%,transparent); }
@@ -329,7 +338,8 @@
   .ziel .zi{ font-size:1.6rem; line-height:1.2; }
   .ziel div{ flex:1; min-width:9rem; }
   .ziel b{ display:block; font-family:Lexend,"Segoe UI",system-ui,sans-serif; font-size:.95rem; }
-  .ziel span{ font-size:.85rem; color:var(--soft); }
+  .ziel span{ font-size:.85rem; color:var(--soft); word-break:break-word; }
+  .ziel a,.kudos a{ color:var(--accent); text-underline-offset:2px; }
 
   /* ---------- Einstellungen ---------- */
   .sect{ display:flex; flex-direction:column; gap:.7rem; padding-top:1rem;
@@ -694,6 +704,290 @@ var SUBJECTS = {
   fr:{name:'Französisch', color:'#2E6E8E', icon:'🇫🇷'},
   ma:{name:'Mathematik', color:'#B5652F', icon:'🔢'}
 };
+
+/* ================= Nachschub =================
+   Mehr Aufgaben je Thema, gestuft nach Schwierigkeit (d:1 leicht, 2 mittel,
+   3 knifflig). Wer ein Thema oft übt, bekommt automatisch die höheren
+   Stufen - dieselbe Aufgabe im gleichen Wortlaut kommt so gut wie nie
+   zweimal kurz hintereinander. */
+(function(){
+  function W(id){ for(var i=0;i<WORLDS.length;i++) if(WORLDS[i].id===id) return WORLDS[i]; }
+  function mehr(def, liste){ def.items=(def.items||[]).concat(liste); }
+  var w;
+
+  /* ---------- Deutsch: Lesen & Verstehen ---------- */
+  w=W('lesende');
+  w.a.variants=[
+    { d:1, story:w.a.story, items:w.a.items },
+    { d:1, story:'Mia hat ein Fahrrad geschenkt bekommen. Es ist blau und hat eine silberne Klingel. Am ersten Tag fährt sie nur im Hof. Am zweiten Tag traut sie sich bis zum Spielplatz. Ihre Mutter läuft nebenher und passt auf.',
+      items:[
+        {q:'Welche Farbe hat das Fahrrad?', options:['Blau','Silber','Rot'], correct:'Blau', d:1},
+        {q:'Wohin fährt Mia am zweiten Tag?', options:['Zum Spielplatz','In die Schule','Zum Bäcker'], correct:'Zum Spielplatz', d:1},
+        {q:'Wer passt auf Mia auf?', options:['Ihre Mutter','Ihr Bruder','Die Nachbarin'], correct:'Ihre Mutter', d:1}
+      ]},
+    { d:2, story:'Im Schulgarten wachsen Radieschen, Salat und Bohnen. Die Klasse 4b gießt jeden Morgen vor dem Unterricht. In der zweiten Woche sind die Radieschen schon zu erkennen, die Bohnen aber noch nicht. Herr Klein erklärt, dass Bohnen länger brauchen und erst später aus der Erde kommen.',
+      items:[
+        {q:'Was wächst NICHT im Schulgarten?', options:['Möhren','Salat','Bohnen'], correct:'Möhren', d:2},
+        {q:'Wann gießt die Klasse?', options:['Morgens vor dem Unterricht','In der großen Pause','Nach der Schule'], correct:'Morgens vor dem Unterricht', d:2},
+        {q:'Warum sind die Bohnen noch nicht zu sehen?', options:['Sie brauchen länger','Sie wurden vergessen','Sie sind vertrocknet'], correct:'Sie brauchen länger', d:2},
+        {q:'Woher weiß man das mit den Bohnen?', options:['Herr Klein erklärt es','Es steht auf einem Schild','Die Kinder raten'], correct:'Herr Klein erklärt es', d:2}
+      ]},
+    { d:2, story:'Nele findet auf dem Heimweg einen Schlüsselbund. Sie überlegt kurz und bringt ihn ins nächste Geschäft. Die Verkäuferin notiert, wo Nele ihn gefunden hat. Zwei Tage später klingelt ein älterer Herr bei Nele und bedankt sich mit einer Tüte Kirschen aus seinem Garten.',
+      items:[
+        {q:'Was macht Nele mit dem Schlüsselbund?', options:['Sie bringt ihn ins Geschäft','Sie nimmt ihn mit nach Hause','Sie lässt ihn liegen'], correct:'Sie bringt ihn ins Geschäft', d:2},
+        {q:'Warum notiert die Verkäuferin den Fundort?', options:['Damit der Besitzer ihn wiederfindet','Für die Polizei','Für die Zeitung'], correct:'Damit der Besitzer ihn wiederfindet', d:2},
+        {q:'Woher hat der Herr die Kirschen?', options:['Aus seinem Garten','Vom Markt','Aus dem Geschäft'], correct:'Aus seinem Garten', d:2},
+        {q:'Wie kann man Nele beschreiben?', options:['Ehrlich','Ängstlich','Vergesslich'], correct:'Ehrlich', d:3}
+      ]},
+    { d:3, story:'Seit drei Wochen fehlt in der Klasse von Jan immer wieder Kreide. Zuerst verdächtigen alle den neuen Schüler. Jan beobachtet jedoch, dass die Kreide nur an Tagen verschwindet, an denen die Nachmittagsgruppe den Raum benutzt. Er sagt es der Lehrerin, statt weiter zu raten. Am Ende stellt sich heraus, dass die andere Gruppe die Kreide für ihr Straßenmalen mitgenommen hat, ohne zu fragen.',
+      items:[
+        {q:'Wen verdächtigen zuerst alle?', options:['Den neuen Schüler','Die Nachmittagsgruppe','Die Lehrerin'], correct:'Den neuen Schüler', d:2},
+        {q:'Was fällt Jan auf?', options:['Die Kreide fehlt nur an bestimmten Tagen','Die Kreide ist zerbrochen','Der neue Schüler war krank'], correct:'Die Kreide fehlt nur an bestimmten Tagen', d:3},
+        {q:'Was macht Jan besser als die anderen?', options:['Er beobachtet, statt zu raten','Er sucht überall','Er fragt den Neuen aus'], correct:'Er beobachtet, statt zu raten', d:3},
+        {q:'Was war der Grund für das Verschwinden?', options:['Straßenmalen der anderen Gruppe','Ein Diebstahl','Ein Missgeschick des Hausmeisters'], correct:'Straßenmalen der anderen Gruppe', d:2}
+      ]}
+  ];
+  w.b.variants=[
+    { d:1, story:w.b.story, items:w.b.items },
+    { d:2, story:'Auf dem Dorffest verkauft die Klasse selbst gebackene Waffeln. Eine Waffel kostet zwei Euro. Am Ende sind 60 Waffeln verkauft, und das Geld soll für neue Fußbälle gespart werden. Weil noch Teig übrig ist, backen die Kinder zehn weitere und verschenken sie an die Helfer.',
+      items:[
+        {q:'Was kostet eine Waffel?', options:['Zwei Euro','Einen Euro','Drei Euro'], correct:'Zwei Euro', d:1},
+        {q:'Wofür ist das Geld gedacht?', options:['Für neue Fußbälle','Für einen Ausflug','Für Bücher'], correct:'Für neue Fußbälle', d:1},
+        {q:'Was passiert mit den letzten zehn Waffeln?', options:['Sie werden verschenkt','Sie werden verkauft','Sie bleiben übrig'], correct:'Sie werden verschenkt', d:2},
+        {q:'Wie viel Geld kam durch den Verkauf zusammen?', options:['120 Euro','60 Euro','140 Euro'], correct:'120 Euro', d:3}
+      ]},
+    { d:2, story:'Beim Waldlauf der Schule bekommt jede Klasse eine andere Strecke. Die Vierten laufen zweimal um den See. Tim startet zu schnell und muss nach der Hälfte gehen. Beim zweiten Lauf teilt er sich die Kraft besser ein und kommt ohne Pause ins Ziel.',
+      items:[
+        {q:'Wie oft laufen die Vierten um den See?', options:['Zweimal','Einmal','Dreimal'], correct:'Zweimal', d:1},
+        {q:'Warum muss Tim gehen?', options:['Er startet zu schnell','Er hat sich verletzt','Er kennt den Weg nicht'], correct:'Er startet zu schnell', d:2},
+        {q:'Was macht er beim zweiten Mal anders?', options:['Er teilt sich die Kraft ein','Er läuft eine kürzere Strecke','Er startet später'], correct:'Er teilt sich die Kraft ein', d:2},
+        {q:'Was lernt Tim daraus?', options:['Einteilen ist besser als losstürmen','Laufen ist anstrengend','Der See ist groß'], correct:'Einteilen ist besser als losstürmen', d:3}
+      ]},
+    { d:3, story:'In der Bibliothek darf jedes Kind zwei Bücher ausleihen. Yara möchte drei mitnehmen und fragt, ob sie eines auf den Ausweis ihrer Schwester nehmen darf. Die Bibliothekarin erklärt, dass jeder Ausweis nur für die eigene Person gilt. Yara überlegt kurz und legt das dickste Buch zurück – sie kann es beim nächsten Mal holen.',
+      items:[
+        {q:'Wie viele Bücher darf jedes Kind ausleihen?', options:['Zwei','Drei','Vier'], correct:'Zwei', d:1},
+        {q:'Was schlägt Yara vor?', options:['Den Ausweis der Schwester zu nutzen','Ein Buch zu kaufen','Länger zu bleiben'], correct:'Den Ausweis der Schwester zu nutzen', d:2},
+        {q:'Warum geht das nicht?', options:['Ein Ausweis gilt nur für eine Person','Die Schwester ist nicht da','Das Buch ist zu dick'], correct:'Ein Ausweis gilt nur für eine Person', d:3},
+        {q:'Wie löst Yara das Problem?', options:['Sie legt ein Buch zurück','Sie leiht gar nichts aus','Sie streitet sich'], correct:'Sie legt ein Buch zurück', d:2}
+      ]},
+    { d:3, story:'Familie Roth zieht in eine andere Stadt. Lina freut sich auf das größere Zimmer, aber sie wird ihre beste Freundin Ida seltener sehen. In den ersten Tagen sagt sie kaum etwas. Ihr Vater schlägt vor, Ida einmal im Monat einzuladen und dazwischen zu telefonieren. Nach dem ersten Besuch geht es Lina spürbar besser, auch wenn sie die alte Schule weiter vermisst.',
+      items:[
+        {q:'Worauf freut sich Lina?', options:['Auf das größere Zimmer','Auf die neue Schule','Auf neue Nachbarn'], correct:'Auf das größere Zimmer', d:1},
+        {q:'Warum sagt Lina anfangs kaum etwas?', options:['Sie vermisst Ida','Sie ist krank','Sie ist müde vom Umzug'], correct:'Sie vermisst Ida', d:2},
+        {q:'Was schlägt der Vater vor?', options:['Besuche und Telefonieren','Die alte Schule behalten','Zurückzuziehen'], correct:'Besuche und Telefonieren', d:2},
+        {q:'Was stimmt am Ende?', options:['Es geht ihr besser, aber sie vermisst noch etwas','Alles ist wieder wie vorher','Sie will nicht mehr umziehen'], correct:'Es geht ihr besser, aber sie vermisst noch etwas', d:3}
+      ]}
+  ];
+
+  /* ---------- Français: Lecture ---------- */
+  w=W('lecturefr');
+  w.a.variants=[
+    { d:1, story:w.a.story, items:w.a.items },
+    { d:1, story:"Paul habite près de la forêt. Le samedi, il ramasse des châtaignes avec son grand-père. Ils remplissent un grand panier. Le soir, sa grand-mère les fait griller au four.",
+      items:[
+        {q:"Où habite Paul ?", options:["près de la forêt","près de la mer","en ville"], correct:"près de la forêt", d:1},
+        {q:"Que ramasse-t-il ?", options:["des châtaignes","des pommes","des noix"], correct:"des châtaignes", d:1},
+        {q:"Qui fait griller les châtaignes ?", options:["sa grand-mère","son grand-père","Paul"], correct:"sa grand-mère", d:2}
+      ]},
+    { d:2, story:"Chaque mardi, Sofia va à la piscine avec sa classe. Au début, elle avait peur de l'eau profonde. Le maître nageur lui a montré comment flotter sur le dos. Maintenant, Sofia traverse le petit bassin sans aide et elle est fière d'elle.",
+      items:[
+        {q:"Quand Sofia va-t-elle à la piscine ?", options:["le mardi","le lundi","le jeudi"], correct:"le mardi", d:1},
+        {q:"De quoi avait-elle peur ?", options:["de l'eau profonde","du maître nageur","du froid"], correct:"de l'eau profonde", d:2},
+        {q:"Qui l'a aidée ?", options:["le maître nageur","sa mère","une amie"], correct:"le maître nageur", d:2},
+        {q:"Comment se sent Sofia maintenant ?", options:["fière","triste","fatiguée"], correct:"fière", d:2}
+      ]}
+  ];
+  w.b.variants=[
+    { d:1, story:w.b.story, items:w.b.items },
+    { d:3, story:"Hugo a oublié son cahier à la maison. Il pense que la maîtresse va se fâcher. Au lieu de se cacher, il lui explique tout de suite ce qui s'est passé. La maîtresse lui prête une feuille et lui demande de rapporter le cahier demain. Hugo comprend qu'il vaut mieux dire la vérité.",
+      items:[
+        {q:"Qu'est-ce que Hugo a oublié ?", options:["son cahier","son crayon","son sac"], correct:"son cahier", d:1},
+        {q:"Que fait Hugo ?", options:["il explique tout de suite","il se cache","il ment"], correct:"il explique tout de suite", d:2},
+        {q:"Que donne la maîtresse à Hugo ?", options:["une feuille","un cahier neuf","une punition"], correct:"une feuille", d:2},
+        {q:"Quelle est la leçon de l'histoire ?", options:["il vaut mieux dire la vérité","il faut tout apprendre par cœur","il ne faut jamais rien oublier"], correct:"il vaut mieux dire la vérité", d:3}
+      ]}
+  ];
+
+  /* ---------- Deutsch: Rechtschreibung und Grammatik ---------- */
+  mehr(W('doppel').a, [
+    {q:'Der Ball ist über den Zaun ___.', options:['gerollt','geroltt','gerolt'], correct:'gerollt', d:1},
+    {q:'Im Sommer ist es oft sehr ___.', options:['heiß','heis','heiss'], correct:'heiß', d:2},
+    {q:'Sie hat den Brief in den ___ geworfen.', options:['Briefkasten','Briefkassten','Brifkasten'], correct:'Briefkasten', d:2},
+    {q:'Wir haben den Weg zum Bahnhof ___.', options:['gefunden','gefunnden','gefundenn'], correct:'gefunden', d:2},
+    {q:'Der Wecker hat heute nicht ___.', options:['geklingelt','geklinngelt','geklingellt'], correct:'geklingelt', d:3}
+  ]);
+  mehr(W('doppel').b, [
+    {text:'Ka __ e', a:true, show:'Kanne', d:2}, {text:'Va __ e', a:false, show:'Vase', d:2},
+    {text:'Wi __ e', a:true, show:'Wippe', d:2}, {text:'Ku __ el', a:true, show:'Kugel', d:3},
+    {text:'Ti __ er', a:false, show:'Tiger', d:2}, {text:'Ha __ e', a:true, show:'Halle', d:2}
+  ]);
+  mehr(W('scharfs').a, [
+    {q:'Der Hund lag faul auf der ___.', options:['Wiese','Wieße','Wiesse'], correct:'Wiese', d:1},
+    {q:'Zum Frühstück gab es ein wei___ Brötchen.', options:['ßes','sses','ses'], correct:'ßes', d:2},
+    {q:'Er hat sein Zimmer selbst ___.', options:['aufgeräumt','aufgeraumt','aufgereumt'], correct:'aufgeräumt', d:2},
+    {q:'Wir mü___ leiser sein.', options:['ssen','ßen','sen'], correct:'ssen', d:2},
+    {q:'Der Schlüssel passt in dieses Schlo___.', options:['ss','ß','s'], correct:'ss', d:3}
+  ]);
+  mehr(W('scharfs').b, [
+    {text:'Ma__', a:true, show:'Maß', d:2}, {text:'Fa__', a:true, show:'Faß', d:3},
+    {text:'Ta__e', a:false, show:'Tasse', d:1}, {text:'Gie__kanne', a:true, show:'Gießkanne', d:2},
+    {text:'Klo__ett', a:false, show:'Klosett', d:3}, {text:'Gru__formel', a:true, show:'Grußformel', d:3}
+  ]);
+  mehr(W('wortarten').a, [
+    {q:'Welches Wort ist ein Nomen?', options:['der Gedanke','denken','nachdenklich'], correct:'der Gedanke', d:1},
+    {q:'„Der Hund bellt laut." Was ist „laut"?', options:['Adjektiv','Verb','Nomen'], correct:'Adjektiv', d:2},
+    {q:'„Wir bauen eine Hütte." Was ist „bauen"?', options:['Verb','Nomen','Adjektiv'], correct:'Verb', d:1},
+    {q:'Welches Wort kann Nomen UND Verb sein?', options:['Essen','schnell','unter'], correct:'Essen', d:3},
+    {q:'„Das schnelle Auto fährt vorbei." Wie viele Nomen stecken darin?', options:['1','2','3'], correct:'1', d:3}
+  ]);
+  mehr(W('wortarten').b, [
+    {text:'die Freude', a:true, d:1}, {text:'lachen', a:false, d:1},
+    {text:'die Entscheidung', a:true, d:3}, {text:'entscheiden', a:false, d:3},
+    {text:'der Mut', a:true, d:2}, {text:'staunen', a:false, d:2}
+  ]);
+  mehr(W('zeiten').a, [
+    {q:'„Ich sehe einen Film." – Im Perfekt?', options:['Ich habe einen Film gesehen.','Ich bin einen Film gesehen.','Ich sah einen Film.'], correct:'Ich habe einen Film gesehen.', d:1},
+    {q:'„Sie schreibt einen Brief." – Im Präteritum?', options:['Sie schrieb einen Brief.','Sie schreibte einen Brief.','Sie hat geschrieben.'], correct:'Sie schrieb einen Brief.', d:2},
+    {q:'Welcher Satz steht im Perfekt?', options:['Wir sind gefahren.','Wir fuhren.','Wir fahren.'], correct:'Wir sind gefahren.', d:1},
+    {q:'„Er nimmt den Bus." – Im Perfekt?', options:['Er hat den Bus genommen.','Er ist den Bus genommen.','Er nahm den Bus.'], correct:'Er hat den Bus genommen.', d:2},
+    {q:'Welches Hilfsverb passt zu „gehen" im Perfekt?', options:['sein','haben','werden'], correct:'sein', d:3}
+  ]);
+  mehr(W('zeiten').b, [
+    {q:'Sie (trinken) einen Tee.', accepts:['sie hat einen tee getrunken','hat einen tee getrunken','sie hat getrunken'], d:2},
+    {q:'Ihr (bleiben) zu Hause.', accepts:['ihr seid zu hause geblieben','seid zu hause geblieben','ihr seid geblieben'], d:3},
+    {q:'Ich (finden) den Schlüssel.', accepts:['ich habe den schluessel gefunden','ich habe den schlüssel gefunden','habe den schlüssel gefunden'], d:2}
+  ]);
+  mehr(W('satzbau').b, [
+    {q:'Welcher Satz ist richtig gebaut?', options:['Heute wir gehen schwimmen.','Heute gehen wir schwimmen.','Gehen heute wir schwimmen.'], correct:'Heute gehen wir schwimmen.', d:1},
+    {q:'Wo gehört das Komma hin? „Ich rufe an wenn ich da bin."', options:['nach „an"','nach „ich"','gar nicht'], correct:'nach „an"', d:2},
+    {q:'Welcher Satz ist ein Befehl?', options:['Räum dein Zimmer auf!','Räumst du auf?','Er räumt auf.'], correct:'Räum dein Zimmer auf!', d:1},
+    {q:'Welches Wort verbindet zwei Sätze?', options:['weil','schnell','Haus'], correct:'weil', d:2},
+    {q:'„Obwohl es regnete, gingen wir los." Was drückt „obwohl" aus?', options:['einen Gegensatz','einen Grund','eine Zeit'], correct:'einen Gegensatz', d:3}
+  ]);
+  mehr(W('satzbau').a, [
+    {solution:['Im','Winter','fahren','wir','oft','Schlitten.'], d:2},
+    {solution:['Meine','Schwester','hat','gestern','Geburtstag','gefeiert.'], d:3},
+    {solution:['Der','Bus','kommt','heute','später.'], d:1}
+  ]);
+
+  /* ---------- Français ---------- */
+  mehr(W('conjug').a, [
+    {q:"Nous ___ des amis. (avoir)", options:['avons','avez','ont'], correct:'avons', d:1},
+    {q:"Tu ___ à la maison. (être)", options:['es','est','suis'], correct:'es', d:1},
+    {q:"Ils ___ au cinéma. (aller)", options:['vont','allons','allez'], correct:'vont', d:2},
+    {q:"Elle ___ une sœur. (avoir)", options:['a','as','ai'], correct:'a', d:1},
+    {q:"Je ___ à l'école à pied. (aller)", options:['vais','vas','va'], correct:'vais', d:2}
+  ]);
+  mehr(W('conjug').b, [
+    {q:'Je (parler) ___ français.', options:['parle','parles','parlons'], correct:'parle', d:1},
+    {q:'Ils (manger) ___ une pizza.', options:['mangent','mange','mangez'], correct:'mangent', d:2},
+    {q:'Tu (habiter) ___ à Luxembourg.', options:['habites','habite','habitent'], correct:'habites', d:2},
+    {q:'Nous (travailler) ___ ensemble.', options:['travaillons','travaillez','travaillent'], correct:'travaillons', d:3}
+  ]);
+  mehr(W('accords').a, [
+    {q:'un petit chien → une ___ maison', options:['petit','petite','petits'], correct:'petite', d:1},
+    {q:'le journal → les ___', options:['journaux','journals','journales'], correct:'journaux', d:2},
+    {q:'un ami sportif → une amie ___', options:['sportive','sportif','sportifs'], correct:'sportive', d:3},
+    {q:'le nez → les ___', options:['nez','nezs','nezes'], correct:'nez', d:3}
+  ]);
+  mehr(W('accords').b, [
+    {l:'un long voyage', r:'une longue route', d:2},
+    {l:'un vieux monsieur', r:'une vieille dame', d:2},
+    {l:'un premier essai', r:'une première fois', d:3},
+    {l:'un gros chat', r:'une grosse souris', d:1}
+  ]);
+  mehr(W('homophones').a, [
+    {q:"Il ___ parti hier. (être)", options:['est','et'], correct:'est', d:1},
+    {q:"Ils ___ deux chiens. (avoir)", options:['ont','on'], correct:'ont', d:2},
+    {q:"___ va au parc.", options:['On','Ont'], correct:'On', d:2},
+    {q:"Elle pense ___ sa famille.", options:['à','a'], correct:'à', d:2},
+    {q:"Ce sont ___ affaires.", options:['ses','ces'], correct:'ses', d:3}
+  ]);
+  mehr(W('homophones').b, [
+    {text:'Les enfants ___ contents.', a:true, d:1},
+    {text:"C'est ___ cahier.", a:false, d:1},
+    {text:'Mes cousins ___ arrivés.', a:true, d:2},
+    {text:'Il cherche ___ écharpe.', a:false, d:2},
+    {text:'Ces livres ___ à moi.', a:true, d:3}
+  ]);
+
+  /* ---------- Mathematik ---------- */
+  mehr(W('einmaleins').a, [
+    {q:'3 × 9 = ?', answer:27, d:1}, {q:'5 × 6 = ?', answer:30, d:1},
+    {q:'7 × 7 = ?', answer:49, d:2}, {q:'8 × 6 = ?', answer:48, d:2},
+    {q:'9 × 8 = ?', answer:72, d:2}, {q:'6 × 6 = ?', answer:36, d:1},
+    {q:'7 × 9 = ?', answer:63, d:3}, {q:'8 × 7 = ?', answer:56, d:3}
+  ]);
+  mehr(W('einmaleins').b, [
+    {l:'4 × 6', r:'24', d:1}, {l:'7 × 6', r:'42', d:2},
+    {l:'9 × 4', r:'36', d:2}, {l:'8 × 5', r:'40', d:1},
+    {l:'7 × 8', r:'56', d:3}, {l:'9 × 6', r:'54', d:3}
+  ]);
+  mehr(W('division').a, [
+    {q:'36 : 6 = ?', answer:6, d:1}, {q:'64 : 8 = ?', answer:8, d:2},
+    {q:'81 : 9 = ?', answer:9, d:2}, {q:'48 : 6 = ?', answer:8, d:2},
+    {q:'54 : 6 = ?', answer:9, d:3}, {q:'63 : 9 = ?', answer:7, d:3}
+  ]);
+  mehr(W('division').b, [
+    {q:'17 : 5 = 3 Rest ?', options:['1','2','3'], correct:'2', d:2},
+    {q:'Welche Rechnung passt zu 7 × 9 = 63?', options:['63 : 9 = 7','63 : 7 = 8','63 + 9 = 72'], correct:'63 : 9 = 7', d:1},
+    {q:'30 Karten auf 4 Kinder. Wie viele bleiben übrig?', options:['1','2','3'], correct:'2', d:2},
+    {q:'Wie viele Vierer stecken in 52?', options:['12','13','14'], correct:'13', d:3}
+  ]);
+  mehr(W('stellenwert').a, [
+    {q:'Wie viele Hunderter hat die Zahl 742?', options:['7','4','2'], correct:'7', d:1},
+    {q:'Welche Ziffer steht bei 5 306 an der Zehner-Stelle?', options:['0','3','6'], correct:'0', d:2},
+    {q:'Wie viele Zehner hat die Zahl 1 285?', options:['2','8','5'], correct:'8', d:2},
+    {q:'Welche Zahl hat 6 Hunderter, 0 Zehner und 4 Einer?', options:['604','640','64'], correct:'604', d:3},
+    {q:'Was ist der Wert der 3 in 4 371?', options:['300','30','3000'], correct:'300', d:3}
+  ]);
+  mehr(W('stellenwert').b, [
+    {q:'In 480 stecken insgesamt ___ Zehner.', answer:48, d:1},
+    {q:'In 1 200 stecken insgesamt ___ Zehner.', answer:120, d:2},
+    {q:'In 900 stecken insgesamt ___ Hunderter.', answer:9, d:2},
+    {q:'In 3 500 stecken insgesamt ___ Hunderter.', answer:35, d:3}
+  ]);
+  mehr(W('zahlenraum').a, [
+    {solution:['12','21','112','121','211'], d:2},
+    {solution:['405','450','504','540','545'], d:2},
+    {solution:['99','109','190','901','910'], d:3}
+  ]);
+  mehr(W('zahlenraum').b, [
+    {q:'Runde 264 auf volle Zehner.', options:['260','270','200'], correct:'260', d:1},
+    {q:'Runde 749 auf volle Hunderter.', options:['700','740','800'], correct:'700', d:2},
+    {q:'Welches Zeichen passt? 507 ___ 570', options:['<','>','='], correct:'<', d:1},
+    {q:'Welche Zahl liegt genau zwischen 200 und 400?', options:['300','250','350'], correct:'300', d:2},
+    {q:'Runde 1 250 auf volle Hunderter.', options:['1 300','1 200','1 000'], correct:'1 300', d:3}
+  ]);
+  mehr(W('groessen').a, [
+    {q:'Wie viele Millimeter sind 4 cm?', options:['40 mm','4 mm','400 mm'], correct:'40 mm', d:1},
+    {q:'Wie viele Minuten sind eine halbe Stunde?', options:['30','15','45'], correct:'30', d:1},
+    {q:'Wie viele Gramm sind ein halbes Kilogramm?', options:['500 g','50 g','5000 g'], correct:'500 g', d:2},
+    {q:'Wie viele Cent sind 2,05 €?', options:['205 Cent','25 Cent','250 Cent'], correct:'205 Cent', d:3},
+    {q:'Wie viele Sekunden hat eine Viertelstunde?', options:['900','450','1500'], correct:'900', d:3}
+  ]);
+  mehr(W('groessen').b, [
+    {q:'Wie viele Zentimeter sind 1,5 Meter?', answer:150, d:2},
+    {q:'Wie viele Gramm sind 3,5 kg?', answer:3500, d:3},
+    {q:'Wie viele Minuten sind 3 Stunden?', answer:180, d:1},
+    {q:'Wie viele Milliliter sind 0,25 Liter?', answer:250, d:3}
+  ]);
+  mehr(W('sachaufgaben').a, [
+    {q:'Ein Buch hat 96 Seiten. Lena hat 38 gelesen. Wie viele fehlen noch?', answer:58, d:1},
+    {q:'Vier Freunde teilen sich 36 Murmeln gerecht. Wie viele bekommt jeder?', answer:9, d:1},
+    {q:'Ein Eis kostet 2 €. Wie viel kosten 8 Eis?', answer:16, d:1},
+    {q:'Im Kino sind 120 Plätze, 87 sind besetzt. Wie viele sind frei?', answer:33, d:2},
+    {q:'Ein Zug fährt um 9:20 Uhr ab und braucht 45 Minuten. Wie viele Minuten nach 10 Uhr kommt er an?', answer:5, d:3},
+    {q:'Papa kauft 3 Packungen zu je 12 Eiern. Wie viele Eier sind das?', answer:36, d:2}
+  ]);
+  mehr(W('sachaufgaben').b, [
+    {q:'Ein Film beginnt um 14:45 Uhr und dauert 75 Minuten. Wann ist er zu Ende?', options:['16:00 Uhr','15:60 Uhr','16:15 Uhr'], correct:'16:00 Uhr', d:2},
+    {q:'Mia spart 3 € pro Woche. Nach wie vielen Wochen hat sie 24 €?', options:['8 Wochen','6 Wochen','12 Wochen'], correct:'8 Wochen', d:1},
+    {q:'Eine Klasse mit 24 Kindern bildet Vierergruppen. Wie viele Gruppen?', options:['6','4','8'], correct:'6', d:1},
+    {q:'Ein Hemd kostet 18 €, reduziert um 5 €. Wie viel kosten zwei davon?', options:['26 €','23 €','36 €'], correct:'26 €', d:3},
+    {q:'In einer Kiste sind 100 Äpfel. Drei Kinder nehmen je 12. Wie viele bleiben?', options:['64','76','88'], correct:'64', d:2}
+  ]);
+})();
 
 (function(){
   "use strict";
@@ -1421,8 +1715,9 @@ var SUBJECTS = {
   /* ================= Startseite ================= */
   function vHome(){
     var e=earned(), m=mastered(), tot=WORLDS.length;
-    var lvl=Math.floor((meta.xp||0)/200)+1;
-    var into=(meta.xp||0)%200;
+    var lvl=stufeVon(meta.xp);
+    var von=xpFuerStufe(lvl), bis=xpFuerStufe(Math.min(MAX_STUFE,lvl+1));
+    var into=(meta.xp||0)-von, spanne=Math.max(1,bis-von);
     var note = SESSION.map(function(p){return p.w.icon;}).join(' ');
     return '<div class="card">'+
       profileRow()+
@@ -1434,8 +1729,9 @@ var SUBJECTS = {
         '<div class="stat"><b>'+e+'/'+tot+'</b><span>Themen begonnen</span></div>'+
         '<div class="stat"><b>'+(meta.streak||0)+'</b><span>Tage in Folge</span></div>'+
       '</div>'+
-      '<div><div class="bar"><i style="width:'+Math.round(into/2)+'%"></i></div>'+
-      '<p class="hint">Noch '+(200-into)+' Punkte bis Stufe '+(lvl+1)+' · '+m+' Themen ganz gemeistert ⭐</p></div>'+
+      '<div><div class="bar"><i style="width:'+Math.round(into/spanne*100)+'%"></i></div>'+
+      '<p class="hint">'+(lvl>=MAX_STUFE?'Höchste Stufe erreicht':'Noch '+(bis-(meta.xp||0))+' Punkte bis Stufe '+(lvl+1))+
+      ' · '+m+' Themen ganz gemeistert ⭐</p></div>'+
       '<p class="hint">Heute dran: '+note+'</p>'+
       zielHTML()+
       '<p class="hint" id="cloudLine">'+esc(cloudLabel())+'</p>'+
@@ -1500,9 +1796,13 @@ var SUBJECTS = {
        '<p class="hint" id="pfLine"></p>'+
       '</div><div class="sect">'+
       '<h3>Großes Ziel</h3>'+
-      '<p class="hint">Was es bei Stufe '+ZIEL_STUFE+' zu gewinnen gibt. Steht auf der Startseite.</p>'+
-      '<div class="inrow"><input id="rewIn" value="'+esc(rewardText())+'" aria-label="Belohnung" autocomplete="off">'+
-      '<button class="btn g" id="rewSave">Sichern</button></div>'+
+      '<p class="hint">Alle zehn Stufen gibt es etwas. Trag ein, was bei euch gilt – leer lassen nimmt den Vorschlag.</p>'+
+      '<div class="rewlist">'+
+      MEILEN.map(function(m){
+        return '<label class="rewrow"><span>Stufe '+m+'</span>'+
+          '<input data-rew="'+m+'" value="'+esc(belohnungFuer(m))+'" autocomplete="off"></label>';
+      }).join('')+'</div>'+
+      '<div class="row"><button class="btn g" id="rewSave">Sichern</button></div>'+
       '<p class="hint" id="rewLine"></p>'+
       '</div><div class="sect">'+
       '<h3>Speicher prüfen</h3>'+
@@ -1558,7 +1858,7 @@ var SUBJECTS = {
     profileNames().forEach(function(nm){
       var p=store.profiles[nm];
       var themen=Object.keys(p.prog||{}).filter(function(k){ return (p.prog[k].done|0)>0; }).length;
-      h+='<tr><td>'+esc(nm)+'</td><td><b>'+(p.meta.xp|0)+' Punkte · Stufe '+(Math.floor((p.meta.xp|0)/200)+1)+
+      h+='<tr><td>'+esc(nm)+'</td><td><b>'+(p.meta.xp|0)+' Punkte · Stufe '+stufeVon(p.meta.xp)+
          ' · '+themen+' Themen · '+((p.log||[]).length)+' Runden</b></td></tr>';
     });
     h+='</tbody></table></div>';
@@ -1742,20 +2042,71 @@ var SUBJECTS = {
 
   /* ================= Großes Ziel =================
      Eine Belohnung, die die Eltern selbst festlegen. */
-  var ZIEL_STUFE=10;
-  function rewardText(){ return store.reward || 'ein Amazon-Gutschein'; }
-  function stufeVon(xp){ return Math.floor((xp||0)/200)+1; }
+  var MAX_STUFE=100;
+  /* Die Stufen werden nach oben hin teurer, sonst wäre Stufe 100 in zwei
+     Wochen erreicht und danach gäbe es kein Ziel mehr.
+     Stufe 10 ≈ 2.000, Stufe 50 ≈ 17.000, Stufe 100 ≈ 49.000 Punkte. */
+  function xpFuerStufe(L){ L=Math.max(1,L|0); return 200*(L-1)+3*(L-1)*(L-1); }
+  function stufeVon(xp){
+    xp=Math.max(0,xp|0);
+    var L=1;
+    while(L<MAX_STUFE && xpFuerStufe(L+1)<=xp) L++;
+    return L;
+  }
+
+  var MEILEN=[10,20,30,40,50,60,70,80,90,100];
+  var BELOHNUNG_STD={
+    10:'Ein Squishy deiner Wahl',
+    20:'Wunsch eingelöst: https://amzn.eu/d/097bKhWM',
+    30:'Du bestimmst das Abendessen',
+    40:'Spiele- oder Kinoabend',
+    50:'🎉 Halbzeit! Der große Wunsch: https://amzn.eu/d/008FTxnO',
+    60:'Ein Ausflug, den du aussuchst',
+    70:'Ein neues Buch oder Comic',
+    80:'Freunde einladen und übernachten',
+    90:'Ein Wunschtag – du planst ihn',
+    100:'🏆 Der große Wunsch zum Schluss'
+  };
+  function belohnungFuer(m){
+    var eig=store.rewards && store.rewards[m];
+    return (eig && (''+eig).trim()) || BELOHNUNG_STD[m];
+  }
+  /* Steht ein Link in der Belohnung, soll man ihn antippen können. */
+  function mitLink(txt){
+    var t=esc(txt||'');
+    return t.replace(/(https?:\/\/[^\s<]+)/g, function(u){
+      return '<a href="'+u+'" target="_blank" rel="noopener noreferrer">'+u+'</a>';
+    });
+  }
+  function istEingeloest(m){ return !!(store.claimed && store.claimed[m]); }
+  function naechsteMeile(L){
+    for(var i=0;i<MEILEN.length;i++) if(MEILEN[i]>L) return MEILEN[i];
+    return null;
+  }
+  /* Höchster erreichter Meilenstein, der noch nicht eingelöst wurde. */
+  function faelligeMeile(L){
+    for(var i=MEILEN.length-1;i>=0;i--) if(L>=MEILEN[i] && !istEingeloest(MEILEN[i])) return MEILEN[i];
+    return null;
+  }
+
   function zielHTML(){
-    var lvl=stufeVon(meta.xp), fehlt=(ZIEL_STUFE-1)*200-(meta.xp||0);
-    if(lvl>=ZIEL_STUFE){
-      if(store.rewardClaimed) return '';
-      return '<div class="ziel done"><span class="zi">🎁</span><div><b>Stufe '+ZIEL_STUFE+' geschafft!</b>'+
-        '<span>Versprochen war: '+esc(rewardText())+'</span></div>'+
-        '<button class="btn g" id="zielOk">Eingelöst</button></div>';
+    var lvl=stufeVon(meta.xp), faellig=faelligeMeile(lvl);
+    if(faellig){
+      var danach=naechsteMeile(faellig);
+      return '<div class="ziel done"><span class="zi">🎁</span>'+
+        '<div><b>Stufe '+faellig+' geschafft!</b>'+
+        '<span>Belohnung: '+mitLink(belohnungFuer(faellig))+'</span>'+
+        (danach?'<span>Danach wartet Stufe '+danach+': '+mitLink(belohnungFuer(danach))+'</span>':
+                '<span>Alle Stufen geschafft – stark!</span>')+
+        '</div><button class="btn p" id="zielOk">Bekommen ✓</button></div>';
     }
-    var anteil=Math.max(0,Math.min(100,Math.round((meta.xp||0)/((ZIEL_STUFE-1)*200)*100)));
-    return '<div class="ziel"><span class="zi">🎁</span><div><b>Großes Ziel: Stufe '+ZIEL_STUFE+'</b>'+
-      '<span>Dann wartet: '+esc(rewardText())+' · noch '+fehlt+' Punkte</span>'+
+    var m=naechsteMeile(lvl);
+    if(!m) return '<div class="ziel"><span class="zi">🏆</span><div><b>Stufe '+MAX_STUFE+' erreicht</b>'+
+      '<span>Mehr geht nicht. Respekt.</span></div></div>';
+    var von=xpFuerStufe(lvl), bis=xpFuerStufe(m);
+    var anteil=Math.max(0,Math.min(100,Math.round(((meta.xp||0)-von)/Math.max(1,bis-von)*100)));
+    return '<div class="ziel"><span class="zi">🎁</span><div><b>Nächstes Ziel: Stufe '+m+'</b>'+
+      '<span>Dafür wartet: '+mitLink(belohnungFuer(m))+' · noch '+(bis-(meta.xp||0))+' Punkte</span>'+
       '<div class="bar" style="margin-top:.4rem"><i style="width:'+anteil+'%"></i></div></div></div>';
   }
 
@@ -2170,7 +2521,108 @@ var SUBJECTS = {
 
   /* ================= Spielansicht ================= */
   function stop(){ return PLAN[S.stop]; }
-  function items(){ var d=stop().def; return d.items||[]; }
+
+  /* ================= Aufgaben aussuchen =================
+     Wiederholung ist erwünscht - aber nicht dieselbe Aufgabe im selben
+     Wortlaut. Darum: Jede Aufgabe trägt eine Schwierigkeit (1-3), und je
+     öfter ein Thema geübt wurde, desto höher die Stufe, aus der gezogen
+     wird. Zuletzt gesehene Aufgaben rutschen ans Ende der Warteschlange. */
+  var SEEN_MAX=60;
+
+  function schluesselVon(it){
+    var t = it.q || it.text || it.l || it.story ||
+            (it.solution ? it.solution.join(' ') : '') || '';
+    var h=0;
+    for(var i=0;i<t.length;i++){ h=((h<<5)-h+t.charCodeAt(i))|0; }
+    return (h>>>0).toString(36);
+  }
+  function gesehen(id){ var p=P(id); if(!p.seen) p.seen=[]; return p.seen; }
+  function merkeGesehen(id,liste){
+    var se=gesehen(id);
+    liste.forEach(function(it){
+      var k=schluesselVon(it);
+      var i=se.indexOf(k); if(i>=0) se.splice(i,1);
+      se.push(k);
+    });
+    while(se.length>SEEN_MAX) se.shift();
+    save(K_PROG,prog);
+  }
+
+  /* Wie schwer darf es sein? Wächst mit der Übung im Thema und der Stufe. */
+  function stufeDerAufgaben(w){
+    var p=P(w.id);
+    var band = 1 + Math.floor((p.done|0)/10) + Math.floor((stufeVon(meta.xp)-1)/12);
+    return Math.max(1, Math.min(3, band));
+  }
+
+  /* Zieht anzahl Aufgaben: passende Schwierigkeit zuerst, ungesehene zuerst. */
+  function ziehe(pool, anzahl, band, id){
+    if(!pool || !pool.length) return [];
+    var se=gesehen(id);
+    /* Was gerade erst dran war, wird zurückgestellt - sonst wiederholt sich
+       auf der höchsten Schwierigkeit immer dieselbe Handvoll Aufgaben. */
+    var grenze = se.length - Math.max(4, anzahl*3);
+    var bewertet=pool.map(function(it,i){
+      var d=it.d||1;
+      var k=schluesselVon(it);
+      var pos=se.indexOf(k);                    /* -1 = noch nie gesehen */
+      var erlaubt = d<=band && d>=band-1;       /* zu Leichtes fällt raus */
+      return { it:it, i:i,
+        jung: (pos>=0 && pos>grenze) ? 1 : 0,
+        passt: erlaubt ? 0 : (d<band-1 ? 5 : 9),
+        frisch: pos<0 ? -1 : pos,               /* kleiner = länger her */
+        wuerfel: Math.random() };
+    });
+    bewertet.sort(function(a,b){
+      if(a.jung!==b.jung) return a.jung-b.jung;
+      if(a.passt!==b.passt) return a.passt-b.passt;
+      if(a.frisch!==b.frisch) return a.frisch-b.frisch;
+      return a.wuerfel-b.wuerfel;
+    });
+    var out=bewertet.slice(0,Math.min(anzahl,bewertet.length)).map(function(x){return x.it;});
+    return shuffle(out);
+  }
+
+  /* Story-Runden haben mehrere Texte zur Auswahl. */
+  function varianten(d){
+    if(d.variants && d.variants.length) return d.variants;
+    return [{ story:d.story, items:d.items||[], d:d.d||1 }];
+  }
+
+  var ANZAHL={ choice:4, input:4, order:3, sort:6, match:4 };
+
+  function baueStop(st){
+    var d=st.def, w=st.world, band=stufeDerAufgaben(w);
+    if(d.type==='story'){
+      var vs=varianten(d);
+      var gewaehlt=ziehe(vs.map(function(v){ return {story:v.story, d:v.d||1, _v:v}; }),1,band,w.id)[0];
+      var v=gewaehlt?gewaehlt._v:vs[0];
+      st._story=v.story;
+      st._items=ziehe(v.items, Math.min(4,v.items.length), band, w.id);
+      merkeGesehen(w.id,[{story:v.story}].concat(st._items));
+      return;
+    }
+    if(d.type==='match'){
+      st._pairs=ziehe(d.pairs, ANZAHL.match, band, w.id);
+      st._items=[]; merkeGesehen(w.id, st._pairs); return;
+    }
+    if(d.type==='sort'){
+      st._sort=ziehe(d.items, ANZAHL.sort, band, w.id);
+      st._items=[]; merkeGesehen(w.id, st._sort); return;
+    }
+    var anz=ANZAHL[d.type]||4;
+    st._items=ziehe(d.items, anz, band, w.id);
+    merkeGesehen(w.id, st._items);
+  }
+
+  function items(){
+    var st=stop();
+    if(!st._items) baueStop(st);
+    return st._items||[];
+  }
+  function storyText(){ var st=stop(); if(!st._items) baueStop(st); return st._story||st.def.story||''; }
+  function matchPairs(){ var st=stop(); if(!st._items) baueStop(st); return st._pairs||st.def.pairs||[]; }
+  function sortItems(){ var st=stop(); if(!st._items) baueStop(st); return st._sort||st.def.items||[]; }
   function item(){ return items()[S.item]; }
 
   function head(){
@@ -2239,8 +2691,8 @@ var SUBJECTS = {
     var st=stop(), d=st.def;
     if(S.phase==='intro'){
       return head()+'<h2>Lies den Text in Ruhe</h2>'+
-        '<div class="passage">'+esc(d.story)+'</div>'+
-        '<div class="row"><button class="iconbtn" data-a="say" data-t="'+esc(d.story)+'">'+ICON_SPK+'</button>'+
+        '<div class="passage">'+esc(storyText())+'</div>'+
+        '<div class="row"><button class="iconbtn" data-a="say" data-t="'+esc(storyText())+'">'+ICON_SPK+'</button>'+
         '<span class="hint" style="flex:1">Vorlesen lassen</span>'+
         '<button class="btn p" data-a="start">Ich habe gelesen →</button></div>';
     }
@@ -2305,7 +2757,7 @@ var SUBJECTS = {
 
   function vMatch(){
     var st=stop(), d=st.def, m=S.match;
-    var pairs=d.pairs;
+    var pairs=matchPairs();
     var rights = m.rightOrder || (m.rightOrder = shuffle(pairs.map(function(p){return p.r;})));
     var h=head()+'<p class="hint">'+esc(d.prompt)+'</p><div class="cols">';
     h+='<div><div class="colhead">Zuerst hier</div><div class="opts">';
@@ -2329,7 +2781,7 @@ var SUBJECTS = {
 
   function vSort(){
     var st=stop(), d=st.def, s=S.sort;
-    var list=d.items, done=s.i>=list.length;
+    var list=sortItems(), done=s.i>=list.length;
     var h=head()+'<p class="hint">'+esc(d.prompt)+'</p>';
     h+='<div class="trace">'+s.trace.map(function(t){ return '<span class="tr '+(t.ok?'ok':'no')+'">'+esc(t.label)+'</span>'; }).join('')+'</div>';
     if(!done){
@@ -2370,6 +2822,11 @@ var SUBJECTS = {
         '<div class="stat"><b>'+q+'%</b><span>Trefferquote</span></div>'+
         '<div class="stat"><b>+'+S.gainXP+'</b><span>Punkte</span></div>'+
       '</div>';
+    var meile=faelligeMeile(stufeVon(meta.xp));
+    if(meile){
+      h+='<div class="kudos">🎁 Stufe '+meile+' erreicht! Belohnung: '+mitLink(belohnungFuer(meile))+
+         '<br><span class="hint">Auf der Startseite abholen.</span></div>';
+    }
     if(newB.length){
       h+='<div class="kudos">🏅 Neue Abzeichen: '+newB.map(function(x){ var b=BADGES[x.id]; return b.emoji+' '+esc(b.name); }).join(' · ')+'</div>';
     }
@@ -2434,6 +2891,7 @@ var SUBJECTS = {
     finishStop();
     if(S.stop<PLAN.length-1){
       S.stop++; S.item=0; S.phase='intro'; S.result=null; S.typing=false; S.micMsg=null; stopListening();
+      var ns=PLAN[S.stop]; if(ns){ ns._items=null; ns._pairs=null; ns._sort=null; ns._story=null; }
       S.order={picked:[]}; S.match={sel:null,done:[],wrong:0}; S.sort={i:0,trace:[]};
       render();
     }else{
@@ -2529,7 +2987,11 @@ var SUBJECTS = {
     if(t.id==='toBlitz'){ blitzStart(); return; }
     if(t.id==='toSerie'){ serieStart(); return; }
     if(t.id==='toSprint'){ sprintStart(); return; }
-    if(t.id==='zielOk'){ store.rewardClaimed=true; persist(); render(); return; }
+    if(t.id==='zielOk'){
+      var lvlJetzt=stufeVon(meta.xp), f=faelligeMeile(lvlJetzt);
+      if(f){ store.claimed=store.claimed||{}; store.claimed[f]=true; persist(); }
+      render(); return;
+    }
     if(t.id==='toColl'){ S.back=S.screen; S.screen='coll'; render(); return; }
     if(t.id==='toRep'){ S.back=S.screen; S.screen='rep'; S.delArm=false; render(); return; }
     if(t.id==='back'){ S.pick={}; S.screen=S.back==='finish'?'finish':'home'; render(); return; }
@@ -2569,10 +3031,11 @@ var SUBJECTS = {
     if(t.id==='syNow'){ syncNow(function(){ paintSyncLine(); }); return; }
     if(t.id==='syOff'){ store.sync=null; persist(); syncState='aus'; render(); return; }
     if(t.id==='rewSave'){
-      var ri=document.getElementById('rewIn');
-      var txt=ri?ri.value.trim():'';
-      store.reward=txt||'ein Amazon-Gutschein';
-      if(stufeVon(meta.xp)<ZIEL_STUFE) store.rewardClaimed=false;
+      store.rewards=store.rewards||{};
+      [].forEach.call(document.querySelectorAll('[data-rew]'),function(inp){
+        var m=inp.getAttribute('data-rew'), v=(inp.value||'').trim();
+        if(v && v!==BELOHNUNG_STD[m]) store.rewards[m]=v; else delete store.rewards[m];
+      });
       persist();
       var rl=document.getElementById('rewLine'); if(rl) rl.textContent='Gesichert.';
       return;
@@ -2765,7 +3228,7 @@ var SUBJECTS = {
     if(a==='mr'){
       var m=S.match;
       if(m.sel==null){ m.msg='Wähle zuerst links etwas aus.'; render(); return; }
-      var pairs=stop().def.pairs, r=t.getAttribute('data-r');
+      var pairs=matchPairs(), r=t.getAttribute('data-r');
       if(pairs[m.sel].r===r){ m.done.push(m.sel); m.sel=null; m.msg=null; recordAnswer(true);
         if(m.done.length>=pairs.length){ /* fertig */ }
       } else { m.msg='Das passt nicht zusammen – schau nochmal.'; m.sel=null; recordAnswer(false); }
@@ -2773,7 +3236,7 @@ var SUBJECTS = {
     }
 
     if(a==='srt'){
-      var d=stop().def, s=S.sort, it=d.items[s.i];
+      var d=stop().def, s=S.sort, it=sortItems()[s.i];
       if(!it) return;
       var chose = t.getAttribute('data-v')==='a';
       var ok = chose===it.a;
