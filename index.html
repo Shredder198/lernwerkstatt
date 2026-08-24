@@ -989,6 +989,101 @@ var SUBJECTS = {
   ]);
 })();
 
+/* Vierte Antwortmöglichkeit, wo drei zu wenig zum Nachdenken zwingen.
+   Wird nur angehängt, wenn sie noch fehlt und nicht die Lösung ist. */
+(function(){
+  var ZUSATZ={
+    /* Mathematik */
+    'Wie viele Zentimeter sind 3 Meter?':'30 000 cm',
+    'Wie viel Gramm sind 2 kg?':'20 000 g',
+    'Wie viele Cent sind 4,50 €?':'405 Cent',
+    'Wie viele Minuten hat eine Dreiviertelstunde?':'75',
+    'Wie viele Millimeter sind 4 cm?':'400 mm',
+    'Wie viele Gramm sind ein halbes Kilogramm?':'50 g',
+    'Wie viele Cent sind 2,05 €?':'2050 Cent',
+    'Wie viele Sekunden hat eine Viertelstunde?':'150',
+    'Runde 347 auf volle Zehner.':'400',
+    'Runde 682 auf volle Hunderter.':'650',
+    'Runde 264 auf volle Zehner.':'250',
+    'Runde 749 auf volle Hunderter.':'750',
+    'Runde 1 250 auf volle Hunderter.':'1 250',
+    'Welche Zahl liegt zwischen 450 und 460?':'465',
+    'Welche Zahl liegt genau zwischen 200 und 400?':'320',
+    '20 : 3 = 6 Rest ?':'0',
+    '63 : 7 = ?':'6',
+    '17 : 5 = 3 Rest ?':'0',
+    '25 Kekse auf 4 Kinder. Wie viele bleiben übrig?':'4 Kekse',
+    '30 Karten auf 4 Kinder. Wie viele bleiben übrig?':'4',
+    'Wie viele Vierer stecken in 52?':'15',
+    'Wie viele Zehner hat die Zahl 476?':'47',
+    'Wie viele Hunderter hat die Zahl 3 528?':'8',
+    'Welche Ziffer steht bei 8 149 an der Tausender-Stelle?':'9',
+    'Wie viele Einer hat die Zahl 902?':'20',
+    'Wie viele Hunderter hat die Zahl 742?':'74',
+    'Welche Ziffer steht bei 5 306 an der Zehner-Stelle?':'5',
+    'Wie viele Zehner hat die Zahl 1 285?':'12',
+    'Welche Zahl hat 6 Hunderter, 0 Zehner und 4 Einer?':'46',
+    'Was ist der Wert der 3 in 4 371?':'3',
+    'Ein Film dauert 90 Minuten und beginnt um 15:30 Uhr. Wann ist er zu Ende?':'16:20 Uhr',
+    'Papa kauft 3 Pizzen zu je 8 €. Er zahlt mit 30 €. Wie viel bekommt er zurück?':'2 €',
+    'Ein Regal hat 4 Böden mit je 25 Büchern. Wie viele Bücher sind es?':'75',
+    'Lisa hat 5 € gespart. Sie bekommt jede Woche 2 € dazu. Nach wie vielen Wochen hat sie 15 €?':'7 Wochen',
+    'Ein Film beginnt um 14:45 Uhr und dauert 75 Minuten. Wann ist er zu Ende?':'16:30 Uhr',
+    'Mia spart 3 € pro Woche. Nach wie vielen Wochen hat sie 24 €?':'9 Wochen',
+    'Eine Klasse mit 24 Kindern bildet Vierergruppen. Wie viele Gruppen?':'12',
+    'Ein Hemd kostet 18 €, reduziert um 5 €. Wie viel kosten zwei davon?':'13 €',
+    'In einer Kiste sind 100 Äpfel. Drei Kinder nehmen je 12. Wie viele bleiben?':'36',
+    /* Deutsch */
+    'Welches Wort ist ein Verb (Tunwort)?':'schnellste',
+    'Welches Wort ist ein Adjektiv (Wiewort)?':'die Gemütlichkeit',
+    'Welches Wort ist ein Nomen (Namenwort)?':'freuen',
+    'Welches Wort ist ein Nomen?':'gedanklich',
+    '„Der müde Wanderer ruht sich aus." Was ist „müde"?':'Artikel',
+    '„Der Hund bellt laut." Was ist „laut"?':'Artikel',
+    '„Wir bauen eine Hütte." Was ist „bauen"?':'Artikel',
+    '„Ich schwimme." – Wie heißt das im Perfekt?':'Ich werde schwimmen.',
+    '„Er denkt nach." – Im Präteritum?':'Er wird nachdenken.',
+    'Welcher Satz steht im Präteritum?':'Sie wird anrufen.',
+    'Welcher Satz steht im Perfekt?':'Wir werden fahren.',
+    '„Sie schreibt einen Brief." – Im Präteritum?':'Sie wird schreiben.',
+    'Welcher Satz ist richtig gebaut?':'Im Kino gestern war ich.',
+    'Welcher Satz ist eine Frage?':'Später kommt er.',
+    'Welcher Satz ist ein Befehl?':'Er hat aufgeräumt.',
+    'Welches Wort verbindet zwei Sätze?':'gestern',
+    'Der Sturm hat das ganze Dach ___.':'abgedeckd',
+    'Nach dem Rennen war er außer ___.':'Ahtem',
+    'Der Hund lag faul auf der ___.':'Wiehse',
+    /* Französisch */
+    'Il ___ dix ans. (avoir)':'avons',
+    'Je ___ dans ma chambre. (être)':'sont',
+    'Nous ___ à la piscine. (aller)':'vais',
+    'Vous ___ contents. (être)':'suis',
+    'Nous ___ des amis. (avoir)':'as',
+    'Tu ___ à la maison. (être)':'sommes',
+    'Ils ___ au cinéma. (aller)':'vais',
+    'un chat noir → une souris ___':'noires',
+    'un pull vert → une jupe ___':'vertes',
+    'le cheval → les ___':'chevalles',
+    'un petit chien → une ___ maison':'petites',
+    'le journal → les ___':'journeaux'
+  };
+  function anhaengen(it){
+    if(!it || !it.options || !it.q) return;
+    var z=ZUSATZ[it.q];
+    if(!z) return;
+    if(z===it.correct) return;
+    if(it.options.indexOf(z)>=0) return;
+    it.options=it.options.concat(z);
+  }
+  WORLDS.forEach(function(w){
+    ['a','b'].forEach(function(r){
+      var d=w[r]; if(!d) return;
+      (d.items||[]).forEach(anhaengen);
+      (d.variants||[]).forEach(function(v){ (v.items||[]).forEach(anhaengen); });
+    });
+  });
+})();
+
 (function(){
   "use strict";
 
@@ -1506,7 +1601,7 @@ var SUBJECTS = {
     WORLDS.forEach(function(w){
       ['a','b'].forEach(function(r){
         var d=w[r];
-        if(d && d.type==='choice' && d.items) d.items.forEach(function(it){ out.push({w:w,it:it}); });
+        if(d && d.type==='choice' && d.items) d.items.forEach(function(it){ out.push({w:w,it:mischeOptionen(it)}); });
       });
     });
     return shuffle(out);
@@ -2617,6 +2712,16 @@ var SUBJECTS = {
     return [{ story:d.story, items:d.items||[], d:d.d||1 }];
   }
 
+  /* Ohne das steht die richtige Antwort immer dort, wo sie in den Daten
+     steht - und Kinder merken sich die Position statt des Inhalts. */
+  function mischeOptionen(it){
+    if(!it || !it.options || it.options.length<2) return it;
+    var kopie={}, k;
+    for(k in it) if(Object.prototype.hasOwnProperty.call(it,k)) kopie[k]=it[k];
+    kopie.options=shuffle(it.options);
+    return kopie;
+  }
+
   var ANZAHL={ choice:4, input:4, order:3, sort:6, match:4 };
 
   function baueStop(st){
@@ -2628,6 +2733,7 @@ var SUBJECTS = {
       st._story=v.story;
       st._items=ziehe(v.items, Math.min(4,v.items.length), band, w.id);
       merkeGesehen(w.id,[{story:v.story}].concat(st._items));
+      st._items=st._items.map(mischeOptionen);
       return;
     }
     if(d.type==='match'){
@@ -2641,6 +2747,7 @@ var SUBJECTS = {
     var anz=ANZAHL[d.type]||4;
     st._items=ziehe(d.items, anz, band, w.id);
     merkeGesehen(w.id, st._items);
+    st._items=st._items.map(mischeOptionen);
   }
 
   function items(){
