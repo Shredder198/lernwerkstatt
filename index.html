@@ -992,6 +992,9 @@ var SUBJECTS = {
 (function(){
   "use strict";
 
+  /* Muss ganz oben stehen: initStore() rechnet beim Start schon mit Stufen. */
+  var MAX_STUFE=100;
+
   /* ================= Speicher =================
      Ein eigener Lernstand pro Kind. LW_v2 hält alle Profile; die alten
      Einzelschlüssel der Vorgängerfassung werden beim ersten Start
@@ -1101,6 +1104,20 @@ var SUBJECTS = {
       /* Der Startstand greift sonst nur bei einer leeren Installation - bestehende
          Geräte hingen auf dem alten Stand fest. Einmalig nachziehen; gemischt wird
          nach der Bestwert-Regel, wer weiter ist verliert also nichts. */
+      /* Die Stufenkurve wurde geändert (vorher 200 Punkte je Stufe, jetzt
+         steigend). Wer nach der alten Rechnung schon weiter war, bekommt die
+         Punkte gutgeschrieben - eine erreichte Stufe nimmt man niemandem weg. */
+      if(!st.kurveV2){
+        Object.keys(st.profiles).forEach(function(nm){
+          var p=st.profiles[nm];
+          if(!p || !p.meta) return;
+          var xp=p.meta.xp|0;
+          var alteStufe=Math.min(MAX_STUFE, Math.floor(xp/200)+1);
+          if(alteStufe>stufeVon(xp)) p.meta.xp=xpFuerStufe(alteStufe);
+          p.meta.bestStufe=Math.max(p.meta.bestStufe|0, stufeVon(p.meta.xp|0));
+        });
+        st.kurveV2=true;
+      }
       if(!st.seedV6){
         if(!st.profiles['Sam']) st.profiles['Sam']=blankProfile('Sam');
         mergeData(st.profiles['Sam'], samSeed());
@@ -1113,7 +1130,7 @@ var SUBJECTS = {
     /* War schon einmal etwas da? Dann wurde es entsorgt - das darf die
        App nicht verschweigen, indem sie einfach neu anfängt. */
     try{ if(localStorage.getItem(K_SEEN)) lostData=true; }catch(e){}
-    st={ active:'Sam', seedV6:true, profiles:{ Sam:samSeed() } };
+    st={ active:'Sam', seedV6:true, kurveV2:true, profiles:{ Sam:samSeed() } };
     /* Auf einem Gerät, das die Vorgängerfassung genutzt hat, steht oft
        mehr als im Seed - das wird dazugemischt, nie überschrieben. */
     var oProg=load(K_PROG,null), oMeta=load(K_META,null), oLog=load(K_LOG,null);
@@ -1144,6 +1161,7 @@ var SUBJECTS = {
     var rm=rem.meta||{};
     dst.meta.xp=Math.max(dst.meta.xp|0, rm.xp|0);
     dst.meta.streak=Math.max(dst.meta.streak|0, rm.streak|0);
+    dst.meta.bestStufe=Math.max(dst.meta.bestStufe|0, rm.bestStufe|0);
     if((rm.lastDay||'')>(dst.meta.lastDay||'')) dst.meta.lastDay=rm.lastDay;
     if(!dst.meta.name && rm.name) dst.meta.name=rm.name;
     if(!dst.meta.avatar && rm.avatar) dst.meta.avatar=rm.avatar;
@@ -1163,6 +1181,16 @@ var SUBJECTS = {
   var prog, log, meta;
 
   function profileNames(){ return Object.keys(store.profiles); }
+  /* Hält die höchste je erreichte Stufe fest und hebt den Punktestand an,
+     falls eine spätere Änderung ihn sonst nach unten ziehen würde. */
+  function sichereStufe(p){
+    if(!p || !p.meta) return;
+    var jetzt=stufeVon(p.meta.xp|0);
+    var best=p.meta.bestStufe|0;
+    if(best>jetzt){ p.meta.xp=xpFuerStufe(best); jetzt=best; }
+    p.meta.bestStufe=Math.max(best, jetzt);
+  }
+
   function useProfile(name){
     name=(''+name).trim(); if(!name) return;
     if(!store.profiles[name]) store.profiles[name]=blankProfile(name);
@@ -1174,6 +1202,7 @@ var SUBJECTS = {
     if(p.meta.lastDay===undefined) p.meta.lastDay=null;
     if(!p.meta.avatar) p.meta.avatar=AVATARS[Math.floor(Math.random()*AVATARS.length)];
     p.meta.name=name;
+    sichereStufe(p);
     prog=p.prog; log=p.log; meta=p.meta;
     persist();
   }
@@ -1505,7 +1534,7 @@ var SUBJECTS = {
     if(b.hop) clearTimeout(b.hop);
     meta.blitzBest=Math.max(meta.blitzBest|0, b.correct);
     meta.blitzRuns=(meta.blitzRuns|0)+1;
-    meta.xp=(meta.xp||0)+b.correct*5;
+    meta.xp=(meta.xp||0)+b.correct*5; merkeStufe();
     save(K_META,meta); syncSoon();
     S.screen='blitzend'; render();
   }
@@ -1899,7 +1928,7 @@ var SUBJECTS = {
     var g=S.serie; if(!g||g.over) return;
     g.over=true; if(g.hop) clearTimeout(g.hop);
     meta.serieBest=Math.max(meta.serieBest|0, g.streak);
-    meta.xp=(meta.xp||0)+g.streak*5;
+    meta.xp=(meta.xp||0)+g.streak*5; merkeStufe();
     save(K_META,meta); syncSoon();
     S.screen='serieend'; render();
   }
@@ -1996,7 +2025,7 @@ var SUBJECTS = {
     var g=S.sprint; if(!g||g.over) return;
     g.over=true; if(g.timer) clearInterval(g.timer);
     meta.sprintBest=Math.max(meta.sprintBest|0, g.correct);
-    meta.xp=(meta.xp||0)+g.correct*5;
+    meta.xp=(meta.xp||0)+g.correct*5; merkeStufe();
     save(K_META,meta); syncSoon();
     S.screen='sprintend'; render();
   }
@@ -2042,7 +2071,6 @@ var SUBJECTS = {
 
   /* ================= Großes Ziel =================
      Eine Belohnung, die die Eltern selbst festlegen. */
-  var MAX_STUFE=100;
   /* Die Stufen werden nach oben hin teurer, sonst wäre Stufe 100 in zwei
      Wochen erreicht und danach gäbe es kein Ziel mehr.
      Stufe 10 ≈ 2.000, Stufe 50 ≈ 17.000, Stufe 100 ≈ 49.000 Punkte. */
@@ -2860,6 +2888,10 @@ var SUBJECTS = {
   }
 
   /* ================= Bewertung / Fortschritt ================= */
+  function merkeStufe(){
+    meta.bestStufe=Math.max(meta.bestStufe|0, stufeVon(meta.xp|0));
+  }
+
   function recordAnswer(ok){
     S.roundTotal++; S.sessionTotal++;
     if(ok){ S.roundCorrect++; S.sessionCorrect++; }
@@ -2896,6 +2928,7 @@ var SUBJECTS = {
       render();
     }else{
       meta.xp=(meta.xp||0)+(S.gainXP||0);
+      merkeStufe();
       store.runsSinceBackup=(store.runsSinceBackup|0)+1;
       save(K_META,meta);
       syncSoon();
