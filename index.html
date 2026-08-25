@@ -18,7 +18,7 @@
     --ink:#1C2823; --soft:#54655A; --line:#D4DCCF;
     --accent:#2C7053; --accent-ink:#FFFFFF;
     --blue:#2A6480; --clay:#AE5527; --gold:#A9701A;
-    --lila:#7A4FA3; --pink:#C2185B; --ring:#C9832E;
+    --gruen2:#2F6B4F; --ring:#C9832E;
     --shadow:0 1px 2px rgba(28,40,35,.06), 0 8px 20px -14px rgba(28,40,35,.35);
     --shadow-lift:0 2px 4px rgba(28,40,35,.07), 0 16px 32px -18px rgba(28,40,35,.4);
     --r-s:.6rem; --r-m:.9rem; --r-l:1.25rem;
@@ -30,7 +30,7 @@
       --ink:#E3ECE6; --soft:#A2B6A9; --line:#29372F;
       --accent:#57B48A; --accent-ink:#0B1611;
       --blue:#6DB2D2; --clay:#DE8F5C; --gold:#DFA857;
-      --lila:#B98BE0; --pink:#F06292; --ring:#E3A857;
+      --gruen2:#6FC79B; --ring:#E3A857;
       --shadow:0 1px 2px rgba(0,0,0,.4), 0 8px 22px -14px rgba(0,0,0,.7);
       --shadow-lift:0 2px 6px rgba(0,0,0,.45), 0 18px 36px -18px rgba(0,0,0,.75);
       color-scheme:dark;
@@ -41,7 +41,7 @@
     --ink:#E3ECE6; --soft:#A2B6A9; --line:#29372F;
     --accent:#57B48A; --accent-ink:#0B1611;
     --blue:#6DB2D2; --clay:#DE8F5C; --gold:#DFA857;
-    --lila:#B98BE0; --pink:#F06292; --ring:#E3A857;
+    --gruen2:#6FC79B; --ring:#E3A857;
     --shadow:0 1px 2px rgba(0,0,0,.4), 0 8px 22px -14px rgba(0,0,0,.7);
     --shadow-lift:0 2px 6px rgba(0,0,0,.45), 0 18px 36px -18px rgba(0,0,0,.75);
     color-scheme:dark;
@@ -119,7 +119,7 @@
   .tag.t-de{ color:var(--accent); }
   .tag.t-fr{ color:var(--blue); }
   .tag.t-ma{ color:var(--clay); }
-  .tag.t-me{ color:var(--lila); }
+  .tag.t-wi{ color:var(--gruen2); }
   .prompt{ font-size:1.3rem; font-weight:700; line-height:1.55; text-wrap:balance; }
   .passage{ font-size:1.12rem; line-height:1.9; background:var(--sunk);
     border:1px solid var(--line); border-left:4px solid var(--accent);
@@ -212,6 +212,10 @@
   .grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(8.4rem,1fr)); gap:.7rem; }
   .badge{ border-radius:var(--r-m); padding:1rem .6rem; text-align:center; border:1.5px solid var(--line);
     background:var(--sunk); display:flex; flex-direction:column; gap:.35rem; align-items:center; }
+  .badge.meister{ border-color:var(--accent); border-width:2px;
+    background:linear-gradient(160deg,color-mix(in srgb,var(--accent) 20%,var(--raised)),var(--raised)); }
+  .ziel.meister{ background:linear-gradient(165deg,color-mix(in srgb,var(--accent) 15%,var(--raised)),var(--raised));
+    border-color:color-mix(in srgb,var(--accent) 40%,transparent); }
   .badge.have{ border-color:var(--gold);
     background:linear-gradient(165deg,color-mix(in srgb,var(--gold) 16%,var(--raised)),var(--raised)); }
   .badge .em{ font-size:2.1rem; line-height:1; filter:grayscale(1); opacity:.3; }
@@ -709,99 +713,107 @@ var SUBJECTS = {
   de:{name:'Deutsch', color:'#2F7A5E', icon:'🇩🇪'},
   fr:{name:'Französisch', color:'#2E6E8E', icon:'🇫🇷'},
   ma:{name:'Mathematik', color:'#B5652F', icon:'🔢'},
-  me:{name:'Medien', color:'#7A4FA3', icon:'📱'}
+  wi:{name:'Wissen', color:'#2F6B4F', icon:'🦉'}
 };
 
-/* ================= Rubrik Medien =================
-   Influencer-Thematik, aber mit Lernwert: Werbung erkennen, genau lesen,
-   selbst schreiben, mit Zahlen umgehen. Gibt bewusst halbe Punkte -
-   Bonus, kein Ersatz für Deutsch, Mathe und Französisch. */
+/* ================= Rubrik Wissen =================
+   Sachunterricht für das 4. Schuljahr: Tiere, Pflanzen und Jahreszeiten,
+   Erde und Wetter. Volle Punkte - das ist echter Lernstoff. */
 WORLDS.push(
   {
-    id:'werbung', subject:'me', icon:'🕵️', color:'#7A4FA3', xpFaktor:0.5,
-    title:'Werbung erkennen', sub:'Was ist bezahlt, was ist echte Meinung?',
+    id:'tiere', subject:'wi', icon:'🦊', color:'#2F6B4F',
+    title:'Tiere', sub:'Wer lebt wo und frisst was?',
     a:{ type:'choice', items:[
-      {q:'Über einem Video steht groß „Anzeige". Was heißt das?', options:['Jemand hat für das Video bezahlt','Das Video ist besonders beliebt','Das Video ist neu'], correct:'Jemand hat für das Video bezahlt', d:1},
-      {q:'Woran erkennst du bezahlte Werbung am sichersten?', options:['An der Kennzeichnung „Werbung" oder „Anzeige"','Daran, dass das Produkt schön aussieht','An der Anzahl der Likes'], correct:'An der Kennzeichnung „Werbung" oder „Anzeige"', d:1},
-      {q:'Warum müssen Influencer Werbung kennzeichnen?', options:['Weil es Gesetz ist','Weil es hübscher aussieht','Weil die Zuschauer es verlangen'], correct:'Weil es Gesetz ist', d:2},
-      {q:'Ein Video verspricht: „In 3 Tagen 10 000 Follower!" Wie schätzt du das ein?', options:['Sehr wahrscheinlich übertrieben','Bestimmt wahr','Das geht immer'], correct:'Sehr wahrscheinlich übertrieben', d:2},
-      {q:'Eine Influencerin bekommt eine Flasche geschenkt und zeigt sie. Ist das Werbung?', options:['Ja, auch geschenkte Dinge zählen','Nein, sie hat ja nichts bezahlt bekommen','Nur wenn sie es sagt'], correct:'Ja, auch geschenkte Dinge zählen', d:3},
-      {q:'Ein Kanal zeigt nur begeisterte Meinungen über ein Spiel. Was ist sinnvoll?', options:['Noch woanders nachlesen','Sofort kaufen','Den Kanal melden'], correct:'Noch woanders nachlesen', d:2},
-      {q:'Ein Video sagt: „Link in der Beschreibung, nur heute günstig!" Was steckt oft dahinter?', options:['Zeitdruck, damit man schnell kauft','Ein technischer Hinweis','Eine Warnung'], correct:'Zeitdruck, damit man schnell kauft', d:3},
-      {q:'Was ist eine „Meinung" im Unterschied zu einer „Tatsache"?', options:['Etwas, das jemand findet','Etwas, das man nachprüfen kann','Etwas, das im Fernsehen kam'], correct:'Etwas, das jemand findet', d:2},
-      {q:'Jemand schreibt unter dein Video etwas Gemeines. Was ist am besten?', options:['Nicht antworten und einer erwachsenen Person zeigen','Zurückschimpfen','Das Video löschen'], correct:'Nicht antworten und einer erwachsenen Person zeigen', d:1},
-      {q:'Warum zeigen viele Videos nur die schönsten Momente?', options:['Weil das mehr Aufrufe bringt','Weil nichts anderes passiert','Weil es verboten ist, anderes zu zeigen'], correct:'Weil das mehr Aufrufe bringt', d:3}
+      {q:'Welches Tier ist ein Säugetier?', options:['Fledermaus','Forelle','Frosch'], correct:'Fledermaus', d:1},
+      {q:'Womit atmen Fische?', options:['Mit Kiemen','Mit Lungen','Durch die Haut'], correct:'Mit Kiemen', d:1},
+      {q:'Welches Tier hält Winterschlaf?', options:['Igel','Reh','Fuchs'], correct:'Igel', d:1},
+      {q:'Was fressen Rehe?', options:['Pflanzen','Fleisch','Beides zu gleichen Teilen'], correct:'Pflanzen', d:1},
+      {q:'Welches Tier legt Eier?', options:['Huhn','Kuh','Hund'], correct:'Huhn', d:1},
+      {q:'Wie nennt man Tiere, die Fleisch fressen?', options:['Fleischfresser','Pflanzenfresser','Allesfresser'], correct:'Fleischfresser', d:2},
+      {q:'Wie viele Beine hat eine Spinne?', options:['8','6','10'], correct:'8', d:2},
+      {q:'Wie viele Beine hat ein Insekt?', options:['6','8','4'], correct:'6', d:2},
+      {q:'Was passiert bei der Verwandlung einer Raupe?', options:['Sie wird zum Schmetterling','Sie wird zum Käfer','Sie bleibt eine Raupe'], correct:'Sie wird zum Schmetterling', d:2},
+      {q:'Welches dieser Tiere ist ein Amphibium?', options:['Frosch','Eidechse','Maus'], correct:'Frosch', d:3},
+      {q:'Warum haben Eulen große Augen?', options:['Um im Dunkeln zu sehen','Um weiter zu springen','Um besser zu hören'], correct:'Um im Dunkeln zu sehen', d:2},
+      {q:'Wovon ernähren sich Bienen hauptsächlich?', options:['Nektar und Pollen','Blättern','Kleinen Insekten'], correct:'Nektar und Pollen', d:2},
+      {q:'Was bedeutet „wechselwarm" bei Tieren?', options:['Die Körpertemperatur hängt von der Umgebung ab','Sie wechseln im Winter das Fell','Sie wandern in warme Länder'], correct:'Die Körpertemperatur hängt von der Umgebung ab', d:3},
+      {q:'Welches Tier ist ein Nagetier?', options:['Eichhörnchen','Kaninchen','Igel'], correct:'Eichhörnchen', d:3},
+      {q:'Wozu dient die Tarnfarbe eines Tieres?', options:['Zum Schutz vor Feinden','Zum Wärmen','Zum Anlocken von Futter'], correct:'Zum Schutz vor Feinden', d:2}
     ]},
-    b:{ type:'sort', prompt:'Ist das Werbung oder eine eigene Meinung?',
-      bucketA:'Werbung', bucketB:'eigene Meinung',
+    b:{ type:'sort', prompt:'Säugetier oder nicht?', bucketA:'Säugetier', bucketB:'kein Säugetier',
       items:[
-        {text:'„Anzeige: Diese Schuhe bekommt ihr mit meinem Code."', a:true, d:1},
-        {text:'„Ich finde den Film ehrlich gesagt langweilig."', a:false, d:1},
-        {text:'„Bezahlte Partnerschaft mit einer Getränkemarke."', a:true, d:1},
-        {text:'„Mir gefällt der blaue Stift besser als der rote."', a:false, d:1},
-        {text:'„Werbung: Nur heute 20 Prozent mit meinem Link."', a:true, d:2},
-        {text:'„Das Buch hat mich zum Weinen gebracht."', a:false, d:2},
-        {text:'„Dieses Produkt wurde mir kostenlos zugeschickt."', a:true, d:3},
-        {text:'„Ich spiele das Spiel seit zwei Jahren gern."', a:false, d:2}
+        {text:'Delfin', a:true, d:3}, {text:'Hai', a:false, d:3},
+        {text:'Fledermaus', a:true, d:2}, {text:'Pinguin', a:false, d:2},
+        {text:'Kuh', a:true, d:1}, {text:'Schlange', a:false, d:1},
+        {text:'Igel', a:true, d:1}, {text:'Frosch', a:false, d:1},
+        {text:'Wal', a:true, d:2}, {text:'Krokodil', a:false, d:2}
       ]}
   },
   {
-    id:'videotext', subject:'me', icon:'✍️', color:'#7A4FA3', xpFaktor:0.5,
-    title:'Video-Text schreiben', sub:'Selbst formulieren statt nur zuschauen',
-    a:{ type:'frei', prompt:'Schreib in ganzen Sätzen. Punkt am Satzende nicht vergessen.',
-      items:[
-        {q:'Beschreibe dein Lieblingsvideo für jemanden, der es nicht kennt.',
-         hinweise:['Worum geht es?','Was gefällt dir besonders?','Was würdest du anders machen?'], min:120, d:1},
-        {q:'Du möchtest ein Video über dein Hobby machen. Schreibe, was in den ersten zehn Sekunden passiert.',
-         hinweise:['Womit fängst du an?','Was sieht man?','Warum bleibt jemand dran?'], min:120, d:2},
-        {q:'Ein Freund will Videos über Fußballtricks machen. Schreib ihm drei Tipps.',
-         hinweise:['Ein Tipp zum Anfang','Ein Tipp zum Erklären','Ein Tipp zum Schluss'], min:140, d:2},
-        {q:'Erkläre in eigenen Worten, woran man bezahlte Werbung erkennt.',
-         hinweise:['Nenne ein Kennzeichen','Nenne ein Beispiel','Sag, warum das wichtig ist'], min:140, d:3},
-        {q:'Schreibe einen freundlichen Kommentar unter ein Video, das dir gefallen hat.',
-         hinweise:['Sag, was dir gefiel','Bleib höflich','Stell eine Frage'], min:100, d:1},
-        {q:'Denk dir einen Titel für ein Video über deine Schule aus und erkläre, warum er neugierig macht.',
-         hinweise:['Der Titel selbst','Warum er neugierig macht','Was das Video zeigt'], min:130, d:3}
-      ]},
-    b:{ type:'choice', items:[
-      {q:'Welcher Videotitel sagt am genauesten, worum es geht?', options:['„So baust du ein Vogelhaus in 10 Minuten"','„Das müsst ihr sehen!!!"','„Unglaublich krass"'], correct:'„So baust du ein Vogelhaus in 10 Minuten"', d:1},
-      {q:'Welcher Kommentar ist höflich und hilfreich?', options:['„Schöne Idee – wie lange hast du gebraucht?"','„Langweilig."','„Kann jeder besser."'], correct:'„Schöne Idee – wie lange hast du gebraucht?"', d:1},
-      {q:'Was gehört in eine gute Videobeschreibung?', options:['Worum es geht und was man braucht','Möglichst viele Ausrufezeichen','Nur Emojis'], correct:'Worum es geht und was man braucht', d:2},
-      {q:'Ein Satz lautet: „ich zeig euch heut wie mans macht". Was fehlt?', options:['Großschreibung und Punkt','Ein Bild','Ein Link'], correct:'Großschreibung und Punkt', d:2},
-      {q:'Warum ist ein klarer erster Satz wichtig?', options:['Weil viele nach wenigen Sekunden weiterklicken','Weil er länger sein muss','Weil es Vorschrift ist'], correct:'Weil viele nach wenigen Sekunden weiterklicken', d:3},
-      {q:'Welche Reihenfolge passt für eine Anleitung?', options:['Was man braucht – Schritte – Ergebnis','Ergebnis – Was man braucht – Schritte','Schritte – Ergebnis – Begrüßung'], correct:'Was man braucht – Schritte – Ergebnis', d:3}
-    ]}
+    id:'pflanzen', subject:'wi', icon:'🌱', color:'#2F6B4F',
+    title:'Pflanzen & Jahreszeiten', sub:'Was wächst wann und wie?',
+    a:{ type:'choice', items:[
+      {q:'Welcher Teil einer Pflanze nimmt Wasser auf?', options:['Die Wurzel','Die Blüte','Das Blatt'], correct:'Die Wurzel', d:1},
+      {q:'Was brauchen Pflanzen zum Wachsen?', options:['Licht, Wasser und Luft','Nur Wasser','Nur Erde'], correct:'Licht, Wasser und Luft', d:1},
+      {q:'In welcher Jahreszeit fallen bei uns die Blätter?', options:['Herbst','Frühling','Sommer'], correct:'Herbst', d:1},
+      {q:'Wie heißen Bäume, die im Winter grün bleiben?', options:['Nadelbäume','Laubbäume','Obstbäume'], correct:'Nadelbäume', d:2},
+      {q:'Wozu dient die Blüte einer Pflanze?', options:['Zur Vermehrung','Zum Wasserspeichern','Zum Festhalten im Boden'], correct:'Zur Vermehrung', d:2},
+      {q:'Wer trägt bei vielen Pflanzen den Blütenstaub weiter?', options:['Insekten','Regenwürmer','Mäuse'], correct:'Insekten', d:2},
+      {q:'Wie viele Jahreszeiten gibt es bei uns?', options:['4','2','6'], correct:'4', d:1},
+      {q:'Was entsteht aus einer bestäubten Blüte?', options:['Eine Frucht mit Samen','Ein neues Blatt','Eine Wurzel'], correct:'Eine Frucht mit Samen', d:3},
+      {q:'Warum werfen Laubbäume im Herbst ihre Blätter ab?', options:['Um Wasser zu sparen','Weil sie krank werden','Damit es heller wird'], correct:'Um Wasser zu sparen', d:3},
+      {q:'Was stellt eine Pflanze im Licht her?', options:['Zucker als Nahrung','Wasser','Erde'], correct:'Zucker als Nahrung', d:3},
+      {q:'Welche Jahreszeit hat den längsten Tag?', options:['Sommer','Winter','Herbst'], correct:'Sommer', d:2},
+      {q:'Was ist ein Same?', options:['Daraus wächst eine neue Pflanze','Ein Teil der Wurzel','Ein Blatt im Winter'], correct:'Daraus wächst eine neue Pflanze', d:1}
+    ]},
+    b:{ type:'match', prompt:'Was gehört zusammen?',
+      pairs:[
+        {l:'Wurzel', r:'nimmt Wasser auf', d:1},
+        {l:'Blatt', r:'fängt Licht ein', d:2},
+        {l:'Blüte', r:'lockt Insekten an', d:2},
+        {l:'Same', r:'wird zur neuen Pflanze', d:1},
+        {l:'Stängel', r:'hält die Pflanze aufrecht', d:2},
+        {l:'Frucht', r:'schützt die Samen', d:3}
+      ]}
   },
   {
-    id:'netzzahlen', subject:'me', icon:'📈', color:'#7A4FA3', xpFaktor:0.5,
-    title:'Zahlen im Netz', sub:'Aufrufe, Likes und Zeit ausrechnen',
-    a:{ type:'input', prompt:'Rechne aus. Nur die Zahl eingeben oder sagen.', numeric:true,
+    id:'erde', subject:'wi', icon:'🌍', color:'#2F6B4F',
+    title:'Erde & Wetter', sub:'Wasser, Wolken und Kontinente',
+    a:{ type:'choice', items:[
+      {q:'Wie viele Kontinente gibt es?', options:['7','5','9'], correct:'7', d:1},
+      {q:'Auf welchem Kontinent liegt Luxemburg?', options:['Europa','Asien','Afrika'], correct:'Europa', d:1},
+      {q:'Was passiert mit Wasser, wenn es sehr warm wird?', options:['Es verdunstet','Es gefriert','Es wird schwerer'], correct:'Es verdunstet', d:1},
+      {q:'Woraus bestehen Wolken?', options:['Aus winzigen Wassertropfen','Aus Rauch','Aus Staub'], correct:'Aus winzigen Wassertropfen', d:2},
+      {q:'Bei welcher Temperatur gefriert Wasser?', options:['0 Grad','10 Grad','100 Grad'], correct:'0 Grad', d:1},
+      {q:'Bei welcher Temperatur kocht Wasser?', options:['100 Grad','50 Grad','0 Grad'], correct:'100 Grad', d:2},
+      {q:'Was ist der Wasserkreislauf?', options:['Wasser verdunstet, wird zu Wolken und fällt als Regen','Wasser fließt nur ins Meer','Wasser verschwindet im Boden'], correct:'Wasser verdunstet, wird zu Wolken und fällt als Regen', d:2},
+      {q:'Womit misst man die Temperatur?', options:['Mit einem Thermometer','Mit einem Barometer','Mit einer Waage'], correct:'Mit einem Thermometer', d:1},
+      {q:'In welche Richtung zeigt die Kompassnadel?', options:['Nach Norden','Nach Süden','Nach Westen'], correct:'Nach Norden', d:2},
+      {q:'Welcher ist der größte Ozean der Erde?', options:['Pazifik','Atlantik','Mittelmeer'], correct:'Pazifik', d:3},
+      {q:'Wie lange braucht die Erde für eine Umdrehung um sich selbst?', options:['Einen Tag','Ein Jahr','Einen Monat'], correct:'Einen Tag', d:2},
+      {q:'Wie lange braucht die Erde einmal um die Sonne?', options:['Ein Jahr','Einen Monat','Einen Tag'], correct:'Ein Jahr', d:2},
+      {q:'Warum gibt es Tag und Nacht?', options:['Weil sich die Erde dreht','Weil die Sonne wandert','Weil der Mond im Weg ist'], correct:'Weil sich die Erde dreht', d:3},
+      {q:'Was zeigt eine Landkarte mit blauen Flächen?', options:['Wasser','Wälder','Berge'], correct:'Wasser', d:1},
+      {q:'Was bedeutet es, wenn das Barometer fällt?', options:['Das Wetter wird schlechter','Es wird wärmer','Der Wind hört auf'], correct:'Das Wetter wird schlechter', d:3}
+    ]},
+    b:{ type:'sort', prompt:'Gehört das zum Wetter oder zum Klima?',
+      bucketA:'Wetter heute', bucketB:'Klima allgemein',
       items:[
-        {q:'Ein Video hat am Montag 1 200 Aufrufe und am Dienstag 2 350. Wie viele zusammen?', answer:3550, d:1},
-        {q:'Ein Kanal hat 4 800 Follower und gewinnt 350 dazu. Wie viele sind es dann?', answer:5150, d:1},
-        {q:'Von 500 Zuschauern haben 125 geliket. Wie viele haben nicht geliket?', answer:375, d:2},
-        {q:'Ein Video dauert 4 Minuten. Wie viele Sekunden sind das?', answer:240, d:1},
-        {q:'Zehn Videos dauern je 3 Minuten. Wie viele Minuten insgesamt?', answer:30, d:1},
-        {q:'Ein Video hatte 900 Aufrufe, jetzt sind es 1 350. Wie viele kamen dazu?', answer:450, d:2},
-        {q:'6 Freunde teilen sich 48 Minuten Bildschirmzeit gerecht. Wie viele Minuten bekommt jeder?', answer:8, d:2},
-        {q:'Ein Kanal lädt jede Woche 3 Videos hoch. Wie viele sind das in 8 Wochen?', answer:24, d:2},
-        {q:'Von 1 000 Aufrufen kommen 250 aus Luxemburg. Wie viele kommen von woanders?', answer:750, d:3},
-        {q:'Ein Video dauert 2 Minuten 30 Sekunden. Wie viele Sekunden sind das?', answer:150, d:3}
-      ]},
-    b:{ type:'choice', items:[
-      {q:'Ein Kanal hat 1 000 Follower, ein anderer 10 000. Wie viel mehr hat der zweite?', options:['Zehnmal so viele','Hundertmal so viele','Doppelt so viele'], correct:'Zehnmal so viele', d:2},
-      {q:'Ein Video wird 3 Minuten lang geschaut, ein zweites 180 Sekunden. Was stimmt?', options:['Beide sind gleich lang','Das erste ist länger','Das zweite ist länger'], correct:'Beide sind gleich lang', d:2},
-      {q:'Jeden Tag 20 Minuten schauen – wie viel ist das in einer Woche?', options:['2 Stunden 20 Minuten','1 Stunde 40 Minuten','3 Stunden'], correct:'2 Stunden 20 Minuten', d:3},
-      {q:'Von 200 Kommentaren sind 50 Fragen. Welcher Anteil ist das?', options:['ein Viertel','die Hälfte','ein Zehntel'], correct:'ein Viertel', d:3},
-      {q:'Ein Video hat 12 500 Aufrufe. Wie liest man das?', options:['zwölftausendfünfhundert','hundertfünfundzwanzig','zwölfhundertfünfzig'], correct:'zwölftausendfünfhundert', d:1},
-      {q:'Was bedeutet „1,2 Mio. Aufrufe"?', options:['1 200 000','12 000','120 000'], correct:'1 200 000', d:3}
-    ]}
+        {text:'Heute regnet es den ganzen Tag.', a:true, d:1},
+        {text:'In der Wüste ist es das ganze Jahr trocken.', a:false, d:2},
+        {text:'Morgen wird es 25 Grad warm.', a:true, d:1},
+        {text:'Am Nordpol ist es immer kalt.', a:false, d:2},
+        {text:'Gerade weht ein starker Wind.', a:true, d:1},
+        {text:'In Luxemburg gibt es vier Jahreszeiten.', a:false, d:3},
+        {text:'Heute Nacht gibt es Frost.', a:true, d:2},
+        {text:'Im Regenwald regnet es fast täglich.', a:false, d:3}
+      ]}
   }
 );
 
-BADGES.werbung    = {emoji:'🕵️', name:'Werbe-Detektiv'};
-BADGES.videotext  = {emoji:'✍️', name:'Video-Texter'};
-BADGES.netzzahlen = {emoji:'📈', name:'Reichweiten-Rechner'};
+BADGES.tiere    = {emoji:'🦊', name:'Tierkenner'};
+BADGES.pflanzen = {emoji:'🌱', name:'Pflanzenprofi'};
+BADGES.erde     = {emoji:'🌍', name:'Welt-Entdecker'};
 
 /* ================= Nachschub =================
    Mehr Aufgaben je Thema, gestuft nach Schwierigkeit (d:1 leicht, 2 mittel,
@@ -1301,13 +1313,16 @@ BADGES.netzzahlen = {emoji:'📈', name:'Reichweiten-Rechner'};
          steigend). Wer nach der alten Rechnung schon weiter war, bekommt die
          Punkte gutgeschrieben - eine erreichte Stufe nimmt man niemandem weg. */
       /* Die Spaß-Rubrik ist wieder raus - ihre Reste im Speicher mit. */
-      if(!st.spassWeg){
+      if(!st.spassWeg2){
         Object.keys(st.profiles).forEach(function(nm){
           var p=st.profiles[nm]; if(!p) return;
           delete p.galerie;
-          if(p.prog){ ['entwoder','fotoquest','emojiraten'].forEach(function(k){ delete p.prog[k]; }); }
+          if(p.prog){
+            ['entwoder','fotoquest','emojiraten','werbung','videotext','netzzahlen']
+              .forEach(function(k){ delete p.prog[k]; });
+          }
         });
-        st.spassWeg=true;
+        st.spassWeg2=true;
       }
       if(!st.kurveV2){
         Object.keys(st.profiles).forEach(function(nm){
@@ -1543,7 +1558,7 @@ BADGES.netzzahlen = {emoji:'📈', name:'Reichweiten-Rechner'};
     SESSION=picks;
     PLAN=SESSION.map(function(p){
       var def = p.round==='a' ? p.w.a : p.w.b;
-      return { world:p.w, round:p.round, review:p.review, def:def, type:def.type };
+      return { world:p.w, round:p.round, review:p.review, meister:!!p.meister, def:def, type:def.type };
     });
     touchStreak();
     S.screen='play'; S.stop=0; S.item=0; S.phase='intro'; S.result=null; S.typing=false; S.micMsg=null;
@@ -1556,7 +1571,8 @@ BADGES.netzzahlen = {emoji:'📈', name:'Reichweiten-Rechner'};
     startRun(ids.map(function(id){
       var w=WORLDS.filter(function(x){return x.id===id;})[0];
       var lv=levelOf(id);
-      return { w:w, round:roundFor(id), review:lv>=2 };
+      var meister = lv>=2 && lv<3 && meisterFrei();
+      return { w:w, round:roundFor(id), review:lv>=2 && !meister, meister:meister };
     }));
   }
 
@@ -1564,7 +1580,7 @@ BADGES.netzzahlen = {emoji:'📈', name:'Reichweiten-Rechner'};
     SESSION=buildSession();
     PLAN=SESSION.map(function(p){
       var def = p.round==='a' ? p.w.a : p.w.b;
-      return { world:p.w, round:p.round, review:p.review, def:def, type:def.type };
+      return { world:p.w, round:p.round, review:p.review, meister:!!p.meister, def:def, type:def.type };
     });
   }
 
@@ -1603,6 +1619,16 @@ BADGES.netzzahlen = {emoji:'📈', name:'Reichweiten-Rechner'};
   function P(id){ if(!prog[id]) prog[id]={level:0,stars:0,done:0,correct:0,last:null}; return prog[id]; }
   function levelOf(id){ return P(id).level; }
   function earned(){ return WORLDS.filter(function(w){return levelOf(w.id)>=1;}).length; }
+  /* Meister-Modus: Wenn fast alles gemeistert ist oder Stufe 50 erreicht,
+     gibt es für gemeisterte Themen eine dritte, härtere Runde. Nur die
+     schwersten Aufgaben, und bestanden ist erst ab 80 Prozent. */
+  var MEISTER_STUFE=50, MEISTER_ANTEIL=0.8;
+  function meisterFrei(){
+    if(stufeVon(meta.xp)>=MEISTER_STUFE) return true;
+    return mastered() >= Math.ceil(WORLDS.length*MEISTER_ANTEIL);
+  }
+  function superMeister(){ return WORLDS.filter(function(w){ return levelOf(w.id)>=3; }).length; }
+
   function mastered(){ return WORLDS.filter(function(w){return levelOf(w.id)>=2;}).length; }
   function todayStr(){ return new Date().toISOString().slice(0,10); }
 
@@ -1661,21 +1687,25 @@ BADGES.netzzahlen = {emoji:'📈', name:'Reichweiten-Rechner'};
 
   function buildSession(){
     var TARGET=6, picks=[];
-    var bySub={de:[],fr:[],ma:[],me:[]};
+    var bySub={de:[],fr:[],ma:[],wi:[]};
     WORLDS.forEach(function(w){ bySub[w.subject].push(w); });
     // Reihenfolge: Deutsch, Mathe, Französisch abwechselnd
-    var order=['de','ma','fr','me'], pools={};
+    var order=['de','ma','fr','wi'], pools={};
     order.forEach(function(s){
       pools[s]=shuffle(bySub[s]).sort(function(x,y){ return levelOf(x.id)-levelOf(y.id); });
     });
-    var idx={de:0,ma:0,fr:0,me:0}, guard=0;
+    var idx={de:0,ma:0,fr:0,wi:0}, guard=0;
     while(picks.length<TARGET && guard++<60){
       for(var i=0;i<order.length && picks.length<TARGET;i++){
         var s=order[i], pool=pools[s];
         if(idx[s]<pool.length){
           var w=pool[idx[s]++];
           var lv=levelOf(w.id);
-          picks.push({w:w, round: lv===0?'a':(lv===1?'b':(Math.random()<.5?'a':'b')), review: lv>=2});
+          var meister = lv>=2 && lv<3 && meisterFrei();
+          picks.push({ w:w,
+            round: lv===0?'a':(lv===1?'b':(Math.random()<.5?'a':'b')),
+            review: lv>=2 && !meister,
+            meister: meister });
         }
       }
     }
@@ -2162,6 +2192,9 @@ BADGES.netzzahlen = {emoji:'📈', name:'Reichweiten-Rechner'};
       '<p class="hint">'+(lvl>=MAX_STUFE?'Höchste Stufe erreicht':'Noch '+(bis-(meta.xp||0))+' Punkte bis Stufe '+(lvl+1))+
       ' · '+m+' Themen ganz gemeistert ⭐</p></div>'+
       '<p class="hint">Heute dran: '+note+'</p>'+
+      (meisterFrei()?'<div class="ziel meister"><span class="zi">🏆</span><div>'+
+        '<b>Meister-Runden freigeschaltet</b><span>Gemeisterte Themen kommen jetzt mit den schwersten Aufgaben. '+
+        'Ab 80 % richtig wirst du Super-Meister – '+superMeister()+' von '+WORLDS.length+' geschafft.</span></div></div>':'')+
       zielHTML()+
       '<p class="hint" id="cloudLine">'+esc(cloudLabel())+'</p>'+
       (MIC.supported?'':'<p class="hint">Hinweis: Dieser Browser kann nicht diktieren – öffne die Seite in Chrome, Edge oder Safari. Tippen geht überall.</p>')+
@@ -2642,7 +2675,7 @@ BADGES.netzzahlen = {emoji:'📈', name:'Reichweiten-Rechner'};
       h+='<div class="grp"><h3 class="t-'+sub+'">'+SUBJECTS[sub].icon+' '+esc(SUBJECTS[sub].name)+'</h3><div class="topics">';
       WORLDS.filter(function(w){ return w.subject===sub; }).forEach(function(w){
         var p=P(w.id), q=quoteOf(w.id);
-        var stand = p.level>=2?'gemeistert':(p.level>=1?'begonnen':(p.done?'geübt':'noch offen'));
+        var stand = p.level>=3?'Super-Meister':(p.level>=2?'gemeistert':(p.level>=1?'begonnen':(p.done?'geübt':'noch offen')));
         var qs = q>=0? Math.round(q*100)+'% richtig' : 'noch nicht geübt';
         h+='<button class="topic'+(S.pick[w.id]?' on':'')+'" data-a="pt" data-v="'+esc(w.id)+'"'+
            ' aria-pressed="'+(S.pick[w.id]?'true':'false')+'">'+
@@ -2708,8 +2741,8 @@ BADGES.netzzahlen = {emoji:'📈', name:'Reichweiten-Rechner'};
     WORLDS.forEach(function(w){
       var p=P(w.id), b=BADGES[w.id]||{emoji:'⭐',name:w.title};
       var have=p.level>=1;
-      var st = p.level>=2?'⭐⭐ gemeistert':(p.level>=1?'⭐ begonnen':'noch offen');
-      h+='<div class="badge'+(have?' have':'')+'"><span class="em">'+b.emoji+'</span>'+
+      var st = p.level>=3?'🏆 Super-Meister':(p.level>=2?'⭐⭐ gemeistert':(p.level>=1?'⭐ begonnen':'noch offen'));
+      h+='<div class="badge'+(have?' have':'')+(p.level>=3?' meister':'')+'"><span class="em">'+b.emoji+'</span>'+
         '<span class="nm">'+esc(b.name)+'</span><span class="st">'+st+'</span></div>';
     });
     h+='</div></div>';
@@ -2745,7 +2778,7 @@ BADGES.netzzahlen = {emoji:'📈', name:'Reichweiten-Rechner'};
       '</div>'+
       '<div class="tw"><table><thead><tr><th>Fach</th><th>Thema</th><th>Stand</th><th class="num">Aufgaben</th><th class="num">Richtig</th><th class="num">Quote</th><th>Zuletzt</th></tr></thead><tbody>';
     rows.forEach(function(r){
-      var stand = r.stufe>=2?'⭐⭐ gemeistert':(r.stufe>=1?'⭐ begonnen':'offen');
+      var stand = r.stufe>=3?'🏆 Super-Meister':(r.stufe>=2?'⭐⭐ gemeistert':(r.stufe>=1?'⭐ begonnen':'offen'));
       h+='<tr><td>'+esc(r.fach)+'</td><td>'+esc(r.thema)+'</td><td>'+stand+'</td>'+
          '<td class="num">'+r.aufg+'</td><td class="num">'+r.richtig+'</td>'+
          '<td class="num">'+(r.aufg?r.quote+'%':'–')+'</td><td>'+fmtDate(r.last)+'</td></tr>';
@@ -2911,7 +2944,7 @@ BADGES.netzzahlen = {emoji:'📈', name:'Reichweiten-Rechner'};
     tableHead();
     rows.forEach(function(r){
       room(14);
-      var stand = r.stufe>=2?'gemeistert':(r.stufe>=1?'begonnen':'offen');
+      var stand = r.stufe>=3?'Super-Meister':(r.stufe>=2?'gemeistert':(r.stufe>=1?'begonnen':'offen'));
       var cells=[r.fach,r.thema,stand,''+r.aufg,''+r.richtig,(r.aufg?r.quote+'%':'\u2013'),fmtDate(r.last)];
       var x=M,i;
       for(i=0;i<cells.length;i++){ cs.text(x,y,clipTxt(cells[i],cols[i]-6,9,false),9,false,0.15); x+=cols[i]; }
@@ -2944,7 +2977,7 @@ BADGES.netzzahlen = {emoji:'📈', name:'Reichweiten-Rechner'};
     L.push('| Fach | Thema | Stand | Aufgaben | Richtig | Quote | Zuletzt |');
     L.push('|---|---|---|---:|---:|---:|---|');
     rows.forEach(function(r){
-      var stand=r.stufe>=2?'gemeistert':(r.stufe>=1?'begonnen':'offen');
+      var stand=r.stufe>=3?'Super-Meister':(r.stufe>=2?'gemeistert':(r.stufe>=1?'begonnen':'offen'));
       L.push('| '+r.fach+' | '+r.thema+' | '+stand+' | '+r.aufg+' | '+r.richtig+' | '+(r.aufg?r.quote+'%':'\u2013')+' | '+fmtDate(r.last)+' |');
     });
     return L.join('\n')+'\n';
@@ -2955,7 +2988,7 @@ BADGES.netzzahlen = {emoji:'📈', name:'Reichweiten-Rechner'};
     var head=['Fach','Thema','Stand','Aufgaben','Richtig','Quote %','Zuletzt geuebt'];
     var lines=[head.join(sep)];
     reportRows().forEach(function(r){
-      var stand=r.stufe>=2?'gemeistert':(r.stufe>=1?'begonnen':'offen');
+      var stand=r.stufe>=3?'Super-Meister':(r.stufe>=2?'gemeistert':(r.stufe>=1?'begonnen':'offen'));
       lines.push([r.fach,r.thema,stand,r.aufg,r.richtig,(r.aufg?r.quote:''),fmtDate(r.last)].join(sep));
     });
     lines.push('');
@@ -3050,7 +3083,7 @@ BADGES.netzzahlen = {emoji:'📈', name:'Reichweiten-Rechner'};
   var ANZAHL={ choice:4, input:4, order:3, sort:6, match:4, frei:1 };
 
   function baueStop(st){
-    var d=st.def, w=st.world, band=stufeDerAufgaben(w);
+    var d=st.def, w=st.world, band=st.meister?3:stufeDerAufgaben(w);
     if(d.type==='story'){
       var vs=varianten(d);
       var gewaehlt=ziehe(vs.map(function(v){ return {story:v.story, d:v.d||1, _v:v}; }),1,band,w.id)[0];
@@ -3088,7 +3121,7 @@ BADGES.netzzahlen = {emoji:'📈', name:'Reichweiten-Rechner'};
   function head(){
     var st=stop(), sub=SUBJECTS[st.world.subject];
     return '<div class="tag t-'+st.world.subject+'"><span>'+sub.icon+'</span>'+esc(sub.name)+' · '+esc(st.world.title)+
-      (st.review?' · Wiederholung':'')+'</div>'+
+      (st.meister?' · 🏆 Meister-Runde':(st.review?' · Wiederholung':''))+'</div>'+
       '<p class="hint">Station '+(S.stop+1)+' von '+PLAN.length+
       (items().length?(' · Aufgabe '+(S.item+1)+' von '+items().length):'')+'</p>';
   }
@@ -3360,9 +3393,11 @@ BADGES.netzzahlen = {emoji:'📈', name:'Reichweiten-Rechner'};
     var st=stop(), w=st.world, p=P(w.id);
     p.done += S.roundTotal; p.correct += S.roundCorrect; p.last=new Date().toISOString();
     var q = S.roundTotal? S.roundCorrect/S.roundTotal : 0;
-    var passed = q>=0.6;
+    var passed = q >= (st.meister?0.8:0.6);
     var newBadge=false;
-    if(passed && !st.review){
+    if(passed && st.meister){
+      if(p.level<3){ p.level=3; newBadge=true; }
+    } else if(passed && !st.review){
       if(st.round==='a' && p.level<1){ p.level=1; newBadge=true; }
       else if(st.round==='b' && p.level<2){ p.level=2; newBadge=true; }
     }
@@ -3377,6 +3412,7 @@ BADGES.netzzahlen = {emoji:'📈', name:'Reichweiten-Rechner'};
     /* Achtung: xpFaktor 0 ist falsy - mit ||1 bekäme die Spaß-Rubrik
        volle Punkte. Darum ausdrücklich auf null prüfen. */
     var faktor = (w.xpFaktor==null) ? 1 : w.xpFaktor;
+    if(st.meister) faktor *= 1.5;                 /* schwerer, also mehr wert */
     S.gainXP=(S.gainXP||0)+Math.round((S.roundCorrect*10+(passed?25:0))*faktor);
     S.roundCorrect=0; S.roundTotal=0;
   }
