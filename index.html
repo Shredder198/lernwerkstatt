@@ -244,11 +244,6 @@
   .tw{ overflow-x:auto; -webkit-overflow-scrolling:touch; }
   td.num,th.num{ text-align:right; font-variant-numeric:tabular-nums; white-space:nowrap; }
 
-  .tips{ margin:0; padding-left:1.2rem; color:var(--soft); font-size:.9rem; line-height:1.7; }
-  .tips li{ margin-bottom:.15rem; }
-  .freitext{ font-family:inherit !important; font-size:1.05rem !important; min-height:9rem !important;
-    line-height:1.7 !important; }
-
   textarea{ width:100%; min-height:7rem; font-family:ui-monospace,Menlo,Consolas,monospace;
     font-size:.78rem; line-height:1.5; border:1.5px solid var(--line); border-radius:var(--r-s);
     padding:.7rem; background:var(--sunk); color:var(--ink); }
@@ -1757,7 +1752,7 @@ BADGES.erde     = {emoji:'🌍', name:'Welt-Entdecker'};
     if(!pool.length) return;
     S.blitz={ pool:pool, i:0, correct:0, wrong:0, picked:null,
               endsAt:Date.now()+BLITZ_S*1000, over:false, timer:null, hop:null };
-    S.screen='blitz'; render(); musikStart();
+    S.screen='blitz'; render();
     S.blitz.timer=setInterval(blitzTick,200);
   }
   function blitzTick(){
@@ -1777,13 +1772,13 @@ BADGES.erde     = {emoji:'🌍', name:'Welt-Entdecker'};
     meta.blitzRuns=(meta.blitzRuns|0)+1;
     meta.xp=(meta.xp||0)+b.correct*5; merkeStufe();
     save(K_META,meta); syncSoon();
-    musikStop(); S.screen='blitzend'; render();
+    S.screen='blitzend'; render();
   }
   function blitzAnswer(v){
     var b=S.blitz; if(!b||b.over||b.picked!=null) return;
     var cur=b.pool[b.i];
     b.picked=v;
-    if(v===cur.it.correct){ b.correct++; tonRichtig(); } else { b.wrong++; tonFalsch(); }
+    if(v===cur.it.correct) b.correct++; else b.wrong++;
     render();
     b.hop=setTimeout(function(){
       if(!S.blitz||S.blitz.over) return;
@@ -1804,7 +1799,7 @@ BADGES.erde     = {emoji:'🌍', name:'Welt-Entdecker'};
         save(K_META,meta); syncSoon();
       }
     }
-    musikStop(); S.blitz=null; S.screen='home'; render();
+    S.blitz=null; S.screen='home'; render();
   }
 
   /* ================= Zustand ================= */
@@ -1842,82 +1837,6 @@ BADGES.erde     = {emoji:'🌍', name:'Welt-Entdecker'};
   /* Fehler, nach denen Sprechen dauerhaft keinen Sinn mehr hat */
   var MIC_FATAL={unsupported:1,blocked:1,'not-allowed':1,'service-not-allowed':1,nomic:1,'audio-capture':1,embedded:1};
 
-
-  /* ================= Töne =================
-     Alles wird im Browser erzeugt - keine Musikdateien, nichts zu laden,
-     funktioniert auch offline. Leise gehalten: Es soll begleiten, nicht
-     übertönen. Der Lautsprecher-Knopf oben schaltet alles stumm. */
-  var AC=null, musikTakt=null, musikSchritt=0;
-
-  function ac(){
-    if(AC) return AC;
-    try{
-      var K=window.AudioContext||window.webkitAudioContext;
-      if(!K) return null;
-      AC=new K();
-    }catch(e){ AC=null; }
-    return AC;
-  }
-  /* iOS gibt Ton erst nach einer echten Berührung frei. */
-  function audioAufwecken(){
-    var a=ac();
-    if(a && a.state==='suspended'){ try{ a.resume(); }catch(e){} }
-  }
-  function toeneAn(){ return !S.muted && store.toene!==false; }
-  function musikErlaubt(){ return !S.muted && store.musik!==false; }
-
-  function ton(freq, ab, dauer, laut, form){
-    var a=ac(); if(!a) return;
-    try{
-      var o=a.createOscillator(), g=a.createGain();
-      var t0=a.currentTime+ab;
-      o.type=form||'sine';
-      o.frequency.setValueAtTime(freq,t0);
-      g.gain.setValueAtTime(0.0001,t0);
-      g.gain.linearRampToValueAtTime(laut,t0+0.02);
-      g.gain.exponentialRampToValueAtTime(0.0001,t0+dauer);
-      o.connect(g); g.connect(a.destination);
-      o.start(t0); o.stop(t0+dauer+0.05);
-    }catch(e){}
-  }
-
-  function tonRichtig(){
-    if(!toeneAn()) return;
-    ton(523.25,0,0.16,0.10);      /* c' */
-    ton(659.25,0.08,0.16,0.10);   /* e' */
-    ton(783.99,0.16,0.30,0.11);   /* g' */
-  }
-  function tonFalsch(){
-    /* Bewusst weich - ein Fehler soll nicht wie eine Strafe klingen. */
-    if(!toeneAn()) return;
-    ton(392.00,0,0.14,0.07,'triangle');
-    ton(329.63,0.10,0.26,0.07,'triangle');
-  }
-  function tonStufe(){
-    if(!toeneAn()) return;
-    [[523.25,0],[659.25,0.10],[783.99,0.20],[1046.50,0.32]].forEach(function(p){
-      ton(p[0],p[1],0.36,0.12);
-    });
-  }
-
-  /* Ruhige Begleitung während der Challenges: ein paar Töne im Kreis. */
-  var MUSIK=[130.81,164.81,196.00,261.63,196.00,164.81,196.00,164.81];
-  function musikStart(){
-    musikStop();
-    if(!musikErlaubt()) return;
-    if(!ac()) return;
-    musikSchritt=0;
-    musikTakt=setInterval(function(){
-      if(!musikErlaubt()){ musikStop(); return; }
-      var f=MUSIK[musikSchritt%MUSIK.length];
-      ton(f,0,0.55,0.045,'triangle');
-      if(musikSchritt%4===0) ton(f*2,0.02,0.35,0.022,'sine');
-      musikSchritt++;
-    },470);
-  }
-  function musikStop(){
-    if(musikTakt){ clearInterval(musikTakt); musikTakt=null; }
-  }
 
   /* ---------- Vorlesen ----------
      Drei Dinge machten es vorher hölzern: eine beliebige Stimme, ein
@@ -2269,14 +2188,6 @@ BADGES.erde     = {emoji:'🌍', name:'Welt-Entdecker'};
       '<button class="btn g" data-a="probe" data-l="fr-FR">🔊 Französisch testen</button></div>'+
       '<p class="hint">'+esc(stimmenLage())+'</p>'+
       '</div><div class="sect">'+
-      '<h3>Töne</h3>'+
-      '<p class="hint">Kurze Töne bei Antworten und leise Musik in Blitzrunde, Serie und Zahlen-Sprint.</p>'+
-      '<div class="row">'+
-      '<button class="btn '+(store.toene!==false?'p':'g')+'" data-a="toene">Antwort-Töne: '+(store.toene!==false?'an':'aus')+'</button>'+
-      '<button class="btn '+(store.musik!==false?'p':'g')+'" data-a="musik">Musik: '+(store.musik!==false?'an':'aus')+'</button>'+
-      '</div>'+
-      '<p class="hint">Der Lautsprecher oben in der Kopfzeile schaltet alles zusammen stumm.</p>'+
-      '</div><div class="sect">'+
       '<h3>Großes Ziel</h3>'+
       '<p class="hint">Alle zehn Stufen gibt es etwas. Trag ein, was bei euch gilt – leer lassen nimmt den Vorschlag.</p>'+
       '<div class="rewlist">'+
@@ -2360,14 +2271,14 @@ BADGES.erde     = {emoji:'🌍', name:'Welt-Entdecker'};
     var pool=blitzPool();
     if(!pool.length) return;
     S.serie={ pool:pool, i:0, streak:0, picked:null, over:false, hop:null };
-    S.screen='serie'; render(); musikStart();
+    S.screen='serie'; render();
   }
   function serieAnswer(v){
     var g=S.serie; if(!g||g.over||g.picked!=null) return;
     var cur=g.pool[g.i];
     g.picked=v;
     var ok = v===cur.it.correct;
-    if(ok){ g.streak++; tonRichtig(); } else tonFalsch();
+    if(ok) g.streak++;
     render();
     g.hop=setTimeout(function(){
       if(!S.serie||S.serie.over) return;
@@ -2383,7 +2294,7 @@ BADGES.erde     = {emoji:'🌍', name:'Welt-Entdecker'};
     meta.serieBest=Math.max(meta.serieBest|0, g.streak);
     meta.xp=(meta.xp||0)+g.streak*5; merkeStufe();
     save(K_META,meta); syncSoon();
-    musikStop(); S.screen='serieend'; render();
+    S.screen='serieend'; render();
   }
   function serieQuit(){
     var g=S.serie;
@@ -2396,7 +2307,7 @@ BADGES.erde     = {emoji:'🌍', name:'Welt-Entdecker'};
         save(K_META,meta); syncSoon();
       }
     }
-    musikStop(); S.serie=null; S.screen='home'; render();
+    S.serie=null; S.screen='home'; render();
   }
 
   function vSerie(){
@@ -2451,7 +2362,7 @@ BADGES.erde     = {emoji:'🌍', name:'Welt-Entdecker'};
   function sprintStart(){
     S.sprint={ task:sprintTask(), correct:0, wrong:0, endsAt:Date.now()+SPRINT_S*1000,
                over:false, timer:null, flash:null };
-    S.screen='sprint'; render(); musikStart();
+    S.screen='sprint'; render();
     S.sprint.timer=setInterval(sprintTick,200);
     var i=document.getElementById('spIn'); if(i) i.focus();
   }
@@ -2468,8 +2379,8 @@ BADGES.erde     = {emoji:'🌍', name:'Welt-Entdecker'};
     var i=document.getElementById('spIn');
     var v=parseNum(i?i.value:'');
     if(v===null){ if(i){ i.value=''; i.focus(); } return; }
-    if(Math.abs(v-g.task.a)<1e-9){ g.correct++; g.flash='ok'; tonRichtig(); }
-    else { g.wrong++; g.flash='no'; tonFalsch(); }
+    if(Math.abs(v-g.task.a)<1e-9){ g.correct++; g.flash='ok'; }
+    else { g.wrong++; g.flash='no'; }
     g.task=sprintTask();
     render();
     var ni=document.getElementById('spIn'); if(ni){ ni.value=''; ni.focus(); }
@@ -2480,7 +2391,7 @@ BADGES.erde     = {emoji:'🌍', name:'Welt-Entdecker'};
     meta.sprintBest=Math.max(meta.sprintBest|0, g.correct);
     meta.xp=(meta.xp||0)+g.correct*5; merkeStufe();
     save(K_META,meta); syncSoon();
-    musikStop(); S.screen='sprintend'; render();
+    S.screen='sprintend'; render();
   }
   function sprintQuit(){
     var g=S.sprint;
@@ -2493,7 +2404,7 @@ BADGES.erde     = {emoji:'🌍', name:'Welt-Entdecker'};
         save(K_META,meta); syncSoon();
       }
     }
-    musikStop(); S.sprint=null; S.screen='home'; render();
+    S.sprint=null; S.screen='home'; render();
   }
   function vSprint(){
     var g=S.sprint;
@@ -3080,7 +2991,7 @@ BADGES.erde     = {emoji:'🌍', name:'Welt-Entdecker'};
     return kopie;
   }
 
-  var ANZAHL={ choice:4, input:4, order:3, sort:6, match:4, frei:1 };
+  var ANZAHL={ choice:4, input:4, order:3, sort:6, match:4 };
 
   function baueStop(st){
     var d=st.def, w=st.world, band=st.meister?3:stufeDerAufgaben(w);
@@ -3291,31 +3202,6 @@ BADGES.erde     = {emoji:'🌍', name:'Welt-Entdecker'};
     return h;
   }
 
-  /* Freies Schreiben: Hier gibt es kein Richtig im Sinne einer Lösung.
-     Gewertet wird, ob wirklich geschrieben wurde - beurteilen darf das
-     Kind sich danach selbst an einer Merkliste. */
-  function vFrei(){
-    var st=stop(), d=st.def, it=item(), r=S.result;
-    var min=it.min||120;
-    var h=head()+'<p class="hint">'+esc(d.prompt||'')+'</p>'+
-      '<div class="prompt">'+esc(it.q)+'</div>';
-    if(it.hinweise && it.hinweise.length){
-      h+='<ul class="tips">'+it.hinweise.map(function(x){ return '<li>'+esc(x)+'</li>'; }).join('')+'</ul>';
-    }
-    if(!r){
-      h+='<textarea id="freiIn" class="freitext" placeholder="Schreib hier los …"></textarea>'+
-         '<p class="hint" id="freiZaehler">Mindestens '+min+' Zeichen.</p>'+
-         '<div class="row"><span class="sp"></span><button class="btn p" data-a="freiok">Fertig</button></div>';
-      return h;
-    }
-    h+='<div class="passage" style="font-size:1rem">'+esc(r.said||'')+'</div>'+
-       (r.ok?'<div class="fb ok">⭐ '+kudos()+' '+r.zeichen+' Zeichen geschrieben.</div>'
-            :'<div class="fb no">Das war noch sehr kurz. Beim nächsten Mal ruhig mehr aufschreiben.</div>')+
-       '<p class="hint">Lies noch einmal durch: Sind alle Punkte oben vorgekommen? Stimmen die Satzanfänge und die Punkte am Satzende?</p>';
-    return h+nav(true);
-  }
-
-
   function vPlay(){
     var t=stop().def.type;
     if(t==='choice') return '<div class="card">'+vChoice()+'</div>';
@@ -3324,7 +3210,6 @@ BADGES.erde     = {emoji:'🌍', name:'Welt-Entdecker'};
     if(t==='order')  return '<div class="card">'+vOrder()+'</div>';
     if(t==='match')  return '<div class="card">'+vMatch()+'</div>';
     if(t==='sort')   return '<div class="card">'+vSort()+'</div>';
-    if(t==='frei')   return '<div class="card">'+vFrei()+'</div>';
     return '<div class="card">Unbekannte Aufgabe</div>';
   }
 
@@ -3385,8 +3270,7 @@ BADGES.erde     = {emoji:'🌍', name:'Welt-Entdecker'};
 
   function recordAnswer(ok){
     S.roundTotal++; S.sessionTotal++;
-    if(ok){ S.roundCorrect++; S.sessionCorrect++; tonRichtig(); }
-    else tonFalsch();
+    if(ok){ S.roundCorrect++; S.sessionCorrect++; }
   }
 
   function finishStop(){
@@ -3431,7 +3315,6 @@ BADGES.erde     = {emoji:'🌍', name:'Welt-Entdecker'};
       save(K_META,meta);
       syncSoon();
       S.screen='finish'; render();
-      if(faelligeMeile(stufeVon(meta.xp))) tonStufe();
       cloudSave(function(){ paintCloudLine(); });
     }
   }
@@ -3482,16 +3365,12 @@ BADGES.erde     = {emoji:'🌍', name:'Welt-Entdecker'};
     var t=ev.target.closest('[data-a],#go,#again,#toColl,#toRep,#back,#pr,#pdf,#csv,#cloud,#stExp,#stImp,#stCode,#stRead,#doRen,#doDel,#doDelNo,#doReset,#doResetNo,#doDiag,#stShare,#rewSave,#syOn,#syNow,#syOff,#avPick,#avDrop,#toPick,#toBlitz,#toSerie,#toSprint,#zielOk,#bSet,#nmMic,#bPlus,#bMinus,#bSound,#bTheme');
     if(!t) return;
     var now=Date.now(); if(now-lastClick<220) return; lastClick=now;
-    audioAufwecken();
 
     if(t.id==='bPlus'){ S.scale=Math.min(1.4,+(S.scale+0.1).toFixed(2)); render(); return; }
     if(t.id==='bMinus'){ S.scale=Math.max(.85,+(S.scale-0.1).toFixed(2)); render(); return; }
     if(t.id==='bSound'){
       S.muted=!S.muted;
-      if(S.muted){
-        musikStop();
-        if(window.speechSynthesis) speechSynthesis.cancel();
-      }
+      if(S.muted && window.speechSynthesis) speechSynthesis.cancel();
       render(); return;
     }
     if(t.id==='bTheme'){
@@ -3697,7 +3576,7 @@ BADGES.erde     = {emoji:'🌍', name:'Welt-Entdecker'};
     if(a==='spnew'){ sprintStart(); return; }
     if(a==='bzquit'){ blitzQuit(); return; }
     if(a==='bzagain'){ blitzStart(); return; }
-    if(a==='bzhome'){ musikStop(); S.blitz=null; S.screen='home'; render(); return; }
+    if(a==='bzhome'){ S.blitz=null; S.screen='home'; render(); return; }
     if(a==='av'){
       var err=setAvatar(store.active,t.getAttribute('data-v'));
       render(); paintPfLine(err||'');
@@ -3707,18 +3586,6 @@ BADGES.erde     = {emoji:'🌍', name:'Welt-Entdecker'};
       var l=t.getAttribute('data-l')||'de-DE';
       speak(l==='fr-FR' ? "Bonjour ! Aujourd'hui, la classe visite la ferme. Les élèves voient des vaches et deux chevaux."
                         : 'Guten Tag! Heute üben wir zusammen. Der Hund lief über die Wiese und bellte zweimal.', l);
-      return;
-    }
-    if(a==='toene'){
-      store.toene = (store.toene===false);
-      persist(); render();
-      if(store.toene!==false) tonRichtig();
-      return;
-    }
-    if(a==='musik'){
-      store.musik = (store.musik===false);
-      persist(); render();
-      if(store.musik!==false){ musikStart(); setTimeout(musikStop,2400); }
       return;
     }
     if(a==='tempo'){
@@ -3777,16 +3644,6 @@ BADGES.erde     = {emoji:'🌍', name:'Welt-Entdecker'};
       return;
     }
 
-    if(a==='freiok'){
-      var ta=document.getElementById('freiIn');
-      var txt=(ta?ta.value:'').trim();
-      var it=item(), min=it.min||120;
-      var saetzeZahl=(txt.match(/[.!?]/g)||[]).length;
-      var ok = txt.length>=min && saetzeZahl>=2;
-      S.result={ said:txt||'(nichts geschrieben)', ok:ok, zeichen:txt.length };
-      recordAnswer(ok);
-      render(); return;
-    }
     if(a==='ord'){
       var w=t.getAttribute('data-v');
       var sol=item().solution, k=S.order.picked.length;
@@ -3827,16 +3684,6 @@ BADGES.erde     = {emoji:'🌍', name:'Welt-Entdecker'};
       else if(d2.type==='order' && S.order.picked.length<item().solution.length){ recordAnswer(false); }
       advance(); return;
     }
-  });
-
-  document.addEventListener('input',function(ev){
-    var t=ev.target;
-    if(!t || t.id!=='freiIn') return;
-    var z=document.getElementById('freiZaehler');
-    if(!z) return;
-    var it=item(), min=(it&&it.min)||120, len=t.value.trim().length;
-    z.textContent = len>=min ? (len+' Zeichen – das reicht. Gern noch mehr.')
-                             : ('Noch '+(min-len)+' Zeichen bis zum Ziel.');
   });
 
   document.addEventListener('change',function(ev){
