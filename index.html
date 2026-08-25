@@ -10,6 +10,9 @@
 <meta name="apple-mobile-web-app-title" content="Lernwerkstatt">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <title>Lernwerkstatt · Deutsch, Französisch &amp; Mathe</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" href="icon-192.png" sizes="192x192" type="image/png">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600;700&display=swap">
 <style>
   :root{
@@ -2243,6 +2246,12 @@ BADGES.erde     = {emoji:'🌍', name:'Welt-Entdecker'};
     try{ alsApp = (window.navigator.standalone===true) ||
       (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches); }catch(e){}
     rows.push(['Läuft als', alsApp?'App vom Home-Bildschirm':'Seite im Browser']);
+    var offlineBereit='nein';
+    try{
+      if('serviceWorker' in navigator && navigator.serviceWorker.controller) offlineBereit='ja';
+      else if('serviceWorker' in navigator) offlineBereit='wird eingerichtet';
+    }catch(e){}
+    rows.push(['Offline nutzbar', offlineBereit + (navigator.onLine===false?' · gerade offline':'')]);
     rows.push(['Automatische Sicherung', syncOn()?(syncState==='fehler'?'verbunden, Server antwortet nicht':'an'):'aus']);
     rows.push(['Letzte Sicherung', store.lastBackup?fmtDate(store.lastBackup)
       +' · seitdem '+(store.runsSinceBackup|0)+' Runden' : 'noch keine']);
@@ -3737,6 +3746,19 @@ BADGES.erde     = {emoji:'🌍', name:'Welt-Entdecker'};
     var el=document.getElementById('cloudLine');
     if(el) el.textContent = txt || cloudLabel();
   }
+
+  /* ---------- Offline ----------
+     Der Service Worker legt die App im Gerät ab. Im Artefakt-Fenster ist
+     das gesperrt, darum still scheitern statt Fehler werfen. */
+  (function(){
+    if(!('serviceWorker' in navigator)) return;
+    if(location.protocol!=='https:' && location.hostname!=='localhost') return;
+    try{
+      window.addEventListener('load', function(){
+        navigator.serviceWorker.register('sw.js').catch(function(){});
+      });
+    }catch(e){}
+  })();
 
   render();
   /* Erst zeichnen, dann den geräteübergreifenden Stand nachladen: die App
