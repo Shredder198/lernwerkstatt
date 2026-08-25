@@ -120,7 +120,6 @@
   .tag.t-fr{ color:var(--blue); }
   .tag.t-ma{ color:var(--clay); }
   .tag.t-me{ color:var(--lila); }
-  .tag.t-sp{ color:var(--pink); }
   .prompt{ font-size:1.3rem; font-weight:700; line-height:1.55; text-wrap:balance; }
   .passage{ font-size:1.12rem; line-height:1.9; background:var(--sunk);
     border:1px solid var(--line); border-left:4px solid var(--accent);
@@ -241,26 +240,6 @@
   .tw{ overflow-x:auto; -webkit-overflow-scrolling:touch; }
   td.num,th.num{ text-align:right; font-variant-numeric:tabular-nums; white-space:nowrap; }
 
-  .entw{ display:flex; flex-direction:column; align-items:stretch; gap:.5rem; }
-  .entwb{ font-family:Lexend,"Segoe UI",system-ui,sans-serif; font-size:1.05rem; font-weight:600;
-    padding:1.3rem 1rem; border-radius:var(--r-m); border:2px solid var(--line);
-    background:var(--sunk); color:var(--ink); cursor:pointer; line-height:1.4; }
-  .entwb:hover:not(:disabled){ border-color:var(--pink); }
-  .entwb.on{ background:color-mix(in srgb,var(--pink) 18%,var(--raised)); border-color:var(--pink); }
-  .entwo{ text-align:center; font-size:.85rem; color:var(--soft); letter-spacing:.08em; }
-  .fotoauf{ display:flex; flex-direction:column; gap:.6rem; align-items:center; }
-  .fotoauf img{ width:12rem; height:12rem; object-fit:cover; border-radius:var(--r-m); border:1px solid var(--line); }
-  .fotoleer{ width:12rem; height:12rem; border-radius:var(--r-m); border:2px dashed var(--line);
-    display:flex; align-items:center; justify-content:center; color:var(--soft); font-size:.85rem; text-align:center; }
-  .fotokarte{ display:flex; flex-direction:column; gap:.5rem; align-items:center; }
-  .fotokarte img{ width:14rem; height:14rem; object-fit:cover; border-radius:var(--r-m); }
-  .galgrid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(9rem,1fr)); gap:.7rem; }
-  .galitem{ margin:0; display:flex; flex-direction:column; gap:.4rem; background:var(--sunk);
-    border:1px solid var(--line); border-radius:var(--r-m); padding:.5rem; }
-  .galitem img{ width:100%; aspect-ratio:1/1; object-fit:cover; border-radius:var(--r-s); }
-  .galitem figcaption{ font-size:.82rem; line-height:1.5; }
-  .galitem figcaption span{ display:block; color:var(--soft); font-size:.72rem; margin-top:.2rem; }
-
   .tips{ margin:0; padding-left:1.2rem; color:var(--soft); font-size:.9rem; line-height:1.7; }
   .tips li{ margin-bottom:.15rem; }
   .freitext{ font-family:inherit !important; font-size:1.05rem !important; min-height:9rem !important;
@@ -357,9 +336,6 @@
     border-radius:var(--r-s); border:1.5px solid var(--line); background:var(--sunk); color:var(--ink); }
   .rewrow input:focus{ border-color:var(--accent); }
   .ziel span+span{ display:block; margin-top:.15rem; }
-
-  .act-sp .ai{ filter:none; }
-  .act-sp{ border-color:color-mix(in srgb,var(--pink) 45%,var(--line)); }
 
   .ziel{ display:flex; gap:.7rem; align-items:flex-start; padding:.85rem .95rem;
     border-radius:var(--r-m); background:linear-gradient(165deg,color-mix(in srgb,var(--gold) 15%,var(--raised)),var(--raised));
@@ -733,8 +709,7 @@ var SUBJECTS = {
   de:{name:'Deutsch', color:'#2F7A5E', icon:'🇩🇪'},
   fr:{name:'Französisch', color:'#2E6E8E', icon:'🇫🇷'},
   ma:{name:'Mathematik', color:'#B5652F', icon:'🔢'},
-  me:{name:'Medien', color:'#7A4FA3', icon:'📱'},
-  sp:{name:'Spaß', color:'#C2185B', icon:'🎉'}
+  me:{name:'Medien', color:'#7A4FA3', icon:'📱'}
 };
 
 /* ================= Rubrik Medien =================
@@ -827,112 +802,6 @@ WORLDS.push(
 BADGES.werbung    = {emoji:'🕵️', name:'Werbe-Detektiv'};
 BADGES.videotext  = {emoji:'✍️', name:'Video-Texter'};
 BADGES.netzzahlen = {emoji:'📈', name:'Reichweiten-Rechner'};
-
-/* ================= Spaß =================
-   Kein Lernstoff, keine Punkte (xpFaktor 0). Abzeichen gibt es trotzdem -
-   die machen ja Spaß. */
-WORLDS.push(
-  {
-    id:'entwoder', subject:'sp', icon:'🎭', color:'#C2185B', xpFaktor:0,
-    title:'Entweder – oder', sub:'Unmögliche Entscheidungen',
-    a:{ type:'entweder', prompt:'Es gibt kein Richtig. Tippe einfach an, was du nehmen würdest.',
-      items:[
-        {q:'Was wählst du?', a:'Eine Woche ohne Handy', b:'Eine Woche ohne Süßigkeiten',
-         reaktion:{a:'Mutig! Und ehrlich gesagt: gesünder.', b:'Streng. Der Zahnarzt applaudiert.'}, d:1},
-        {q:'Was wählst du?', a:'Fliegen können', b:'Unsichtbar sein',
-         reaktion:{a:'Über dem Stau schweben – kluge Wahl.', b:'Denk dran: Deine Schuhe sieht man trotzdem.'}, d:1},
-        {q:'Was wählst du?', a:'Immer 10 Minuten zu früh', b:'Immer 5 Minuten zu spät',
-         reaktion:{a:'Deine Lehrerin mag dich jetzt schon.', b:'Klassiker. Aber gefährlich.'}, d:1},
-        {q:'Was wählst du?', a:'Nur noch Pizza essen', b:'Nie wieder Pizza essen',
-         reaktion:{a:'Nach Woche drei wird es schwierig.', b:'Hart. Sehr hart.'}, d:1},
-        {q:'Was wählst du?', a:'Mit Tieren sprechen können', b:'Alle Sprachen der Welt können',
-         reaktion:{a:'Dein Hund hat dir einiges zu sagen.', b:'Praktisch – auch im Französischtest.'}, d:2},
-        {q:'Was wählst du?', a:'Ein Jahr Sommerferien', b:'Jeden Tag ein neues Spiel',
-         reaktion:{a:'Nach drei Monaten wird dir langweilig. Versprochen.', b:'Dein Daumen braucht Urlaub.'}, d:1},
-        {q:'Was wählst du?', a:'Berühmt sein', b:'Reich sein',
-         reaktion:{a:'Dann aber nie mehr in Ruhe Eis essen.', b:'Und was kaufst du zuerst?'}, d:2},
-        {q:'Was wählst du?', a:'Immer die Wahrheit sagen müssen', b:'Immer alles glauben müssen',
-         reaktion:{a:'Anstrengend, aber ehrlich.', b:'Das wird teuer im Internet.'}, d:3},
-        {q:'Was wählst du?', a:'Rückwärts laufen', b:'Rückwärts sprechen',
-         reaktion:{a:'Nedrew rewhcs eid negeW.', b:'!gitraßamleiz rheS'}, d:2},
-        {q:'Was wählst du?', a:'Hausaufgaben für immer weg', b:'Nie wieder krank werden',
-         reaktion:{a:'Und was machst du mit der ganzen Zeit?', b:'Weise. Sehr weise.'}, d:2},
-        {q:'Was wählst du?', a:'Auf dem Mond wohnen', b:'Unter Wasser wohnen',
-         reaktion:{a:'Der Ausblick wäre unschlagbar.', b:'Nachbarn: Fische. Ziemlich ruhig.'}, d:2},
-        {q:'Was wählst du?', a:'Nur flüstern können', b:'Nur rufen können',
-         reaktion:{a:'Im Unterricht ein Vorteil.', b:'IM UNTERRICHT EHER NICHT.'}, d:3}
-      ]},
-    b:{ type:'choice', prompt:'Kleines Quatsch-Quiz.', items:[
-      {q:'Was ergibt ein Video über Socken, wenn es keiner anschaut?', options:['Trotzdem ein Video','Gar nichts','Ein Geräusch'], correct:'Trotzdem ein Video', d:1},
-      {q:'Wie viele Daumen braucht man zum Scrollen?', options:['Einen','Zwei','Keinen'], correct:'Einen', d:1},
-      {q:'Was passiert, wenn du ein Selfie im Dunkeln machst?', options:['Ein dunkles Selfie','Ein Blitz','Nichts'], correct:'Ein dunkles Selfie', d:1},
-      {q:'Wie lang ist eine gefühlte Minute Warten auf ein Video?', options:['Ewig','Eine Minute','Zwei Sekunden'], correct:'Ewig', d:2},
-      {q:'Wie viele Katzenvideos passen in einen Nachmittag?', options:['Zu viele','Genau sieben','Keine'], correct:'Zu viele', d:2},
-      {q:'Was ist das beste Ende für ein Video über Pfannkuchen?', options:['Aufessen','Wegwerfen','Einfrieren'], correct:'Aufessen', d:1}
-    ]}
-  },
-  {
-    id:'fotoquest', subject:'sp', icon:'📸', color:'#C2185B', xpFaktor:0,
-    title:'Foto-Challenge', sub:'Knipsen und zwei Sätze dazu',
-    a:{ type:'foto', prompt:'Mach ein Foto und schreib zwei Sätze dazu. Die Fotos bleiben auf deinem Gerät.',
-      items:[
-        {q:'📸 Fotografiere das verrückteste Sockenpaar, das du finden kannst.', d:1},
-        {q:'📸 Fotografiere etwas Blaues, das kleiner ist als deine Hand.', d:1},
-        {q:'📸 Baue einen Turm aus fünf Dingen und fotografiere ihn.', d:1},
-        {q:'📸 Fotografiere dein Frühstück wie ein Profi – von oben.', d:2},
-        {q:'📸 Finde ein Gesicht an einem Gegenstand (Steckdose, Auto, Tasche) und fotografiere es.', d:2},
-        {q:'📸 Fotografiere deinen Schreibtisch – erst unaufgeräumt, dann aufgeräumt. Nimm das schönere Bild.', d:2},
-        {q:'📸 Fotografiere etwas, das dich zum Lachen bringt.', d:1},
-        {q:'📸 Mach ein Foto, auf dem etwas viel größer aussieht, als es ist.', d:3},
-        {q:'📸 Fotografiere den Blick aus einem Fenster bei dir zu Hause.', d:1},
-        {q:'📸 Stelle ein Lieblingsbuch oder Spiel so hin, dass es wie ein Filmplakat aussieht.', d:3}
-      ]},
-    b:{ type:'frei', prompt:'Schreiben statt knipsen – erfinde einfach drauflos.',
-      items:[
-        {q:'Erfinde einen Kanalnamen für dich und erkläre in zwei Sätzen, worum es ginge.',
-         hinweise:['Der Name','Das Thema','Warum jemand zuschauen würde'], min:100, d:1},
-        {q:'Denk dir das dümmste Video-Thema aus, das du dir vorstellen kannst – und beschreibe es ernst.',
-         hinweise:['Der Titel','Was passiert','Wie es endet'], min:110, d:2},
-        {q:'Schreibe die ersten drei Sätze, die du in deinem allerersten Video sagen würdest.',
-         hinweise:['Begrüßung','Worum es geht','Warum es lustig wird'], min:100, d:1},
-        {q:'Beschreibe einen Tag aus der Sicht deines Handys.',
-         hinweise:['Morgens','Mittags','Abends'], min:130, d:3},
-        {q:'Erfinde eine Challenge, die es noch nicht gibt, und erkläre die Regeln.',
-         hinweise:['Der Name','Die Regeln','Wer gewinnt'], min:130, d:2}
-      ]}
-  },
-  {
-    id:'emojiraten', subject:'sp', icon:'🧩', color:'#C2185B', xpFaktor:0,
-    title:'Emoji-Rätsel', sub:'Worum geht es in dem Video?',
-    a:{ type:'choice', prompt:'Rate am Emoji-Titel, worum es geht.', items:[
-      {q:'🐕 🎾 🏃 — worum geht es?', options:['Hundetricks','Tennisregeln','Marathon'], correct:'Hundetricks', d:1},
-      {q:'🥞 🍯 😋 — worum geht es?', options:['Pfannkuchen backen','Bienen halten','Zähne putzen'], correct:'Pfannkuchen backen', d:1},
-      {q:'⚽ 🥅 🤾 — worum geht es?', options:['Torschuss-Tricks','Handball-Regeln','Netze knüpfen'], correct:'Torschuss-Tricks', d:1},
-      {q:'📚 🌙 😴 — worum geht es?', options:['Vorlesen zum Einschlafen','Astronomie','Mondkalender'], correct:'Vorlesen zum Einschlafen', d:2},
-      {q:'🎒 🏫 ⏰ — worum geht es?', options:['Morgenroutine vor der Schule','Uhren reparieren','Rucksäcke nähen'], correct:'Morgenroutine vor der Schule', d:2},
-      {q:'🧁 🎂 🎉 — worum geht es?', options:['Geburtstagstorte backen','Kerzen gießen','Konfetti basteln'], correct:'Geburtstagstorte backen', d:1},
-      {q:'🚲 🛠️ 🔧 — worum geht es?', options:['Fahrrad reparieren','Werkzeug kaufen','Motorrad fahren'], correct:'Fahrrad reparieren', d:2},
-      {q:'🐟 🪣 🎣 — worum geht es?', options:['Angeln','Aquarium putzen','Schwimmen lernen'], correct:'Angeln', d:2},
-      {q:'🎹 🎶 👏 — worum geht es?', options:['Klavier lernen','Konzertkarten','Klatschspiele'], correct:'Klavier lernen', d:2},
-      {q:'🧦 🧺 🤔 — worum geht es?', options:['Wo die zweite Socke bleibt','Wäsche falten','Körbe flechten'], correct:'Wo die zweite Socke bleibt', d:3},
-      {q:'🌧️ ☂️ 🥾 — worum geht es?', options:['Pfützen-Challenge','Wettervorhersage','Schuhe putzen'], correct:'Pfützen-Challenge', d:3},
-      {q:'🎮 😱 🏆 — worum geht es?', options:['Schwieriges Spiel geschafft','Neue Konsole','Turnier verloren'], correct:'Schwieriges Spiel geschafft', d:2}
-    ]},
-    b:{ type:'match', prompt:'Welcher Emoji-Titel gehört zu welchem Video?',
-      pairs:[
-        {l:'🍕 🧀 🔥', r:'Pizza selbst machen', d:1},
-        {l:'🐱 📦 😹', r:'Katze im Karton', d:1},
-        {l:'🏀 🎯 💯', r:'Korbleger-Challenge', d:2},
-        {l:'✏️ 📄 🎨', r:'Zeichnen lernen', d:1},
-        {l:'🧪 💥 🥽', r:'Experimente zu Hause', d:2},
-        {l:'🚀 🌕 👨‍🚀', r:'Reise zum Mond erklärt', d:3}
-      ]}
-  }
-);
-
-BADGES.entwoder   = {emoji:'🎭', name:'Entscheidungs-Held'};
-BADGES.fotoquest  = {emoji:'📸', name:'Foto-Jäger'};
-BADGES.emojiraten = {emoji:'🧩', name:'Emoji-Leser'};
 
 /* ================= Nachschub =================
    Mehr Aufgaben je Thema, gestuft nach Schwierigkeit (d:1 leicht, 2 mittel,
@@ -1431,6 +1300,15 @@ BADGES.emojiraten = {emoji:'🧩', name:'Emoji-Leser'};
       /* Die Stufenkurve wurde geändert (vorher 200 Punkte je Stufe, jetzt
          steigend). Wer nach der alten Rechnung schon weiter war, bekommt die
          Punkte gutgeschrieben - eine erreichte Stufe nimmt man niemandem weg. */
+      /* Die Spaß-Rubrik ist wieder raus - ihre Reste im Speicher mit. */
+      if(!st.spassWeg){
+        Object.keys(st.profiles).forEach(function(nm){
+          var p=st.profiles[nm]; if(!p) return;
+          delete p.galerie;
+          if(p.prog){ ['entwoder','fotoquest','emojiraten'].forEach(function(k){ delete p.prog[k]; }); }
+        });
+        st.spassWeg=true;
+      }
       if(!st.kurveV2){
         Object.keys(st.profiles).forEach(function(nm){
           var p=st.profiles[nm];
@@ -1684,7 +1562,10 @@ BADGES.emojiraten = {emoji:'🧩', name:'Emoji-Leser'};
 
   function rebuildPlan(){
     SESSION=buildSession();
-    rebuildPlanAusSession();
+    PLAN=SESSION.map(function(p){
+      var def = p.round==='a' ? p.w.a : p.w.b;
+      return { world:p.w, round:p.round, review:p.review, def:def, type:def.type };
+    });
   }
 
   function cloudPayload(){ return exportState(null,true); }
@@ -1780,7 +1661,7 @@ BADGES.emojiraten = {emoji:'🧩', name:'Emoji-Leser'};
 
   function buildSession(){
     var TARGET=6, picks=[];
-    var bySub={de:[],fr:[],ma:[],me:[],sp:[]};
+    var bySub={de:[],fr:[],ma:[],me:[]};
     WORLDS.forEach(function(w){ bySub[w.subject].push(w); });
     // Reihenfolge: Deutsch, Mathe, Französisch abwechselnd
     var order=['de','ma','fr','me'], pools={};
@@ -1846,7 +1727,7 @@ BADGES.emojiraten = {emoji:'🧩', name:'Emoji-Leser'};
     if(!pool.length) return;
     S.blitz={ pool:pool, i:0, correct:0, wrong:0, picked:null,
               endsAt:Date.now()+BLITZ_S*1000, over:false, timer:null, hop:null };
-    S.screen='blitz'; render();
+    S.screen='blitz'; render(); musikStart();
     S.blitz.timer=setInterval(blitzTick,200);
   }
   function blitzTick(){
@@ -1866,13 +1747,13 @@ BADGES.emojiraten = {emoji:'🧩', name:'Emoji-Leser'};
     meta.blitzRuns=(meta.blitzRuns|0)+1;
     meta.xp=(meta.xp||0)+b.correct*5; merkeStufe();
     save(K_META,meta); syncSoon();
-    S.screen='blitzend'; render();
+    musikStop(); S.screen='blitzend'; render();
   }
   function blitzAnswer(v){
     var b=S.blitz; if(!b||b.over||b.picked!=null) return;
     var cur=b.pool[b.i];
     b.picked=v;
-    if(v===cur.it.correct) b.correct++; else b.wrong++;
+    if(v===cur.it.correct){ b.correct++; tonRichtig(); } else { b.wrong++; tonFalsch(); }
     render();
     b.hop=setTimeout(function(){
       if(!S.blitz||S.blitz.over) return;
@@ -1893,7 +1774,7 @@ BADGES.emojiraten = {emoji:'🧩', name:'Emoji-Leser'};
         save(K_META,meta); syncSoon();
       }
     }
-    S.blitz=null; S.screen='home'; render();
+    musikStop(); S.blitz=null; S.screen='home'; render();
   }
 
   /* ================= Zustand ================= */
@@ -1902,7 +1783,7 @@ BADGES.emojiraten = {emoji:'🧩', name:'Emoji-Leser'};
     result:null, roundCorrect:0, roundTotal:0,
     sessionCorrect:0, sessionTotal:0, doneStops:[],
     scale:1, muted:false, typing:false, micMsg:null, newProf:false, delArm:false,
-    pick:{}, blitz:null, resetArm:false, fotoBild:null,
+    pick:{}, blitz:null, resetArm:false,
     order:{picked:[]}, match:{sel:null,done:[],wrong:0}, sort:{i:0,trace:[]}
   };
 
@@ -1930,6 +1811,83 @@ BADGES.emojiraten = {emoji:'🧩', name:'Emoji-Leser'};
   };
   /* Fehler, nach denen Sprechen dauerhaft keinen Sinn mehr hat */
   var MIC_FATAL={unsupported:1,blocked:1,'not-allowed':1,'service-not-allowed':1,nomic:1,'audio-capture':1,embedded:1};
+
+
+  /* ================= Töne =================
+     Alles wird im Browser erzeugt - keine Musikdateien, nichts zu laden,
+     funktioniert auch offline. Leise gehalten: Es soll begleiten, nicht
+     übertönen. Der Lautsprecher-Knopf oben schaltet alles stumm. */
+  var AC=null, musikTakt=null, musikSchritt=0;
+
+  function ac(){
+    if(AC) return AC;
+    try{
+      var K=window.AudioContext||window.webkitAudioContext;
+      if(!K) return null;
+      AC=new K();
+    }catch(e){ AC=null; }
+    return AC;
+  }
+  /* iOS gibt Ton erst nach einer echten Berührung frei. */
+  function audioAufwecken(){
+    var a=ac();
+    if(a && a.state==='suspended'){ try{ a.resume(); }catch(e){} }
+  }
+  function toeneAn(){ return !S.muted && store.toene!==false; }
+  function musikErlaubt(){ return !S.muted && store.musik!==false; }
+
+  function ton(freq, ab, dauer, laut, form){
+    var a=ac(); if(!a) return;
+    try{
+      var o=a.createOscillator(), g=a.createGain();
+      var t0=a.currentTime+ab;
+      o.type=form||'sine';
+      o.frequency.setValueAtTime(freq,t0);
+      g.gain.setValueAtTime(0.0001,t0);
+      g.gain.linearRampToValueAtTime(laut,t0+0.02);
+      g.gain.exponentialRampToValueAtTime(0.0001,t0+dauer);
+      o.connect(g); g.connect(a.destination);
+      o.start(t0); o.stop(t0+dauer+0.05);
+    }catch(e){}
+  }
+
+  function tonRichtig(){
+    if(!toeneAn()) return;
+    ton(523.25,0,0.16,0.10);      /* c' */
+    ton(659.25,0.08,0.16,0.10);   /* e' */
+    ton(783.99,0.16,0.30,0.11);   /* g' */
+  }
+  function tonFalsch(){
+    /* Bewusst weich - ein Fehler soll nicht wie eine Strafe klingen. */
+    if(!toeneAn()) return;
+    ton(392.00,0,0.14,0.07,'triangle');
+    ton(329.63,0.10,0.26,0.07,'triangle');
+  }
+  function tonStufe(){
+    if(!toeneAn()) return;
+    [[523.25,0],[659.25,0.10],[783.99,0.20],[1046.50,0.32]].forEach(function(p){
+      ton(p[0],p[1],0.36,0.12);
+    });
+  }
+
+  /* Ruhige Begleitung während der Challenges: ein paar Töne im Kreis. */
+  var MUSIK=[130.81,164.81,196.00,261.63,196.00,164.81,196.00,164.81];
+  function musikStart(){
+    musikStop();
+    if(!musikErlaubt()) return;
+    if(!ac()) return;
+    musikSchritt=0;
+    musikTakt=setInterval(function(){
+      if(!musikErlaubt()){ musikStop(); return; }
+      var f=MUSIK[musikSchritt%MUSIK.length];
+      ton(f,0,0.55,0.045,'triangle');
+      if(musikSchritt%4===0) ton(f*2,0.02,0.35,0.022,'sine');
+      musikSchritt++;
+    },470);
+  }
+  function musikStop(){
+    if(musikTakt){ clearInterval(musikTakt); musikTakt=null; }
+  }
 
   /* ---------- Vorlesen ----------
      Drei Dinge machten es vorher hölzern: eine beliebige Stimme, ein
@@ -2213,8 +2171,6 @@ BADGES.emojiraten = {emoji:'🧩', name:'Emoji-Leser'};
       '<span class="ad">Selbst aussuchen</span></button>'+
       '<button class="act" id="toBlitz"><span class="ai">⚡</span><span class="an">Blitzrunde</span>'+
       '<span class="ad">'+BLITZ_S+' Sekunden'+((meta.blitzBest|0)?' · Bestwert '+(meta.blitzBest|0):'')+'</span></button>'+
-      '<button class="act act-sp" id="toSpass"><span class="ai">🎉</span><span class="an">Spaß</span>'+
-      '<span class="ad">Ohne Punkte, ohne Druck</span></button>'+
       '<button class="act" id="toSerie"><span class="ai">🔥</span><span class="an">Serie</span>'+
       '<span class="ad">Bis zum ersten Fehler'+((meta.serieBest|0)?' · Bestwert '+(meta.serieBest|0):'')+'</span></button>'+
       '<button class="act" id="toSprint"><span class="ai">🔢</span><span class="an">Zahlen-Sprint</span>'+
@@ -2279,6 +2235,14 @@ BADGES.emojiraten = {emoji:'🧩', name:'Emoji-Leser'};
       '<div class="row"><button class="btn g" data-a="probe" data-l="de-DE">🔊 Deutsch testen</button>'+
       '<button class="btn g" data-a="probe" data-l="fr-FR">🔊 Französisch testen</button></div>'+
       '<p class="hint">'+esc(stimmenLage())+'</p>'+
+      '</div><div class="sect">'+
+      '<h3>Töne</h3>'+
+      '<p class="hint">Kurze Töne bei Antworten und leise Musik in Blitzrunde, Serie und Zahlen-Sprint.</p>'+
+      '<div class="row">'+
+      '<button class="btn '+(store.toene!==false?'p':'g')+'" data-a="toene">Antwort-Töne: '+(store.toene!==false?'an':'aus')+'</button>'+
+      '<button class="btn '+(store.musik!==false?'p':'g')+'" data-a="musik">Musik: '+(store.musik!==false?'an':'aus')+'</button>'+
+      '</div>'+
+      '<p class="hint">Der Lautsprecher oben in der Kopfzeile schaltet alles zusammen stumm.</p>'+
       '</div><div class="sect">'+
       '<h3>Großes Ziel</h3>'+
       '<p class="hint">Alle zehn Stufen gibt es etwas. Trag ein, was bei euch gilt – leer lassen nimmt den Vorschlag.</p>'+
@@ -2363,14 +2327,14 @@ BADGES.emojiraten = {emoji:'🧩', name:'Emoji-Leser'};
     var pool=blitzPool();
     if(!pool.length) return;
     S.serie={ pool:pool, i:0, streak:0, picked:null, over:false, hop:null };
-    S.screen='serie'; render();
+    S.screen='serie'; render(); musikStart();
   }
   function serieAnswer(v){
     var g=S.serie; if(!g||g.over||g.picked!=null) return;
     var cur=g.pool[g.i];
     g.picked=v;
     var ok = v===cur.it.correct;
-    if(ok) g.streak++;
+    if(ok){ g.streak++; tonRichtig(); } else tonFalsch();
     render();
     g.hop=setTimeout(function(){
       if(!S.serie||S.serie.over) return;
@@ -2386,7 +2350,7 @@ BADGES.emojiraten = {emoji:'🧩', name:'Emoji-Leser'};
     meta.serieBest=Math.max(meta.serieBest|0, g.streak);
     meta.xp=(meta.xp||0)+g.streak*5; merkeStufe();
     save(K_META,meta); syncSoon();
-    S.screen='serieend'; render();
+    musikStop(); S.screen='serieend'; render();
   }
   function serieQuit(){
     var g=S.serie;
@@ -2399,7 +2363,7 @@ BADGES.emojiraten = {emoji:'🧩', name:'Emoji-Leser'};
         save(K_META,meta); syncSoon();
       }
     }
-    S.serie=null; S.screen='home'; render();
+    musikStop(); S.serie=null; S.screen='home'; render();
   }
 
   function vSerie(){
@@ -2454,7 +2418,7 @@ BADGES.emojiraten = {emoji:'🧩', name:'Emoji-Leser'};
   function sprintStart(){
     S.sprint={ task:sprintTask(), correct:0, wrong:0, endsAt:Date.now()+SPRINT_S*1000,
                over:false, timer:null, flash:null };
-    S.screen='sprint'; render();
+    S.screen='sprint'; render(); musikStart();
     S.sprint.timer=setInterval(sprintTick,200);
     var i=document.getElementById('spIn'); if(i) i.focus();
   }
@@ -2471,8 +2435,8 @@ BADGES.emojiraten = {emoji:'🧩', name:'Emoji-Leser'};
     var i=document.getElementById('spIn');
     var v=parseNum(i?i.value:'');
     if(v===null){ if(i){ i.value=''; i.focus(); } return; }
-    if(Math.abs(v-g.task.a)<1e-9){ g.correct++; g.flash='ok'; }
-    else { g.wrong++; g.flash='no'; }
+    if(Math.abs(v-g.task.a)<1e-9){ g.correct++; g.flash='ok'; tonRichtig(); }
+    else { g.wrong++; g.flash='no'; tonFalsch(); }
     g.task=sprintTask();
     render();
     var ni=document.getElementById('spIn'); if(ni){ ni.value=''; ni.focus(); }
@@ -2483,7 +2447,7 @@ BADGES.emojiraten = {emoji:'🧩', name:'Emoji-Leser'};
     meta.sprintBest=Math.max(meta.sprintBest|0, g.correct);
     meta.xp=(meta.xp||0)+g.correct*5; merkeStufe();
     save(K_META,meta); syncSoon();
-    S.screen='sprintend'; render();
+    musikStop(); S.screen='sprintend'; render();
   }
   function sprintQuit(){
     var g=S.sprint;
@@ -2496,7 +2460,7 @@ BADGES.emojiraten = {emoji:'🧩', name:'Emoji-Leser'};
         save(K_META,meta); syncSoon();
       }
     }
-    S.sprint=null; S.screen='home'; render();
+    musikStop(); S.sprint=null; S.screen='home'; render();
   }
   function vSprint(){
     var g=S.sprint;
@@ -2666,27 +2630,6 @@ BADGES.emojiraten = {emoji:'🧩', name:'Emoji-Leser'};
     syncTimer=setTimeout(function(){ syncNow(); }, 2500);
   }
 
-  /* Drei Stationen Quatsch - eigene Runde, damit die Tagesrunde
-     weiter aus Deutsch, Mathe, Französisch und Medien besteht. */
-  function spassStart(){
-    var pool=shuffle(WORLDS.filter(function(w){ return w.subject==='sp'; }));
-    if(!pool.length) return;
-    SESSION=pool.slice(0,3).map(function(w){
-      return { w:w, round:(Math.random()<0.5?'a':'b'), review:false };
-    });
-    rebuildPlanAusSession();
-    S.screen='play'; S.stop=0; S.item=0; S.phase='intro'; S.result=null;
-    S.sessionCorrect=0; S.sessionTotal=0; S.roundCorrect=0; S.roundTotal=0;
-    S.gainXP=0; S.doneStops=[]; S.fotoBild=null;
-    touchStreak(); render();
-  }
-  function rebuildPlanAusSession(){
-    PLAN=SESSION.map(function(p){
-      var def = p.round==='a' ? p.w.a : p.w.b;
-      return { world:p.w, round:p.round, review:p.review, def:def, type:def.type };
-    });
-  }
-
   /* ================= Themen aussuchen ================= */
   function vPick(){
     var sel=Object.keys(S.pick).filter(function(k){ return S.pick[k]; });
@@ -2769,10 +2712,7 @@ BADGES.emojiraten = {emoji:'🧩', name:'Emoji-Leser'};
       h+='<div class="badge'+(have?' have':'')+'"><span class="em">'+b.emoji+'</span>'+
         '<span class="nm">'+esc(b.name)+'</span><span class="st">'+st+'</span></div>';
     });
-    h+='</div>';
-    var gal=galerieZeigen();
-    if(gal) h+='<div class="sect">'+gal+'</div>';
-    h+='</div>';
+    h+='</div></div>';
     return h;
   }
 
@@ -3107,7 +3047,7 @@ BADGES.emojiraten = {emoji:'🧩', name:'Emoji-Leser'};
     return kopie;
   }
 
-  var ANZAHL={ choice:4, input:4, order:3, sort:6, match:4, frei:1, entweder:5, foto:1 };
+  var ANZAHL={ choice:4, input:4, order:3, sort:6, match:4, frei:1 };
 
   function baueStop(st){
     var d=st.def, w=st.world, band=stufeDerAufgaben(w);
@@ -3343,60 +3283,6 @@ BADGES.emojiraten = {emoji:'🧩', name:'Emoji-Leser'};
   }
 
 
-  /* ================= Spaß-Rubrik =================
-     Hier gibt es nichts zu lernen und nichts zu gewinnen. Keine Punkte,
-     kein Richtig oder Falsch - nur Quatsch, der trotzdem zum Schreiben
-     und Nachdenken verleitet. */
-
-  /* --- Entweder – oder --- */
-  function vEntweder(){
-    var st=stop(), d=st.def, it=item(), r=S.result;
-    var h=head()+'<p class="hint">'+esc(d.prompt||'')+'</p>'+
-      '<div class="prompt" style="text-align:center">'+esc(it.q||'Was wählst du?')+'</div>'+
-      '<div class="entw">'+
-      '<button class="entwb'+(r&&r.wahl==='a'?' on':'')+'" data-a="ew" data-v="a"'+(r?' disabled':'')+'>'+esc(it.a)+'</button>'+
-      '<span class="entwo">oder</span>'+
-      '<button class="entwb'+(r&&r.wahl==='b'?' on':'')+'" data-a="ew" data-v="b"'+(r?' disabled':'')+'>'+esc(it.b)+'</button>'+
-      '</div>';
-    if(r) h+='<div class="fb ok">'+esc(r.text)+'</div>';
-    return h+nav(!!r);
-  }
-
-  /* --- Foto-Challenge --- */
-  function vFoto(){
-    var st=stop(), d=st.def, it=item(), r=S.result;
-    var h=head()+'<p class="hint">'+esc(d.prompt||'')+'</p>'+
-      '<div class="prompt">'+esc(it.q)+'</div>';
-    if(r){
-      h+='<div class="fotokarte">'+(r.bild?'<img src="'+r.bild+'" alt="Dein Foto">':'')+
-         '<p>'+esc(r.text||'')+'</p></div>'+
-         '<div class="fb ok">🎉 Ab in die Galerie! Du findest es in der Sammlung.</div>';
-      return h+nav(true);
-    }
-    h+='<div class="fotoauf">'+
-       (S.fotoBild?'<img src="'+S.fotoBild+'" alt="Vorschau">':'<div class="fotoleer">Noch kein Foto</div>')+
-       '<div class="row"><button class="btn g" id="foPick">📷 Foto wählen</button>'+
-       (S.fotoBild?'<button class="btn g" data-a="fodrop">Anderes nehmen</button>':'')+'</div>'+
-       '<input type="file" id="foFile" accept="image/*" style="display:none"></div>'+
-       '<textarea id="foText" class="freitext" placeholder="Schreib zwei Sätze dazu …"></textarea>'+
-       '<p class="hint" id="foLine">Foto ist freiwillig – ein Text reicht auch.</p>'+
-       '<div class="row"><span class="sp"></span><button class="btn p" data-a="fook">Fertig</button></div>';
-    return h;
-  }
-
-  /* --- Galerie --- */
-  function galerie(){ var p=store.profiles[store.active]; return (p&&p.galerie)||[]; }
-  function galerieZeigen(){
-    var g=galerie();
-    if(!g.length) return '';
-    return '<h3>📸 Deine Foto-Challenges</h3><div class="galgrid">'+
-      g.slice().reverse().map(function(e,i){
-        return '<figure class="galitem">'+(e.bild?'<img src="'+e.bild+'" alt="">':'<div class="fotoleer">ohne Foto</div>')+
-          '<figcaption>'+esc(e.text||'')+'<span>'+esc(e.aufgabe||'')+' · '+fmtDate(e.d)+'</span></figcaption>'+
-          '<button class="btn g" data-a="galdel" data-v="'+(g.length-1-i)+'">Löschen</button></figure>';
-      }).join('')+'</div>';
-  }
-
   function vPlay(){
     var t=stop().def.type;
     if(t==='choice') return '<div class="card">'+vChoice()+'</div>';
@@ -3406,8 +3292,6 @@ BADGES.emojiraten = {emoji:'🧩', name:'Emoji-Leser'};
     if(t==='match')  return '<div class="card">'+vMatch()+'</div>';
     if(t==='sort')   return '<div class="card">'+vSort()+'</div>';
     if(t==='frei')   return '<div class="card">'+vFrei()+'</div>';
-    if(t==='entweder')return '<div class="card">'+vEntweder()+'</div>';
-    if(t==='foto')   return '<div class="card">'+vFoto()+'</div>';
     return '<div class="card">Unbekannte Aufgabe</div>';
   }
 
@@ -3468,7 +3352,8 @@ BADGES.emojiraten = {emoji:'🧩', name:'Emoji-Leser'};
 
   function recordAnswer(ok){
     S.roundTotal++; S.sessionTotal++;
-    if(ok){ S.roundCorrect++; S.sessionCorrect++; }
+    if(ok){ S.roundCorrect++; S.sessionCorrect++; tonRichtig(); }
+    else tonFalsch();
   }
 
   function finishStop(){
@@ -3510,6 +3395,7 @@ BADGES.emojiraten = {emoji:'🧩', name:'Emoji-Leser'};
       save(K_META,meta);
       syncSoon();
       S.screen='finish'; render();
+      if(faelligeMeile(stufeVon(meta.xp))) tonStufe();
       cloudSave(function(){ paintCloudLine(); });
     }
   }
@@ -3557,13 +3443,21 @@ BADGES.emojiraten = {emoji:'🧩', name:'Emoji-Leser'};
   /* ================= Ereignisse ================= */
   var lastClick=0;
   document.addEventListener('click',function(ev){
-    var t=ev.target.closest('[data-a],#go,#again,#toColl,#toRep,#back,#pr,#pdf,#csv,#cloud,#stExp,#stImp,#stCode,#stRead,#doRen,#doDel,#doDelNo,#doReset,#doResetNo,#doDiag,#stShare,#rewSave,#syOn,#syNow,#syOff,#avPick,#avDrop,#foPick,#toPick,#toBlitz,#toSpass,#toSerie,#toSprint,#zielOk,#bSet,#nmMic,#bPlus,#bMinus,#bSound,#bTheme');
+    var t=ev.target.closest('[data-a],#go,#again,#toColl,#toRep,#back,#pr,#pdf,#csv,#cloud,#stExp,#stImp,#stCode,#stRead,#doRen,#doDel,#doDelNo,#doReset,#doResetNo,#doDiag,#stShare,#rewSave,#syOn,#syNow,#syOff,#avPick,#avDrop,#toPick,#toBlitz,#toSerie,#toSprint,#zielOk,#bSet,#nmMic,#bPlus,#bMinus,#bSound,#bTheme');
     if(!t) return;
     var now=Date.now(); if(now-lastClick<220) return; lastClick=now;
+    audioAufwecken();
 
     if(t.id==='bPlus'){ S.scale=Math.min(1.4,+(S.scale+0.1).toFixed(2)); render(); return; }
     if(t.id==='bMinus'){ S.scale=Math.max(.85,+(S.scale-0.1).toFixed(2)); render(); return; }
-    if(t.id==='bSound'){ S.muted=!S.muted; if(S.muted&&window.speechSynthesis) speechSynthesis.cancel(); render(); return; }
+    if(t.id==='bSound'){
+      S.muted=!S.muted;
+      if(S.muted){
+        musikStop();
+        if(window.speechSynthesis) speechSynthesis.cancel();
+      }
+      render(); return;
+    }
     if(t.id==='bTheme'){
       var c=document.documentElement.getAttribute('data-theme');
       var n=c==='dark'?'light':(c==='light'?null:'dark');
@@ -3595,7 +3489,6 @@ BADGES.emojiraten = {emoji:'🧩', name:'Emoji-Leser'};
     }
     if(t.id==='toPick'){ S.back=S.screen; S.screen='pick'; render(); return; }
     if(t.id==='toBlitz'){ blitzStart(); return; }
-    if(t.id==='toSpass'){ spassStart(); return; }
     if(t.id==='toSerie'){ serieStart(); return; }
     if(t.id==='toSprint'){ sprintStart(); return; }
     if(t.id==='zielOk'){
@@ -3609,11 +3502,6 @@ BADGES.emojiraten = {emoji:'🧩', name:'Emoji-Leser'};
     if(t.id==='cloud'){
       t.disabled=true; paintCloudLine('☁ Wird gesichert …');
       cloudSave(function(){ t.disabled=false; paintCloudLine(); });
-      return;
-    }
-    if(t.id==='foPick'){
-      var ff=document.getElementById('foFile');
-      if(ff) ff.click();
       return;
     }
     if(t.id==='avPick'){
@@ -3773,7 +3661,7 @@ BADGES.emojiraten = {emoji:'🧩', name:'Emoji-Leser'};
     if(a==='spnew'){ sprintStart(); return; }
     if(a==='bzquit'){ blitzQuit(); return; }
     if(a==='bzagain'){ blitzStart(); return; }
-    if(a==='bzhome'){ S.blitz=null; S.screen='home'; render(); return; }
+    if(a==='bzhome'){ musikStop(); S.blitz=null; S.screen='home'; render(); return; }
     if(a==='av'){
       var err=setAvatar(store.active,t.getAttribute('data-v'));
       render(); paintPfLine(err||'');
@@ -3783,6 +3671,18 @@ BADGES.emojiraten = {emoji:'🧩', name:'Emoji-Leser'};
       var l=t.getAttribute('data-l')||'de-DE';
       speak(l==='fr-FR' ? "Bonjour ! Aujourd'hui, la classe visite la ferme. Les élèves voient des vaches et deux chevaux."
                         : 'Guten Tag! Heute üben wir zusammen. Der Hund lief über die Wiese und bellte zweimal.', l);
+      return;
+    }
+    if(a==='toene'){
+      store.toene = (store.toene===false);
+      persist(); render();
+      if(store.toene!==false) tonRichtig();
+      return;
+    }
+    if(a==='musik'){
+      store.musik = (store.musik===false);
+      persist(); render();
+      if(store.musik!==false){ musikStart(); setTimeout(musikStop,2400); }
       return;
     }
     if(a==='tempo'){
@@ -3841,36 +3741,6 @@ BADGES.emojiraten = {emoji:'🧩', name:'Emoji-Leser'};
       return;
     }
 
-    if(a==='ew'){
-      var it=item(), wahl=t.getAttribute('data-v');
-      var txt=(it.reaktion && it.reaktion[wahl]) || 'Gute Wahl!';
-      S.result={ wahl:wahl, text:txt, ok:true };
-      recordAnswer(true); render(); return;
-    }
-    if(a==='fodrop'){ S.fotoBild=null; render(); return; }
-    if(a==='fook'){
-      var ta=document.getElementById('foText');
-      var txt2=(ta?ta.value:'').trim();
-      var it2=item();
-      if(!S.fotoBild && txt2.length<20){
-        var fl=document.getElementById('foLine');
-        if(fl) fl.textContent='Schreib noch ein bisschen mehr – oder wähle ein Foto.';
-        return;
-      }
-      var p=store.profiles[store.active];
-      p.galerie=p.galerie||[];
-      p.galerie.push({ bild:S.fotoBild||null, text:txt2, aufgabe:it2.q, d:new Date().toISOString() });
-      while(p.galerie.length>6) p.galerie.shift();
-      persist();
-      S.result={ bild:S.fotoBild, text:txt2, ok:true };
-      S.fotoBild=null;
-      recordAnswer(true); render(); return;
-    }
-    if(a==='galdel'){
-      var p2=store.profiles[store.active], i2=parseInt(t.getAttribute('data-v'),10);
-      if(p2 && p2.galerie && p2.galerie[i2]!=null){ p2.galerie.splice(i2,1); persist(); render(); }
-      return;
-    }
     if(a==='freiok'){
       var ta=document.getElementById('freiIn');
       var txt=(ta?ta.value:'').trim();
@@ -3935,16 +3805,6 @@ BADGES.emojiraten = {emoji:'🧩', name:'Emoji-Leser'};
 
   document.addEventListener('change',function(ev){
     var t=ev.target;
-    if(t && t.id==='foFile' && t.files && t.files[0]){
-      var fol=document.getElementById('foLine');
-      if(fol) fol.textContent='Bild wird verkleinert …';
-      processAvatar(t.files[0], function(bild,fehler){
-        if(fehler){ if(fol) fol.textContent=fehler; return; }
-        S.fotoBild=bild; render();
-      }, 320, 45000);
-      t.value='';
-      return;
-    }
     if(t && t.id==='avFile' && t.files && t.files[0]){
       paintPfLine('Bild wird verkleinert …');
       processAvatar(t.files[0],function(dataUrl,err){
