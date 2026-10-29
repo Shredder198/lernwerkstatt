@@ -1,0 +1,85 @@
+# IFEN-Weiterbildungen 2026/27 – Gilles
+#
+# Aus dieser Datei baut kalender/ifen.py die Datei kalender/out/ifen.ics.
+# Nach jedem Push baut GitHub die .ics automatisch neu, abonnierte
+# Kalender holen sich die Änderung von selbst.
+#
+# Felder pro Termin:
+#   titel:   Pflicht. Was im Kalender steht.
+#   datum:   Pflicht. JJJJ-MM-TT
+#   beginn:  HH:MM (weglassen = ganztägig)
+#   ende:    HH:MM
+#   ort:     optional
+#   kurs:    optional, IFEN-Kursnummer
+#   notiz:   optional, landet in der Beschreibung
+#   status:  bestaetigt | vorschlag | offen   (Standard: bestaetigt)
+#            "vorschlag" und "offen" werden im Kalender als vorläufig markiert
+#            und bekommen ein "?" vor den Titel.
+#
+# Zeitzone für alle Termine: Europe/Luxembourg
+
+zeitzone: Europe/Luxembourg
+kalendername: IFEN Weiterbildungen 2026/27
+
+termine:
+
+  # --- Wahlmodule (Vorschläge) ---------------------------------------------
+
+  - titel: "KI am Klassenzëmmer (Gr. 1/2)"
+    kurs: ES-C905-FE
+    datum: 2027-01-04
+    beginn: "13:00"
+    ende: "16:00"
+    status: vorschlag
+
+  - titel: "KI am Klassenzëmmer (Gr. 1/2)"
+    kurs: ES-C905-FE
+    datum: 2027-01-11
+    beginn: "13:00"
+    ende: "16:00"
+    status: vorschlag
+
+  - titel: "Online Unterrichten mit M365"
+    kurs: ES-C907-FE
+    datum: 2027-01-18
+    beginn: "13:00"
+    ende: "16:00"
+    status: vorschlag
+
+  - titel: "Online Unterrichten mit M365"
+    kurs: ES-C907-FE
+    datum: 2027-01-25
+    beginn: "13:00"
+    ende: "16:00"
+    status: vorschlag
+
+  - titel: "Online Unterrichten mit M365"
+    kurs: ES-C907-FE
+    datum: 2027-02-01
+    beginn: "13:00"
+    ende: "16:00"
+    status: vorschlag
+
+  # --- Module M2 / M3 / M4 -------------------------------------------------
+  # Die Termine stehen in "IFEN Planning 2026-2027.pdf". Bis sie hier
+  # eingetragen sind, sind die Module auskommentiert. Zum Aktivieren
+  # die Raute (#) vor den Zeilen entfernen und Datum/Zeit eintragen.
+
+  # - titel: "Modul M2"
+  #   datum: 2026-MM-TT
+  #   beginn: "HH:MM"
+  #   ende: "HH:MM"
+  #   ort: ""
+  #   status: offen
+
+  # - titel: "Modul M3"
+  #   datum: 2027-MM-TT
+  #   beginn: "HH:MM"
+  #   ende: "HH:MM"
+  #   status: offen
+
+  # - titel: "Modul M4"
+  #   datum: 2027-MM-TT
+  #   beginn: "HH:MM"
+  #   ende: "HH:MM"
+  #   status: offen
