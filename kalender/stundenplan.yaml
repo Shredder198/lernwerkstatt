@@ -1,0 +1,28 @@
+# Wochen-Stundenplan
+# BEISPIEL: bitte durch den echten Stundenplan ersetzen.
+#
+# Felder pro Stunde:
+#   tag:    Mo, Di, Mi, Do, Fr (oder Montag ... Freitag)
+#   von:    Startzeit "HH:MM"
+#   bis:    Endzeit "HH:MM"
+#   klasse: z. B. 5C1
+#   fach:   z. B. Deutsch
+#   raum:   z. B. B204
+#   notiz:  optional, landet in der Terminbeschreibung
+#
+# Optional pro Stunde: gueltig_ab / gueltig_bis (YYYY-MM-DD), falls sich der
+# Plan im Laufe des Jahres ändert.
+
+zeitzone: Europe/Luxembourg
+ferien: ferien_lu_2026_27.yaml
+
+stunden:
+  - {tag: Mo, von: "08:00", bis: "08:50", klasse: 5C1, fach: Deutsch,      raum: B204}
+  - {tag: Mo, von: "08:50", bis: "09:40", klasse: 5C1, fach: Deutsch,      raum: B204}
+  - {tag: Mo, von: "10:00", bis: "10:50", klasse: 6G2, fach: Französisch,  raum: A113}
+  - {tag: Di, von: "09:40", bis: "10:30", klasse: 7C3, fach: Deutsch,      raum: B210}
+  - {tag: Di, von: "13:50", bis: "14:40", klasse: 5C1, fach: Klassenstunde, raum: B204, notiz: Klassenlehrerstunde}
+  - {tag: Mi, von: "08:00", bis: "08:50", klasse: 6G2, fach: Französisch,  raum: A113}
+  - {tag: Do, von: "10:50", bis: "11:40", klasse: 7C3, fach: Deutsch,      raum: B210}
+  - {tag: Do, von: "11:40", bis: "12:30", klasse: 7C3, fach: Deutsch,      raum: B210}
+  - {tag: Fr, von: "08:50", bis: "09:40", klasse: 6G2, fach: Französisch,  raum: A113}

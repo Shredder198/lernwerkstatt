@@ -1,0 +1,42 @@
+# Luxemburgische Schulferien und schulfreie Tage, Schuljahr 2026/2027
+# (Grundschule und Lycée, Standardkalender).
+# Quelle: Projet de règlement grand-ducal fixant les vacances et congés scolaires
+#   pour les années 2024/2025 à 2026/2027, Art. 1er, 3°
+#   https://conseil-etat.public.lu/content/dam/conseil_etat/fr/avis/2024/25062024/61840-texte-du-projet-de-rglement-grand-ducal-24052024.pdf
+# Gegengeprüft mit https://www.justarrived.lu/blog/generalites-luxembourg/jours-feries-vacances-scolaires
+#
+# Alle Daten inklusive (von/bis).
+
+schuljahr:
+  beginn: 2026-09-15   # Rentrée
+  ende: 2027-07-15     # letzter Schultag
+
+ferien:
+  - name: Allerheiligenferien
+    von: 2026-10-31
+    bis: 2026-11-08
+  - name: Weihnachtsferien
+    von: 2026-12-19
+    bis: 2027-01-03
+  - name: Fastnachtsferien
+    von: 2027-02-06
+    bis: 2027-02-14
+  - name: Osterferien
+    von: 2027-03-27
+    bis: 2027-04-11
+  - name: Pfingstferien
+    von: 2027-05-29
+    bis: 2027-06-06
+  - name: Sommerferien
+    von: 2027-07-16
+    bis: 2027-09-14
+
+freie_tage:
+  - name: Tag der Arbeit
+    datum: 2027-05-01
+  - name: Christi Himmelfahrt
+    datum: 2027-05-06
+  - name: Pfingstmontag
+    datum: 2027-05-17
+  - name: Nationalfeiertag
+    datum: 2027-06-23
